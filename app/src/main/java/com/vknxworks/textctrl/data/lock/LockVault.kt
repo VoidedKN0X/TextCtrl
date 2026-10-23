@@ -38,9 +38,9 @@ import javax.crypto.spec.SecretKeySpec
  *
  * Nothing here ever stores the PIN itself.
  */
-class LockVault(context: Context, private val aliasPrefix: String) {
+class LockVault(context: Context, private val aliasPrefix: String, prefsName: String = "app_lock_vault") {
     private val appContext = context.applicationContext
-    private val prefs = appContext.getSharedPreferences("app_lock_vault", Context.MODE_PRIVATE)
+    private val prefs = appContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
     private val random = SecureRandom()
 
     private var _enabled by mutableStateOf(prefs.contains(K_PIN_WRAPPED))

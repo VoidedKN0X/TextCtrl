@@ -44,6 +44,7 @@ class MessageStore(private val context: Context) {
     suspend fun conversations(): List<Conversation> = withContext(Dispatchers.IO) {
         val addresses = canonicalAddresses()
         val unread = unreadCounts()
+        val outgoing = threadsWithOutgoing()
         val out = ArrayList<Conversation>()
         cr.query(
             THREADS_URI,
@@ -62,6 +63,7 @@ class MessageStore(private val context: Context) {
                     unread = unread[id] ?: 0,
                     hasAttachment = c.int("has_attachment") != 0,
                     hasError = c.int("error") != 0,
+                    hasOutgoing = id in outgoing,
                 )
             }
         }
@@ -86,6 +88,24 @@ class MessageStore(private val context: Context) {
             while (c.moveToNext()) map[c.long("_id")] = c.str("address")
         }
         return map
+    }
+
+    private fun threadsWithOutgoing(): Set<Long> {
+        val ids = HashSet<Long>()
+        cr.query(SMS_URI, arrayOf("thread_id"), "type IN (2, 4, 5, 6)", null, null)?.use { c ->
+            while (c.moveToNext()) ids += c.getLong(0)
+        }
+        cr.query(MMS_URI, arrayOf("thread_id"), "msg_box IN (2, 4, 5)", null, null)?.use { c ->
+            while (c.moveToNext()) ids += c.getLong(0)
+        }
+        return ids
+    }
+
+    /** Whether you've ever sent something in [threadId]. */
+    suspend fun hasOutgoing(threadId: Long): Boolean = withContext(Dispatchers.IO) {
+        val args = arrayOf(threadId.toString())
+        val sms = cr.query(SMS_URI, arrayOf("_id"), "thread_id = ? AND type IN (2, 4, 5, 6)", args, "date DESC LIMIT 1")?.use { it.count > 0 } ?: false
+        sms || (cr.query(MMS_URI, arrayOf("_id"), "thread_id = ? AND msg_box IN (2, 4, 5)", args, "date DESC LIMIT 1")?.use { it.count > 0 } ?: false)
     }
 
     private fun unreadCounts(): Map<Long, Int> {
@@ -308,6 +328,14 @@ class MessageStore(private val context: Context) {
     suspend fun deleteThread(threadId: Long) = withContext(Dispatchers.IO) {
         cr.delete(ContentUris.withAppendedId(THREADS_DELETE_URI, threadId), null, null)
         Unit
+    }
+
+    /** Auto-delete: messages in [threadId] older than [cutoff] (ms), except ones marked as kept. */
+    fun deleteOlderThan(threadId: Long, cutoff: Long): Int {
+        val args = arrayOf(threadId.toString())
+        var n = runCatching { cr.delete(SMS_URI, "thread_id = ? AND date < $cutoff AND locked = 0", args) }.getOrDefault(0)
+        n += runCatching { cr.delete(MMS_URI, "thread_id = ? AND date < ${cutoff / 1000} AND locked = 0", args) }.getOrDefault(0)
+        return n
     }
 
     suspend fun deleteMessage(message: Message) = withContext(Dispatchers.IO) {

@@ -1,6 +1,7 @@
 package com.vknxworks.textctrl.data.settings
 
 import android.content.Context
+import com.vknxworks.textctrl.data.crypto.KeystoreCrypto
 import com.vknxworks.textctrl.data.lock.LockVault
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,11 +29,50 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     /** Chats with an unsent draft. */
     val drafts: StateFlow<Set<Long>> = _drafts.asStateFlow()
 
+    private val _hidden = MutableStateFlow(readHidden())
+    /**
+     * Hidden chats. Which chats they are is encrypted with a key in the phone's secure hardware, so a copy
+     * of TextCtrl's files doesn't tell; the hidden-chats PIN guards the screen that shows them.
+     */
+    val hidden: StateFlow<Set<Long>> = _hidden.asStateFlow()
+
+    private val _autoDelete = MutableStateFlow(readAutoDelete())
+    /** Chats with their own auto-delete choice, instead of the one in Settings. */
+    val autoDelete: StateFlow<Map<Long, AutoDelete>> = _autoDelete.asStateFlow()
+
     fun setPinned(threadId: Long, on: Boolean) = toggle(K_PINNED, _pinned, threadId, on)
     fun setArchived(threadId: Long, on: Boolean) = toggle(K_ARCHIVED, _archived, threadId, on)
     fun setMuted(threadId: Long, on: Boolean) = toggle(K_MUTED, _muted, threadId, on)
 
     fun isMuted(threadId: Long) = threadId in _muted.value
+
+    fun setHidden(threadId: Long, on: Boolean) {
+        val next = if (on) _hidden.value + threadId else _hidden.value - threadId
+        if (next == _hidden.value) return
+        _hidden.value = next
+        prefs.edit().putString(K_HIDDEN, KeystoreCrypto.encrypt(next.joinToString(","))).apply()
+    }
+
+    fun isHidden(threadId: Long) = threadId in _hidden.value
+
+    private fun readHidden(): Set<Long> {
+        val raw = prefs.getString(K_HIDDEN, null) ?: return emptySet()
+        return KeystoreCrypto.decrypt(raw).orEmpty().split(',').mapNotNull { it.toLongOrNull() }.toSet()
+    }
+
+    /** [mode] null: follow Settings. */
+    fun setAutoDelete(threadId: Long, mode: AutoDelete?) {
+        val next = if (mode == null) _autoDelete.value - threadId else _autoDelete.value + (threadId to mode)
+        _autoDelete.value = next
+        prefs.edit().putString(K_AUTO_DELETE, next.entries.joinToString(",") { "${it.key}:${it.value.name}" }).apply()
+    }
+
+    private fun readAutoDelete(): Map<Long, AutoDelete> =
+        prefs.getString(K_AUTO_DELETE, null).orEmpty().split(',').mapNotNull { entry ->
+            val id = entry.substringBefore(':').toLongOrNull() ?: return@mapNotNull null
+            val mode = AutoDelete.entries.firstOrNull { it.name == entry.substringAfter(':') } ?: return@mapNotNull null
+            id to mode
+        }.toMap()
 
     /** A new message brings an archived chat back, like in other messaging apps. */
     fun unarchive(threadId: Long) {
@@ -44,6 +84,8 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setPinned(threadId, false)
         setArchived(threadId, false)
         setMuted(threadId, false)
+        setHidden(threadId, false)
+        setAutoDelete(threadId, null)
         saveDraft(threadId, "")
     }
 
@@ -131,5 +173,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val K_ARCHIVED = "archived"
         const val K_MUTED = "muted"
         const val K_DRAFTS = "draft_ids"
+        const val K_HIDDEN = "hidden_enc"
+        const val K_AUTO_DELETE = "auto_delete"
     }
 }

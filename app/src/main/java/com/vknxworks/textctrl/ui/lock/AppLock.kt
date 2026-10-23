@@ -156,7 +156,8 @@ object AppLock {
     }
 
     /** The current trip away was started by the app itself (camera, picker, share sheet …). */
-    private var exemptTrip = false
+    var exemptTrip = false
+        private set
 
     fun onBackground(enabled: Boolean, timeoutMillis: Long) {
         if (authenticating) return
@@ -621,7 +622,7 @@ private fun PinSetupScreen(
 }
 
 @Composable
-private fun PinPadScreen(
+internal fun PinPadScreen(
     title: String,
     message: String,
     isError: Boolean,

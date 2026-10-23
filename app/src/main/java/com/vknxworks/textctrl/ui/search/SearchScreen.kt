@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +19,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,7 +53,10 @@ import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.sms.Contacts
 import com.vknxworks.textctrl.sms.SearchHit
+import com.vknxworks.textctrl.ui.chats.ChatItem
+import com.vknxworks.textctrl.ui.chats.rememberChats
 import com.vknxworks.textctrl.ui.components.Avatar
+import com.vknxworks.textctrl.ui.components.ChoiceSheet
 import com.vknxworks.textctrl.ui.components.LocalBottomClearance
 import com.vknxworks.textctrl.ui.components.MessageView
 import com.vknxworks.textctrl.ui.components.TabTitle
@@ -70,6 +77,10 @@ fun SearchScreen() {
     val nav = LocalNavigator.current
     val focus = LocalFocusManager.current
     var query by rememberSaveable { mutableStateOf("") }
+    var personThread by rememberSaveable { mutableStateOf<Long?>(null) }
+    var pickingPerson by remember { mutableStateOf(false) }
+    val hidden by c.chats.hidden.collectAsStateWithLifecycle()
+    val chats by rememberChats()
     val changes by c.store.changes.collectAsStateWithLifecycle()
     val results by produceState<List<Found>?>(null, query, changes) {
         if (query.trim().length < 2) {
@@ -78,7 +89,12 @@ fun SearchScreen() {
         }
         delay(250)
         value = runCatching {
-            withContext(Dispatchers.IO) { c.store.search(query).map { Found(it, c.contacts.displayName(it.address.substringBefore(", "))) } }
+            withContext(Dispatchers.IO) {
+                c.store.search(query)
+                    // Hidden chats stay out of search unless they're showing.
+                    .filter { c.hiddenOpen || it.threadId !in c.chats.hidden.value }
+                    .map { Found(it, c.contacts.displayName(it.address.substringBefore(", "))) }
+            }
         }.getOrDefault(emptyList())
     }
 
@@ -104,7 +120,18 @@ fun SearchScreen() {
                 unfocusedIndicatorColor = Color.Transparent,
             ),
         )
-        val list = results
+        // Only one chat's messages, when a person is picked.
+        val personTitle = chats?.firstOrNull { it.conversation.threadId == personThread }?.title
+        Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 4.dp)) {
+            FilterChip(
+                selected = personThread != null,
+                onClick = { if (personThread != null) personThread = null else pickingPerson = true },
+                label = { Text(personTitle?.let { stringResource(R.string.search_in, it) } ?: stringResource(R.string.search_everyone), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                leadingIcon = { Icon(Icons.Outlined.Person, null, Modifier.size(18.dp)) },
+                trailingIcon = if (personThread != null) { { Icon(Icons.Filled.Close, stringResource(R.string.clear), Modifier.size(18.dp)) } } else null,
+            )
+        }
+        val list = results?.filter { personThread == null || it.hit.threadId == personThread }
         when {
             list == null -> MessageView(
                 Icons.Filled.Search,
@@ -154,6 +181,17 @@ fun SearchScreen() {
             }
         }
     }
+    SearchPersonSheet(
+        open = pickingPerson,
+        chats = chats?.filter { c.hiddenOpen || it.conversation.threadId !in hidden },
+        onPick = { personThread = it; pickingPerson = false },
+        onDismiss = { pickingPerson = false },
+    )
+}
+
+@Composable
+private fun SearchPersonSheet(open: Boolean, chats: List<ChatItem>?, onPick: (Long) -> Unit, onDismiss: () -> Unit) {
+    if (open && chats != null) PersonPicker(chats, onPick, onDismiss)
 }
 
 /** The text around the first match, with the matches in bold. */
@@ -177,3 +215,14 @@ private fun highlight(text: String, query: String, color: Color) = buildAnnotate
 
 @Suppress("unused")
 private fun nameOrNumber(address: String) = Contacts.formatNumber(address)
+
+@Composable
+private fun PersonPicker(chats: List<ChatItem>, onPick: (Long) -> Unit, onDismiss: () -> Unit) {
+    ChoiceSheet(
+        stringResource(R.string.search_pick_person),
+        chats.map { it.conversation.threadId to it.title },
+        null,
+        onDismiss = onDismiss,
+        onPick = onPick,
+    )
+}

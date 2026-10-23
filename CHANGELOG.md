@@ -4,6 +4,36 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.0 (2026-10-23)
+
+Scheduling, reactions, hidden chats, encrypted backups and a lot more ways to organise your chats.
+
+### New
+
+- **Scheduled messages.** Hold the send button (or tap the + button › Schedule message) and pick in an hour, tonight, tomorrow morning or afternoon, or any date and time. The message waits in the chat with its time; tap it to send it now, edit it or delete it. It goes out on time even when TextCtrl is closed or the phone restarted in between. You › Scheduled messages lists everything waiting in all chats.
+- **Undo send.** After you tap send, a message waits 5 seconds with an **Undo** button before it really goes out; Undo puts it back in the text field. Choose 5 or 10 seconds, or turn it off, under Settings › Messages › Undo send. Replies from a notification still go out straight away.
+- **Reactions.** Select a message and tap the smiley to react with 👍 ❤️ 😂 😮 😢 👎 ‼️ or ❓; pick it again to take it back. Reactions are sent as texts in the format iPhones and Google Messages use with phones on plain SMS ("Liked “see you at 8”"), so they show up properly on other phones too, and reactions people send you show as small badges on the message instead of separate texts. No Google services or RCS involved.
+- **Copy one-time codes.** Verification codes get a **Copy** button under the message and in its notification, so you don't have to open the chat. Turn it off under Settings › Messages › Copy one-time codes.
+- **Select several chats or messages.** Long-press a chat to start selecting; then mark them read or unread, pin, archive, mute, hide, block or delete them in one go. In a chat, long-press messages to copy, forward, save, react to, retry, see details of or delete them.
+- **Search in a chat.** Chat menu › Search in chat finds words in that chat, with "2 of 7" and buttons to jump between older and newer matches.
+- **Search by person.** On the Search tab, tap **Everyone** to search one chat only.
+- **Unread filter.** The Chats tab has **All** and **Unread** filters, with the number of unread chats.
+- **Notification sound per chat.** Chat menu › Notification sound gives a chat its own sound and vibration in Android's settings.
+- **Unknown senders.** Settings › Privacy and security › Separate unknown senders keeps texts from numbers that aren't in your contacts (and that you never wrote to) out of your chats, in their own **Unknown senders** filter. They can still notify you or arrive quietly. All of this happens on the phone, with no spam service.
+- **Hidden chats.** Chat menu › Hide chat moves a chat behind a PIN of its own (separate from the app lock). Hidden chats stay out of Chats, Archived, Search and the widget, their notifications never show names or text, and they close again as soon as you leave TextCtrl. Open them under You › Hidden chats.
+- **Delete old messages.** Settings › Privacy and security › Delete old messages removes messages older than 30 days, 90 days or a year, once a day; each chat can have its own choice in its menu, or never delete. TextCtrl asks before turning it on, since it deletes straight away.
+- **Backup and restore.** You › Backup and restore saves every text and picture message to one file encrypted with a password you choose, wherever you like (phone, USB stick, any storage app), and restores it on a new phone without adding messages twice. Nothing goes to Google or any server.
+- **Bubble colour and text size.** Settings › Appearance: pick the colour of your own message bubbles and a bigger or smaller text size for chats.
+- **Recent chats widget** for your home screen, with a New chat button. It hides your chats while the app lock is on and leaves out hidden and archived chats; message text follows "Notification content".
+- **Tablets and unfolded foldables** show the chat list and the open chat side by side.
+
+### Security
+
+- **Scheduled messages and the list of hidden chats are encrypted** with a key kept in the phone's secure hardware, so a copy of TextCtrl's files doesn't reveal them. Their attachments are copied into TextCtrl's private storage until they're sent.
+- **Backups are encrypted with AES-256-GCM** using a key made from your password (PBKDF2, 600,000 rounds), in chunks that can't be reordered, swapped or cut off without TextCtrl noticing. A wrong password, a damaged file or an incomplete one each get their own clear message.
+- **The hidden chats PIN** works like the app lock's (stretched with PBKDF2 and the phone's secure hardware, waits after wrong tries) and its screens are kept out of screenshots. Forgetting it needs your phone's own screen lock to reset, and the hidden chats come back to Chats.
+- **Still no internet access.** Scheduling uses Android's alarms, backups go to a file you pick, and reactions are ordinary texts.
+
 ## v0.1.0 (2026-10-23)
 
 The first release of TextCtrl: a private, Google-free SMS and MMS app in the Ctrl series.

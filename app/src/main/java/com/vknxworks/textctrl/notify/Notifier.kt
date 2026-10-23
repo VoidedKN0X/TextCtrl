@@ -26,6 +26,8 @@ import com.vknxworks.textctrl.data.settings.SettingsRepository
 import com.vknxworks.textctrl.sms.Contacts
 import com.vknxworks.textctrl.sms.Message
 import com.vknxworks.textctrl.sms.MessageStore
+import com.vknxworks.textctrl.sms.OneTimeCode
+import kotlinx.coroutines.flow.first
 import com.vknxworks.textctrl.str
 
 /**
@@ -73,7 +75,17 @@ class Notifier(
             return
         }
         if (chats.isMuted(threadId)) return
+        val s = settings.stored.first()
+        // Texts from strangers can stay quiet when they're kept apart from your chats.
+        if (s.separateUnknown && !s.notifyUnknown && isUnknown(threadId)) return
         show(threadId, alert = true)
+    }
+
+    /** One person, not in your contacts, and you never wrote to them. */
+    suspend fun isUnknown(threadId: Long): Boolean {
+        val addresses = store.threadAddresses(threadId)
+        if (addresses.size != 1 || !contacts.granted) return false
+        return contacts.lookup(addresses[0]).name == null && !store.hasOutgoing(threadId)
     }
 
     /** Shows (or updates, or removes) the notification of [threadId] for its unread messages. */
@@ -84,13 +96,16 @@ class Notifier(
             cancel(threadId)
             return
         }
-        val content = settings.settings.value.notificationContent
+        val s = settings.stored.first()
+        val hidden = chats.isHidden(threadId)
+        // A hidden chat never shows who it's with or what was said.
+        val content = if (hidden) NotificationContent.NOTHING else s.notificationContent
         val addresses = store.threadAddresses(threadId).ifEmpty { listOf(unread.last().address) }
         val group = addresses.size > 1
         val title = addresses.joinToString(", ") { contacts.displayName(it) }
         val open = openIntent(threadId)
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_MESSAGES)
+        val builder = NotificationCompat.Builder(context, channelFor(threadId))
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(ACCENT)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
@@ -106,6 +121,11 @@ class Notifier(
             .setAllowSystemGeneratedContextualActions(false)
             .addAction(replyAction(threadId))
             .addAction(markReadAction(threadId))
+        // "Copy code" for a one-time code in the newest message.
+        if (s.copyCodes) {
+            val code = unread.lastOrNull()?.body?.let { OneTimeCode.find(it) }
+            if (code != null) builder.addAction(copyCodeAction(threadId, code, showCode = content == NotificationContent.NAME_AND_MESSAGE))
+        }
 
         when (content) {
             NotificationContent.NOTHING -> builder
@@ -127,7 +147,7 @@ class Notifier(
                 builder.setStyle(style).setContentTitle(title)
                 // Conversation shortcuts put the chat in Android's Conversations section. Not with the app
                 // lock on: they'd show names in the launcher and share sheet.
-                if (!vault.enabled) {
+                if (!vault.enabled && !hidden) {
                     runCatching {
                         val shortcut = ShortcutInfoCompat.Builder(context, shortcutId(threadId))
                             .setShortLabel(title.take(40).ifBlank { str(R.string.app_name) })
@@ -148,7 +168,7 @@ class Notifier(
     /** A message to [threadId] couldn't be sent. */
     suspend fun notifyFailed(threadId: Long) {
         if (!allowed || threadId == visibleChat) return
-        val content = settings.settings.value.notificationContent
+        val content = if (chats.isHidden(threadId)) NotificationContent.NOTHING else settings.stored.first().notificationContent
         val addresses = store.threadAddresses(threadId)
         val text = if (content == NotificationContent.NOTHING || addresses.isEmpty()) str(R.string.notify_failed_body_private)
         else str(R.string.notify_failed_body, addresses.joinToString(", ") { contacts.displayName(it) })
@@ -163,6 +183,48 @@ class Notifier(
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .build()
         runCatching { nm.notify(TAG_FAILED, threadId.toInt(), n) }
+    }
+
+    // ---------------------------------------------------------------- per-chat sound
+
+    private fun chatChannelId(threadId: Long) = "chat_$threadId"
+
+    private fun channelFor(threadId: Long): String {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val id = chatChannelId(threadId)
+        return if (manager?.getNotificationChannel(id) != null) id else CHANNEL_MESSAGES
+    }
+
+    /**
+     * A notification channel of this chat's own, so it can have its own sound and vibration in Android's
+     * settings. Returns its id. [name] is how the chat shows there.
+     */
+    fun chatChannel(threadId: Long, name: String): String {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val id = chatChannelId(threadId)
+        if (manager?.getNotificationChannel(id) == null) {
+            val base = manager?.getNotificationChannel(CHANNEL_MESSAGES)
+            manager?.createNotificationChannel(
+                NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH).apply {
+                    description = str(R.string.channel_chat_desc)
+                    lockscreenVisibility = android.app.Notification.VISIBILITY_PRIVATE
+                    base?.let {
+                        setSound(it.sound, it.audioAttributes)
+                        enableVibration(it.shouldVibrate())
+                        vibrationPattern = it.vibrationPattern
+                    }
+                },
+            )
+        }
+        return id
+    }
+
+    fun hasChatChannel(threadId: Long): Boolean =
+        context.getSystemService(NotificationManager::class.java)?.getNotificationChannel(chatChannelId(threadId)) != null
+
+    /** Back to the sound of all messages. */
+    fun deleteChatChannel(threadId: Long) {
+        runCatching { context.getSystemService(NotificationManager::class.java)?.deleteNotificationChannel(chatChannelId(threadId)) }
     }
 
     fun cancel(threadId: Long) {
@@ -257,6 +319,19 @@ class Notifier(
         val pi = PendingIntent.getBroadcast(context, threadId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return NotificationCompat.Action.Builder(R.drawable.ic_notification, str(R.string.notify_mark_read), pi)
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
+            .setShowsUserInterface(false)
+            .build()
+    }
+
+    private fun copyCodeAction(threadId: Long, code: String, showCode: Boolean): NotificationCompat.Action {
+        val intent = Intent(context, NotificationActionReceiver::class.java)
+            .setAction(NotificationActionReceiver.ACTION_COPY_CODE)
+            .setData(Uri.parse("textctrl://code/$threadId"))
+            .putExtra(NotificationActionReceiver.EXTRA_THREAD_ID, threadId)
+            .putExtra(NotificationActionReceiver.EXTRA_CODE, code)
+        val pi = PendingIntent.getBroadcast(context, threadId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val label = if (showCode) str(R.string.copy_code_value, code) else str(R.string.copy_code)
+        return NotificationCompat.Action.Builder(R.drawable.ic_notification, label, pi)
             .setShowsUserInterface(false)
             .build()
     }

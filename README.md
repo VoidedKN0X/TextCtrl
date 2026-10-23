@@ -16,9 +16,17 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Instant**: new messages arrive the moment your phone receives them (see [How messages arrive](#how-messages-arrive))
 - **Group chats** as one group picture message, so everyone sees the replies (or separate texts, if you prefer)
 - **Pictures, videos and files**: attach up to 5, pictures are shrunk to fit your carrier's limit; view pictures full screen, save them to your phone or share them
-- **Notifications** with **Reply** and **Mark as read**, per-chat **mute**, and a choice of what they show
-- **Pin, archive, mute, block and delete** chats; **mark as read or unread**
-- **Search** all your messages, on the phone
+- **Scheduled messages**: hold the send button to send later, even if the phone restarts in between
+- **Undo send**: a few seconds to take a message back before it goes out
+- **Reactions** (👍 ❤️ 😂 …) that work with iPhones and Google Messages over plain SMS, shown as badges on the message
+- **Copy one-time codes** straight from the message or its notification
+- **Notifications** with **Reply** and **Mark as read**, per-chat **mute** and **sound**, and a choice of what they show
+- **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
+- **Filters** for unread chats and **unknown senders** (numbers not in your contacts)
+- **Hidden chats** behind a PIN of their own (see [Hidden chats](#hidden-chats))
+- **Search** all your messages, one person's, or inside a chat, on the phone
+- **Delete old messages** automatically, for everything or per chat
+- **Encrypted backup and restore** to a file you keep (see [Backup and restore](#backup-and-restore))
 - **Dual SIM**: pick the SIM per chat, and a default for new chats
 - **Delivery reports** (optional), **retry** for messages that didn't go out, and a counter for long texts
 - **Blocked numbers** using Android's own block list, shared with your phone app
@@ -26,7 +34,9 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **"Text this number"** from your dialer, contacts and links, **share to TextCtrl** from any app, and **reply with a message** when you decline a call
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
-- **Light, dark and pure black** themes, optionally with your wallpaper's colours
+- **Light, dark and pure black** themes, optionally with your wallpaper's colours; your own **bubble colour** and **text size**
+- **Recent chats widget** for the home screen
+- **Tablets and foldables**: chat list and chat side by side
 
 ## How messages arrive
 
@@ -75,6 +85,22 @@ Settings, your SIMs, blocked numbers and About are behind the profile picture at
 - **Another app became your SMS app:** TextCtrl shows a screen to make it your SMS app again. Texts received in the meantime are in the shared message store, so you'll see them.
 - **Group chats:** with **Group texts as picture messages** on (the default), a message to several people goes out as one group message and replies show up in the same chat. Turn it off to send everyone their own text.
 
+## Hidden chats
+
+Open a chat's menu and tap **Hide chat**. The first time, you choose a PIN for hidden chats (separate from the app lock). Hidden chats:
+
+- stay out of Chats, Archived, Search and the widget;
+- still notify you, but never with a name or message text;
+- open under your profile picture › **Hidden chats**, after the PIN, and close again as soon as you leave TextCtrl.
+
+Which chats are hidden is stored encrypted with a key in the phone's secure hardware. The messages themselves stay in Android's message store, so other SMS apps on the phone can still see them. Forgot the PIN? Confirm with your phone's screen lock and the hidden chats come back to Chats.
+
+## Backup and restore
+
+Under your profile picture › **Backup and restore**, TextCtrl saves every text and picture message (with their pictures and files) to one `.tcbak` file, wherever you choose: the phone, a USB stick, your computer or any storage app. Restore it on a new phone the same way; messages that are already there aren't added twice.
+
+The file is encrypted with a password you choose (at least 8 characters): AES-256-GCM with a key made from the password with PBKDF2 (600,000 rounds), in chunks that can't be changed, reordered or cut off unnoticed. Without the password nobody can open it, and it can't be recovered, so write it down.
+
 ## App lock
 
 Turn it on under your profile picture › **Settings > Privacy and security > App lock**. It's off until you turn it on.
@@ -107,7 +133,10 @@ The lock and PIN screens are always kept out of screenshots and recordings, what
 - **Notifications** show what you choose under **Notification content**: name and message, name only, or just "New message". The lock screen shows "New message" unless Android is set to show everything there. Android's suggested replies are turned off, so the system doesn't read your messages to make them.
 - **Copied text** is marked as sensitive: Android's clipboard preview and keyboards with a clipboard history don't show or keep it.
 - **Links** in messages open in your browser only when you tap them; TextCtrl doesn't load link previews.
-- **No backups:** Android doesn't back up TextCtrl's own data or move it to a new phone.
+- **Scheduled messages** are stored encrypted with a key in the phone's secure hardware until they go out, and are sent with Android's own alarms.
+- **Unknown senders** are worked out on the phone from your contacts; there's no spam service.
+- **Reactions** are ordinary texts, the same format iPhones and Google Messages use with SMS phones; no RCS or Google services.
+- **No automatic backups:** Android doesn't back up TextCtrl's own data or move it to a new phone. Make an encrypted backup yourself under **Backup and restore**.
 
 ## Build from source
 

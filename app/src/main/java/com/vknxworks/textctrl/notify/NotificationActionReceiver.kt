@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.vknxworks.textctrl.container
+import com.vknxworks.textctrl.ui.components.copySensitive
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -13,6 +14,12 @@ class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val threadId = intent.getLongExtra(EXTRA_THREAD_ID, -1L).takeIf { it >= 0 } ?: return
         val c = context.container
+        if (intent.action == ACTION_COPY_CODE) {
+            val code = intent.getStringExtra(EXTRA_CODE)?.filter { it.isDigit() }?.takeIf { it.isNotEmpty() } ?: return
+            copySensitive(context, context.getString(com.vknxworks.textctrl.R.string.copy_code), code)
+            android.widget.Toast.makeText(context, context.getString(com.vknxworks.textctrl.R.string.code_copied), android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
         val reply = if (intent.action == ACTION_REPLY) {
             RemoteInput.getResultsFromIntent(intent)?.getCharSequence(KEY_REPLY)?.toString()?.trim().orEmpty()
         } else {
@@ -46,6 +53,8 @@ class NotificationActionReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_REPLY = "com.vknxworks.textctrl.REPLY"
         const val ACTION_MARK_READ = "com.vknxworks.textctrl.MARK_READ"
+        const val ACTION_COPY_CODE = "com.vknxworks.textctrl.COPY_CODE"
+        const val EXTRA_CODE = "code"
         const val EXTRA_THREAD_ID = "thread_id"
         const val KEY_REPLY = "reply"
     }

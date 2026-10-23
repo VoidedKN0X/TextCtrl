@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +67,10 @@ import com.vknxworks.textctrl.ui.chats.ChatsScreen
 import com.vknxworks.textctrl.ui.components.LocalBottomClearance
 import com.vknxworks.textctrl.ui.components.LocalHazeState
 import com.vknxworks.textctrl.ui.search.SearchScreen
+import com.vknxworks.textctrl.ui.settings.BackupScreen
 import com.vknxworks.textctrl.ui.settings.BlockedScreen
+import com.vknxworks.textctrl.ui.settings.HiddenChatsScreen
+import com.vknxworks.textctrl.ui.settings.ScheduledScreen
 import com.vknxworks.textctrl.ui.settings.SettingsScreen
 import com.vknxworks.textctrl.ui.settings.YouScreen
 import com.vknxworks.textctrl.ui.setup.SetupScreen
@@ -74,6 +78,9 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/** The chat list and the open chat sit side by side (wide tablets and unfolded foldables). */
+val LocalTwoPane = compositionLocalOf { false }
 
 @Composable
 fun AppRoot() {
@@ -150,7 +157,9 @@ private fun MainScaffold() {
                         }
                         Spacer(Modifier.weight(1f))
                     }
-                    Box(Modifier.weight(1f).fillMaxHeight().navigationBarsPadding().imePadding()) { AppNavHost(navController) }
+                    CompositionLocalProvider(LocalTwoPane provides (maxWidth >= 840.dp)) {
+                        Box(Modifier.weight(1f).fillMaxHeight().navigationBarsPadding().imePadding()) { AppNavHost(navController) }
+                    }
                 }
             } else {
                 PhoneLayout(navController, showTabs = selectedIndex >= 0, selectedIndex = selectedIndex, onSelect = ::selectTab)
@@ -221,5 +230,8 @@ private fun AppNavHost(navController: NavHostController) {
         composable<YouRoute> { YouScreen() }
         composable<SettingsRoute> { SettingsScreen() }
         composable<BlockedRoute> { BlockedScreen() }
+        composable<HiddenRoute> { HiddenChatsScreen() }
+        composable<ScheduledRoute> { ScheduledScreen() }
+        composable<BackupRoute> { BackupScreen() }
     }
 }

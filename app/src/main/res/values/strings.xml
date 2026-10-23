@@ -301,4 +301,175 @@
     <string name="lock_ok">OK</string>
     <string name="lock_delete">Delete</string>
     <string name="lock_cancel">Cancel</string>
+    <!-- 0.2.0: scheduling and undo send -->
+    <string name="schedule_title">Schedule message</string>
+    <string name="schedule_body">It goes out at that time, also if TextCtrl is closed or the phone restarted. Tip: hold the send button.</string>
+    <string name="schedule_pick">Pick date and time</string>
+    <string name="schedule_time">Time</string>
+    <string name="schedule_confirm">Schedule</string>
+    <string name="schedule_past">Pick a time that\'s still to come</string>
+    <string name="schedule_write_first">Write a message first</string>
+    <string name="scheduled_for">Scheduled · %1$s</string>
+    <string name="scheduled_title">Scheduled message</string>
+    <string name="scheduled_list_title">Scheduled messages</string>
+    <string name="scheduled_list_subtitle">Messages waiting to go out later</string>
+    <string name="scheduled_empty">Nothing scheduled</string>
+    <string name="scheduled_empty_body">Hold the send button in a chat to send a message later.</string>
+    <string name="has_scheduled">Scheduled message</string>
+    <string name="send_now">Send now</string>
+    <string name="edit">Edit</string>
+    <string name="open_chat">Open chat</string>
+    <string name="undo">Undo</string>
+    <string name="undo_title">Sending soon</string>
+    <string name="undo_sending_in">Sending in %1$d s</string>
+    <string name="undo_send">Undo send</string>
+    <string name="undo_off">Off: send right away</string>
+    <string name="undo_5s">5 seconds to take it back</string>
+    <string name="undo_10s">10 seconds to take it back</string>
+    <plurals name="attachments_count">
+        <item quantity="one">%1$d attachment</item>
+        <item quantity="other">%1$d attachments</item>
+    </plurals>
+
+    <!-- One-time codes -->
+    <string name="copy_code">Copy code</string>
+    <string name="copy_code_value">Copy %1$s</string>
+    <string name="code_copied">Code copied</string>
+    <string name="copy_codes">Copy one-time codes</string>
+    <string name="copy_codes_subtitle">A \"Copy\" button for verification codes, in the chat and in the notification</string>
+
+    <!-- Reactions -->
+    <string name="react">React</string>
+    <string name="react_body">Sent as a text, the way iPhones and Google Messages send reactions, so they show up on other phones too. Pick it again to take it back.</string>
+
+    <!-- Selecting and filters -->
+    <plurals name="selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <plurals name="delete_chats_title">
+        <item quantity="one">Delete %1$d chat?</item>
+        <item quantity="other">Delete %1$d chats?</item>
+    </plurals>
+    <plurals name="delete_messages_title">
+        <item quantity="one">Delete this message?</item>
+        <item quantity="other">Delete %1$d messages?</item>
+    </plurals>
+    <string name="filter_all">All</string>
+    <string name="filter_unread">Unread</string>
+    <string name="filter_unread_n">Unread (%1$d)</string>
+    <string name="filter_unknown">Unknown senders</string>
+    <string name="filter_unknown_n">Unknown senders (%1$d)</string>
+    <string name="unread_empty">All read</string>
+    <string name="unread_empty_body">No chats with unread messages.</string>
+    <string name="unknown_empty">No unknown senders</string>
+    <string name="unknown_empty_body">Texts from numbers that aren\'t in your contacts, and that you never wrote to, show up here.</string>
+    <string name="pick_chat">Pick a chat</string>
+    <string name="pick_chat_body">Choose a chat on the left to open it here.</string>
+
+    <!-- Search -->
+    <string name="search_in_chat">Search in chat</string>
+    <string name="search_in_chat_hint">Search this chat</string>
+    <string name="search_position">%1$d of %2$d</string>
+    <string name="search_older">Older match</string>
+    <string name="search_newer">Newer match</string>
+    <string name="search_everyone">Everyone</string>
+    <string name="search_in">In %1$s</string>
+    <string name="search_pick_person">Search in one chat</string>
+
+    <!-- Per-chat sound and auto-delete -->
+    <string name="chat_sound">Notification sound</string>
+    <string name="channel_chat_desc">Messages in this chat</string>
+    <string name="auto_delete">Delete old messages</string>
+    <string name="auto_delete_chat">Delete old messages here</string>
+    <string name="auto_delete_never">Never</string>
+    <string name="auto_delete_30d">Older than 30 days</string>
+    <string name="auto_delete_90d">Older than 90 days</string>
+    <string name="auto_delete_1y">Older than a year</string>
+    <string name="auto_delete_follow">Like in Settings (%1$s)</string>
+    <string name="auto_delete_confirm_title">Delete messages %1$s?</string>
+    <string name="auto_delete_confirm_body">Messages that old are deleted from this phone now, and from then on once a day, in every chat that doesn\'t have its own setting. This can\'t be undone.</string>
+    <string name="auto_delete_confirm">Delete them</string>
+
+    <!-- Unknown senders -->
+    <string name="separate_unknown">Separate unknown senders</string>
+    <string name="separate_unknown_subtitle">Texts from numbers that aren\'t in your contacts, and that you never wrote to, go to their own filter instead of Chats</string>
+    <string name="separate_unknown_needs_contacts">Needs access to your contacts, to tell who\'s unknown</string>
+    <string name="notify_unknown">Notify for unknown senders</string>
+    <string name="notify_unknown_subtitle">Off: their texts arrive quietly. Codes from your bank or delivery services usually come from unknown senders too.</string>
+
+    <!-- Hidden chats -->
+    <string name="hide">Hide chat</string>
+    <string name="unhide">Unhide</string>
+    <string name="hidden_title">Hidden chats</string>
+    <string name="hidden_subtitle">Chats kept behind a PIN of their own</string>
+    <string name="hidden_setup_title">Set up hidden chats</string>
+    <string name="hidden_choose_intro">Choose a PIN for hidden chats, at least %1$d digits and different from the app lock\'s. Hidden chats stay out of Chats, Search and the widget, and their notifications never show names or text.</string>
+    <string name="hidden_enter_pin">Enter your hidden chats PIN</string>
+    <string name="hidden_done">Chat hidden. Find it under You › Hidden chats.</string>
+    <string name="hidden_empty">No hidden chats</string>
+    <string name="hidden_empty_body">Hide a chat from its menu to keep it here.</string>
+    <string name="hidden_list_note">These close again when you leave TextCtrl. The messages are still in Android\'s message store, so other SMS apps can see them.</string>
+    <string name="hidden_chat_locked">This chat is hidden</string>
+    <string name="hidden_chat_locked_body">Enter your hidden chats PIN to open it.</string>
+    <string name="hidden_show">Show hidden chats</string>
+    <string name="hidden_change_pin">Change hidden chats PIN</string>
+    <string name="hidden_stop">Stop hiding chats</string>
+    <string name="hidden_stop_title">Stop hiding chats?</string>
+    <string name="hidden_stop_body">Every hidden chat goes back to Chats, and the hidden chats PIN is removed.</string>
+    <string name="hidden_stop_confirm">Unhide all</string>
+    <string name="hidden_forgot_title">Forgot your hidden chats PIN?</string>
+    <string name="hidden_forgot_body">It can\'t be recovered. Confirm it\'s you with your phone\'s own screen lock, and the hidden chats go back to Chats so you can set up a new PIN.</string>
+    <string name="hidden_forgot_no_screen_lock">It can\'t be recovered, and this phone has no screen lock to confirm it\'s you. To start over, clear TextCtrl\'s storage in Android\'s settings (your messages stay).</string>
+
+    <!-- Backup -->
+    <string name="backup_title">Backup and restore</string>
+    <string name="backup_subtitle">All your messages, in an encrypted file you keep</string>
+    <string name="backup_intro">Save every text and picture message to one file, encrypted with a password only you know. Keep it on a USB stick, your computer or any storage app, and restore it on a new phone. Nothing goes to Google or any server.</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_now_subtitle">Choose where to save the file</string>
+    <string name="backup_restore">Restore a backup</string>
+    <string name="backup_restore_subtitle">Messages already on this phone aren\'t added twice</string>
+    <string name="backup_footer">Encrypted with AES-256 and a key made from your password (PBKDF2, 600,000 rounds). Without the password, nobody can read the backup, and neither can you: it can\'t be recovered.</string>
+    <string name="backup_password_title">Choose a backup password</string>
+    <string name="backup_password_enter">Backup password</string>
+    <string name="backup_password_body">At least 8 characters. Write it down: without it the backup can\'t be opened.</string>
+    <string name="backup_password">Password</string>
+    <string name="backup_password_repeat">Same password again</string>
+    <string name="backup_password_short">Use at least 8 characters</string>
+    <string name="backup_password_mismatch">The passwords don\'t match</string>
+    <string name="backup_running">Backing up… %1$d messages so far</string>
+    <string name="backup_restoring">Restoring… %1$d messages so far</string>
+    <string name="backup_keep_open">Keep TextCtrl open until it\'s done.</string>
+    <string name="backup_done">Done: %1$d messages backed up.</string>
+    <string name="backup_restored">Done: %1$d messages restored, %2$d were already here.</string>
+    <string name="backup_failed">The backup didn\'t work</string>
+    <string name="backup_cant_write">Couldn\'t write to that file</string>
+    <string name="backup_cant_read">Couldn\'t open that file</string>
+    <string name="backup_wrong_password">Wrong password, or not a TextCtrl backup</string>
+    <string name="backup_not_a_backup">That isn\'t a TextCtrl backup</string>
+    <string name="backup_cut_off">The backup file is incomplete. Messages up to that point were restored.</string>
+    <string name="backup_damaged">The backup file is damaged or was changed. Messages up to that point were restored.</string>
+
+    <!-- Look and feel -->
+    <string name="bubble_colour">Bubble colour</string>
+    <string name="bubble_accent">Theme colour</string>
+    <string name="bubble_sky">Sky</string>
+    <string name="bubble_mint">Mint</string>
+    <string name="bubble_marigold">Marigold</string>
+    <string name="bubble_rose">Rose</string>
+    <string name="bubble_lavender">Lavender</string>
+    <string name="bubble_graphite">Graphite</string>
+    <string name="text_size">Text size in chats</string>
+    <string name="text_size_small">Small</string>
+    <string name="text_size_default">Default</string>
+    <string name="text_size_large">Large</string>
+    <string name="text_size_larger">Larger</string>
+
+    <!-- Widget -->
+    <string name="widget_title">Recent chats</string>
+    <string name="widget_description">Your newest chats at a glance</string>
+    <string name="widget_empty">No chats yet</string>
+    <string name="widget_locked">TextCtrl is locked</string>
+    <string name="widget_not_default">TextCtrl isn\'t your SMS app</string>
 </resources>

@@ -43,6 +43,40 @@ enum class NotificationContent(@StringRes val label: Int) {
     NOTHING(R.string.notify_content_nothing),
 }
 
+/** How long a sent message waits before it really goes out, so it can be taken back. */
+enum class UndoSend(@StringRes val label: Int, val seconds: Int) {
+    OFF(R.string.undo_off, 0),
+    SECONDS_5(R.string.undo_5s, 5),
+    SECONDS_10(R.string.undo_10s, 10),
+}
+
+/** Delete messages older than this. */
+enum class AutoDelete(@StringRes val label: Int, val days: Int) {
+    NEVER(R.string.auto_delete_never, 0),
+    DAYS_30(R.string.auto_delete_30d, 30),
+    DAYS_90(R.string.auto_delete_90d, 90),
+    YEAR_1(R.string.auto_delete_1y, 365),
+}
+
+/** Size of the text in chats, relative to the normal size. */
+enum class TextSize(@StringRes val label: Int, val scale: Float) {
+    SMALL(R.string.text_size_small, 0.9f),
+    DEFAULT(R.string.text_size_default, 1f),
+    LARGE(R.string.text_size_large, 1.15f),
+    LARGER(R.string.text_size_larger, 1.3f),
+}
+
+/** Colour of your own message bubbles. */
+enum class BubbleColor(@StringRes val label: Int, val argb: Long) {
+    ACCENT(R.string.bubble_accent, 0),
+    SKY(R.string.bubble_sky, 0xFF7FC8F8),
+    MINT(R.string.bubble_mint, 0xFF8BD8C6),
+    MARIGOLD(R.string.bubble_marigold, 0xFFF4C76B),
+    ROSE(R.string.bubble_rose, 0xFFF2A0A0),
+    LAVENDER(R.string.bubble_lavender, 0xFFC3A6F2),
+    GRAPHITE(R.string.bubble_graphite, 0xFF4A505B),
+}
+
 data class AppSettings(
     val theme: ThemeChoice = ThemeChoice.SYSTEM,
     val dynamicColor: Boolean = false,
@@ -60,6 +94,16 @@ data class AppSettings(
     val groupAsMms: Boolean = true,
     /** The SIM new texts go out on (subscription id), or -1 to ask / use the phone's default. */
     val defaultSim: Int = -1,
+    val undoSend: UndoSend = UndoSend.SECONDS_5,
+    /** Offer "Copy code" for one-time codes in texts and their notifications. */
+    val copyCodes: Boolean = true,
+    /** Chats with numbers that aren't in your contacts (and you never wrote to) get their own filter. */
+    val separateUnknown: Boolean = false,
+    /** With [separateUnknown] on: still notify about texts from unknown senders. */
+    val notifyUnknown: Boolean = true,
+    val autoDelete: AutoDelete = AutoDelete.NEVER,
+    val textSize: TextSize = TextSize.DEFAULT,
+    val bubbleColor: BubbleColor = BubbleColor.ACCENT,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -74,6 +118,13 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val autoDownloadMms = booleanPreferencesKey("auto_download_mms")
         val groupAsMms = booleanPreferencesKey("group_as_mms")
         val defaultSim = intPreferencesKey("default_sim")
+        val undoSend = stringPreferencesKey("undo_send")
+        val copyCodes = booleanPreferencesKey("copy_codes")
+        val separateUnknown = booleanPreferencesKey("separate_unknown")
+        val notifyUnknown = booleanPreferencesKey("notify_unknown")
+        val autoDelete = stringPreferencesKey("auto_delete")
+        val textSize = stringPreferencesKey("text_size")
+        val bubbleColor = stringPreferencesKey("bubble_color")
     }
 
     val settings: StateFlow<AppSettings> = context.appDataStore.data
@@ -94,6 +145,13 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         autoDownloadMms = this[K.autoDownloadMms] ?: true,
         groupAsMms = this[K.groupAsMms] ?: true,
         defaultSim = this[K.defaultSim] ?: -1,
+        undoSend = enumOr(this[K.undoSend], UndoSend.SECONDS_5),
+        copyCodes = this[K.copyCodes] ?: true,
+        separateUnknown = this[K.separateUnknown] ?: false,
+        notifyUnknown = this[K.notifyUnknown] ?: true,
+        autoDelete = enumOr(this[K.autoDelete], AutoDelete.NEVER),
+        textSize = enumOr(this[K.textSize], TextSize.DEFAULT),
+        bubbleColor = enumOr(this[K.bubbleColor], BubbleColor.ACCENT),
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -109,6 +167,13 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.autoDownloadMms] = s.autoDownloadMms
             p[K.groupAsMms] = s.groupAsMms
             p[K.defaultSim] = s.defaultSim
+            p[K.undoSend] = s.undoSend.name
+            p[K.copyCodes] = s.copyCodes
+            p[K.separateUnknown] = s.separateUnknown
+            p[K.notifyUnknown] = s.notifyUnknown
+            p[K.autoDelete] = s.autoDelete.name
+            p[K.textSize] = s.textSize.name
+            p[K.bubbleColor] = s.bubbleColor.name
         }
     }
 

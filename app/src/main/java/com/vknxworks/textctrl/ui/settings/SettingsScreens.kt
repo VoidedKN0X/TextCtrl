@@ -90,6 +90,21 @@ import com.vknxworks.textctrl.ui.nav.LocalNavigator
 import com.vknxworks.textctrl.ui.nav.SettingsRoute
 import com.vknxworks.textctrl.ui.theme.Gutter
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.outlined.AutoDelete
+import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.FormatSize
+import androidx.compose.material.icons.outlined.NotificationsPaused
+import androidx.compose.material.icons.outlined.PersonOff
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.automirrored.outlined.Undo
+import com.vknxworks.textctrl.data.settings.AutoDelete
+import com.vknxworks.textctrl.data.settings.BubbleColor
+import com.vknxworks.textctrl.data.settings.TextSize
+import com.vknxworks.textctrl.data.settings.UndoSend
+import com.vknxworks.textctrl.ui.nav.BackupRoute
+import com.vknxworks.textctrl.ui.nav.HiddenRoute
+import com.vknxworks.textctrl.ui.nav.ScheduledRoute
 
 private const val SPONSOR_URL = "https://github.com/sponsors/VoidedKN0X"
 private const val REPO_URL = "https://github.com/VoidedKN0X/TextCtrl"
@@ -139,7 +154,10 @@ fun YouScreen() {
 
             Group {
                 GroupRow(stringResource(R.string.settings), icon = Icons.Filled.SettingsIcon, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
+                GroupRow(stringResource(R.string.scheduled_list_title), stringResource(R.string.scheduled_list_subtitle), icon = Icons.Outlined.Schedule, showChevron = true, onClick = { nav.navigate(ScheduledRoute) })
+                GroupRow(stringResource(R.string.hidden_title), stringResource(R.string.hidden_subtitle), icon = Icons.Outlined.VisibilityOff, showChevron = true, onClick = { nav.navigate(HiddenRoute) })
                 GroupRow(stringResource(R.string.blocked_title), stringResource(R.string.blocked_subtitle), icon = Icons.Outlined.Block, showChevron = true, onClick = { nav.navigate(BlockedRoute) })
+                GroupRow(stringResource(R.string.backup_title), stringResource(R.string.backup_subtitle), icon = Icons.Outlined.Backup, showChevron = true, onClick = { nav.navigate(BackupRoute) })
                 GroupRow(
                     stringResource(R.string.notification_settings),
                     stringResource(R.string.notification_settings_subtitle),
@@ -173,6 +191,11 @@ fun YouScreen() {
 
 @Composable
 fun SettingsScreen() {
+    SettingsContent()
+}
+
+@Composable
+private fun SettingsContent() {
     val context = LocalContext.current
     val c = context.container
     val scope = rememberCoroutineScope()
@@ -180,6 +203,7 @@ fun SettingsScreen() {
     fun update(t: (AppSettings) -> AppSettings) { scope.launch { c.settings.update(t) } }
     val bioAvailable = remember { AppLock.biometricAvailable(context) }
     val sims = remember { c.sims.active() }
+    var pendingAutoDelete by remember { mutableStateOf<AutoDelete?>(null) }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.settings))
@@ -197,6 +221,18 @@ fun SettingsScreen() {
                     s.dynamicColor,
                     icon = Icons.Outlined.Palette,
                 ) { v -> update { it.copy(dynamicColor = v) } }
+                GroupChoice(
+                    stringResource(R.string.bubble_colour),
+                    BubbleColor.entries.map { it to stringResource(it.label) },
+                    s.bubbleColor,
+                    icon = Icons.Outlined.ChatBubbleOutline,
+                ) { v -> update { it.copy(bubbleColor = v) } }
+                GroupChoice(
+                    stringResource(R.string.text_size),
+                    TextSize.entries.map { it to stringResource(it.label) },
+                    s.textSize,
+                    icon = Icons.Outlined.FormatSize,
+                ) { v -> update { it.copy(textSize = v) } }
             }
 
             Group(stringResource(R.string.group_privacy), footer = stringResource(R.string.privacy_footer)) {
@@ -269,9 +305,44 @@ fun SettingsScreen() {
                     update { it.copy(notificationContent = v) }
                     if (v != NotificationContent.NAME_AND_MESSAGE) c.notifier.removeAllShortcuts()
                 }
+                GroupSwitch(
+                    stringResource(R.string.separate_unknown),
+                    stringResource(if (c.contacts.granted) R.string.separate_unknown_subtitle else R.string.separate_unknown_needs_contacts),
+                    s.separateUnknown,
+                    icon = Icons.Outlined.PersonOff,
+                    enabled = c.contacts.granted || s.separateUnknown,
+                ) { v -> update { it.copy(separateUnknown = v) } }
+                if (s.separateUnknown) {
+                    GroupSwitch(
+                        stringResource(R.string.notify_unknown),
+                        stringResource(R.string.notify_unknown_subtitle),
+                        s.notifyUnknown,
+                        icon = Icons.Outlined.NotificationsPaused,
+                    ) { v -> update { it.copy(notifyUnknown = v) } }
+                }
+                GroupChoice(
+                    stringResource(R.string.auto_delete),
+                    AutoDelete.entries.map { it to stringResource(it.label) },
+                    s.autoDelete,
+                    icon = Icons.Outlined.AutoDelete,
+                ) { v ->
+                    if (v == AutoDelete.NEVER) update { it.copy(autoDelete = v) } else pendingAutoDelete = v
+                }
             }
 
             Group(stringResource(R.string.group_messages)) {
+                GroupChoice(
+                    stringResource(R.string.undo_send),
+                    UndoSend.entries.map { it to stringResource(it.label) },
+                    s.undoSend,
+                    icon = Icons.AutoMirrored.Outlined.Undo,
+                ) { v -> update { it.copy(undoSend = v) } }
+                GroupSwitch(
+                    stringResource(R.string.copy_codes),
+                    stringResource(R.string.copy_codes_subtitle),
+                    s.copyCodes,
+                    icon = Icons.Outlined.Password,
+                ) { v -> update { it.copy(copyCodes = v) } }
                 GroupSwitch(
                     stringResource(R.string.delivery_reports),
                     stringResource(R.string.delivery_reports_subtitle),
@@ -314,6 +385,28 @@ fun SettingsScreen() {
             }
         }
     }
+
+    // Turning auto-delete on deletes old messages straight away, so ask first.
+    pendingAutoDelete?.let { choice ->
+        AutoDeleteConfirm(choice, onDismiss = { pendingAutoDelete = null }) {
+            pendingAutoDelete = null
+            scope.launch {
+                c.settings.update { it.copy(autoDelete = choice) }
+                c.runTask { c.cleaner.run() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutoDeleteConfirm(choice: AutoDelete, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    ConfirmDialog(
+        stringResource(R.string.auto_delete_confirm_title, stringResource(choice.label).lowercase()),
+        stringResource(R.string.auto_delete_confirm_body),
+        stringResource(R.string.auto_delete_confirm),
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+    )
 }
 
 /** Android's block list: texts (and calls) from these numbers never reach you. */

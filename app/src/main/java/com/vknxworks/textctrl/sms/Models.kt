@@ -13,6 +13,8 @@ data class Conversation(
     val hasAttachment: Boolean,
     /** A message in it couldn't be sent. */
     val hasError: Boolean,
+    /** You've sent something in it (so its sender isn't a stranger). */
+    val hasOutgoing: Boolean = false,
 ) {
     val isGroup: Boolean get() = addresses.size > 1
 }

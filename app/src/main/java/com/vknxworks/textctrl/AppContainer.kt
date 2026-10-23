@@ -6,7 +6,10 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.vknxworks.textctrl.data.backup.Backup
 import com.vknxworks.textctrl.data.lock.LockVault
+import com.vknxworks.textctrl.data.schedule.Cleaner
+import com.vknxworks.textctrl.data.schedule.Scheduler
 import com.vknxworks.textctrl.data.settings.ChatPrefs
 import com.vknxworks.textctrl.data.settings.SettingsRepository
 import com.vknxworks.textctrl.notify.Notifier
@@ -16,6 +19,7 @@ import com.vknxworks.textctrl.sms.MessageStore
 import com.vknxworks.textctrl.sms.Messenger
 import com.vknxworks.textctrl.sms.Sims
 import com.vknxworks.textctrl.ui.lock.AppLock
+import com.vknxworks.textctrl.widget.Widgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -45,6 +49,24 @@ class AppContainer(val context: Context) {
     val blocklist = Blocklist(context)
     val notifier = Notifier(context, store, contacts, settings, chats, vault)
     val messenger = Messenger(context, store, sims, settings, chats, notifier)
+    val scheduler = Scheduler(context, appScope, messenger, notifier)
+    val cleaner = Cleaner(context, store, settings, chats)
+    val backup = Backup(context, store, sims)
+    val widgets = Widgets(context, appScope, store, contacts, chats, settings, vault)
+
+    /** The hidden chats' own PIN, separate from the app lock. */
+    val hiddenVault = LockVault(context, "textctrl_hidden", "hidden_chats_vault")
+
+    /** The hidden chats are showing (their PIN was entered). Closes when you leave the app. */
+    var hiddenOpen by mutableStateOf(false)
+
+    /** A chat to hide once the hidden chats' PIN is set up (chosen before there was one). */
+    var pendingHide: Long? = null
+
+    fun closeHidden() {
+        hiddenOpen = false
+        hiddenVault.close()
+    }
 
     /** Set by MainActivity for notifications, shares and "text this number"; the main screen consumes it. */
     val pendingAction = MutableStateFlow<PendingAction?>(null)
@@ -82,12 +104,14 @@ class AppContainer(val context: Context) {
         withContext(Dispatchers.Default) { vault.setUp(pin) }
         chats.sealDrafts()
         notifier.removeAllShortcuts()
+        runCatching { widgets.update() }
     }
 
     /** Turns the app lock off (after the PIN was confirmed): drafts are stored plainly again. */
     suspend fun disableLock() {
         withContext(Dispatchers.IO) { chats.unsealDrafts() }
         vault.disable()
+        runCatching { widgets.update() }
     }
 
     /**
@@ -98,6 +122,7 @@ class AppContainer(val context: Context) {
         withContext(Dispatchers.IO) { chats.dropSealedDrafts() }
         vault.disable()
         AppLock.markUnlocked()
+        runCatching { widgets.update() }
     }
 
     /** Locked: wipe the key from memory. */
