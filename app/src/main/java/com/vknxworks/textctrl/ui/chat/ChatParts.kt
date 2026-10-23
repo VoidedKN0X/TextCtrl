@@ -697,26 +697,30 @@ private fun DateTimePicker(onPick: (Long) -> Unit, onDismiss: () -> Unit) {
             is24Hour = android.text.format.DateFormat.is24HourFormat(LocalContext.current),
         )
         var tooEarly by remember { mutableStateOf(false) }
-        AlertDialog(
+        // A plain dialog rather than AlertDialog: the clock needs more width than an alert's text area gives.
+        androidx.compose.ui.window.Dialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.schedule_time)) },
-            text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.padding(16.dp)) {
+                Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(stringResource(R.string.schedule_time), style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.size(16.dp))
                     TimePicker(timeState)
                     if (tooEarly) Text(stringResource(R.string.schedule_past), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                        TextButton(onClick = {
+                            val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = chosenDate }
+                            val local = Calendar.getInstance().apply {
+                                clear()
+                                set(utc.get(Calendar.YEAR), utc.get(Calendar.MONTH), utc.get(Calendar.DAY_OF_MONTH), timeState.hour, timeState.minute)
+                            }.timeInMillis
+                            if (local <= System.currentTimeMillis() + 30_000) tooEarly = true else onPick(local)
+                        }) { Text(stringResource(R.string.schedule_confirm)) }
+                    }
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = chosenDate }
-                    val local = Calendar.getInstance().apply {
-                        clear()
-                        set(utc.get(Calendar.YEAR), utc.get(Calendar.MONTH), utc.get(Calendar.DAY_OF_MONTH), timeState.hour, timeState.minute)
-                    }.timeInMillis
-                    if (local <= System.currentTimeMillis() + 30_000) tooEarly = true else onPick(local)
-                }) { Text(stringResource(R.string.schedule_confirm)) }
-            },
-            dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-        )
+            }
+        }
     }
 }

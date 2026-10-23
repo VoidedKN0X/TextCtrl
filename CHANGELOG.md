@@ -4,6 +4,17 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.1 (2026-10-23)
+
+### Fixed
+
+- **Search no longer closes when you pick a person.** On the Search tab, tapping **Everyone** to search one chat closed TextCtrl straight away if two chats had the same name (for example a contact with two numbers). The person list now opens with any names.
+- **The time for a scheduled message fits on every phone.** Picking a date and time showed the clock in a dialog that was too narrow on smaller screens or with a large display size, so part of the clock could be cut off. It now has its own full-width dialog.
+
+### Security
+
+- **The backup password dialog is always kept out of screenshots** and screen recordings, from the moment it opens. Before, the first moment of the dialog could slip through on some phones.
+
 ## v0.2.0 (2026-10-23)
 
 Scheduling, reactions, hidden chats, encrypted backups and a lot more ways to organise your chats.

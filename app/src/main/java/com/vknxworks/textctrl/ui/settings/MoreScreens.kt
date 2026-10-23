@@ -61,6 +61,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
@@ -486,6 +488,8 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
     val mismatch = confirmTwice && first != second
     AlertDialog(
         onDismissRequest = onDismiss,
+        // Its own window: kept out of screenshots from its very first frame.
+        properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn),
         title = { Text(stringResource(if (confirmTwice) R.string.backup_password_title else R.string.backup_password_enter)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
