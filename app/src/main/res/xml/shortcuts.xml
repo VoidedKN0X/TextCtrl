@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_new"
+        android:shortcutId="new_chat"
+        android:shortcutLongLabel="@string/new_chat"
+        android:shortcutShortLabel="@string/new_chat">
+        <intent
+            android:action="com.vknxworks.textctrl.NEW_CHAT"
+            android:targetClass="com.vknxworks.textctrl.MainActivity"
+            android:targetPackage="com.vknxworks.textctrl" />
+    </shortcut>
+</shortcuts>

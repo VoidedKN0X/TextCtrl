@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">TextCtrl</string>
+
+    <!-- About -->
+    <string name="group_about">About</string>
+    <string name="support_title">Support TextCtrl</string>
+    <string name="support_subtitle">TextCtrl is free and open source. Sponsor development on GitHub</string>
+    <string name="bugs_title">Report a bug</string>
+    <string name="bugs_subtitle">Found a problem or have an idea? Open an issue on GitHub</string>
+    <string name="source_title">Source code</string>
+    <string name="source_subtitle">github.com/VoidedKN0X/TextCtrl</string>
+    <string name="licence_title">Licence</string>
+    <string name="licence_subtitle">GNU General Public License v3.0</string>
+    <string name="about_footer">TextCtrl %1$s · VKNXWorks</string>
+
+    <!-- General -->
+    <string name="error_generic">Something went wrong</string>
+    <string name="error_load_title">Couldn\'t load this</string>
+    <string name="error_not_default">TextCtrl isn\'t your SMS app, so Android doesn\'t let it do that. Make it your SMS app again.</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+    <string name="clear">Clear</string>
+    <string name="more">More</string>
+    <string name="remove">Remove</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    <string name="details">Details</string>
+    <string name="you_title">You</string>
+    <string name="you">You</string>
+    <string name="selected">Selected</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="unknown_sender">Unknown</string>
+
+    <!-- First start -->
+    <string name="setup_title">Make TextCtrl your SMS app</string>
+    <string name="setup_body">Android only hands texts to one app, your SMS app. Once TextCtrl is that app, it gets every text and picture message straight from the mobile network.</string>
+    <string name="setup_again_title">TextCtrl isn\'t your SMS app any more</string>
+    <string name="setup_again_body">Another app was made your SMS app, so new texts go there. Make TextCtrl your SMS app again to keep using it.</string>
+    <string name="setup_point_instant">Texts arrive the moment your phone receives them, with no push service in between.</string>
+    <string name="setup_point_offline">No Google, no servers, no internet access at all. Your texts never leave your phone except to the people you send them to.</string>
+    <string name="setup_make_default">Make it my SMS app</string>
+    <string name="setup_no_sms">This device can\'t send or receive texts.</string>
+    <string name="setup_declined">TextCtrl wasn\'t made your SMS app. Tap the button and choose TextCtrl to continue.</string>
+    <string name="setup_permissions_title">A few more things</string>
+    <string name="setup_permissions_body">All optional, all on your phone only. You can change them later in Android\'s settings.</string>
+    <string name="setup_point_contacts">Contacts, to show names and pictures instead of numbers.</string>
+    <string name="setup_point_notifications">Notifications, to tell you about new messages.</string>
+    <string name="setup_point_sim">Phone, to pick a SIM for each chat and know your own number.</string>
+    <string name="setup_allow">Continue</string>
+    <string name="setup_skip">Not now</string>
+
+    <!-- Tabs -->
+    <string name="tab_chats">Chats</string>
+    <string name="tab_archived">Archived</string>
+    <string name="tab_search">Search</string>
+
+    <!-- Chats -->
+    <string name="new_chat">New chat</string>
+    <string name="chats_empty">No chats yet</string>
+    <string name="chats_empty_body">Texts you send and receive show up here. Tap New chat to write to someone.</string>
+    <string name="archived_empty">Nothing archived</string>
+    <string name="archived_empty_body">Archive a chat to put it away. A new message brings it back to Chats.</string>
+    <string name="mark_all_read">Mark all as read</string>
+    <string name="mark_read">Mark as read</string>
+    <string name="mark_unread">Mark as unread</string>
+    <string name="pin">Pin to top</string>
+    <string name="unpin">Unpin</string>
+    <string name="pinned">Pinned</string>
+    <string name="mute">Mute notifications</string>
+    <string name="unmute">Unmute notifications</string>
+    <string name="muted">Muted</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Move back to Chats</string>
+    <string name="block">Block</string>
+    <string name="block_title">Block %1$s?</string>
+    <string name="block_body">Texts and calls from this number won\'t reach you any more, in TextCtrl and in your phone app. The chat is archived. You can unblock it under You › Blocked numbers.</string>
+    <string name="delete_chat">Delete chat</string>
+    <string name="delete_chat_title">Delete the chat with %1$s?</string>
+    <string name="delete_chat_body">All its messages are deleted from this phone. This can\'t be undone.</string>
+    <string name="draft_prefix">Draft</string>
+    <string name="not_sent">Not sent</string>
+    <plurals name="people">
+        <item quantity="one">%1$d person</item>
+        <item quantity="other">%1$d people</item>
+    </plurals>
+
+    <!-- A chat -->
+    <string name="call">Call</string>
+    <string name="add_contact">Add to contacts</string>
+    <string name="chat_empty">Say hello</string>
+    <string name="chat_empty_body">Your messages in this chat will show up here.</string>
+    <string name="chat_empty_group">Messages to this group go out as one group picture message, so everyone sees the replies.</string>
+    <string name="chat_gone">This chat is gone</string>
+    <string name="chat_gone_body">It may have been deleted in another app.</string>
+    <string name="load_earlier">Load earlier messages</string>
+    <string name="compose_hint">Text message</string>
+    <string name="compose_mms_hint">Picture message</string>
+    <string name="send">Send</string>
+    <string name="send_with">Send with</string>
+    <string name="sim_slot">SIM %1$d</string>
+    <string name="sms_counter">%1$d left · %2$d texts</string>
+    <string name="attach">Attach</string>
+    <string name="attach_subtitle">Sent as a picture message. Pictures are made smaller to fit, which also removes their location and camera details.</string>
+    <string name="attach_media">Photos and videos</string>
+    <string name="attach_file">File</string>
+    <string name="tap_to_retry">Tap to try again</string>
+    <string name="copy_text">Copy text</string>
+    <string name="copied">Copied</string>
+    <string name="forward">Forward</string>
+    <string name="forward_title">Forward to</string>
+    <string name="save_to_phone">Save to phone</string>
+    <string name="saved_to_phone">Saved to Pictures › TextCtrl</string>
+    <string name="save_failed">Couldn\'t save it</string>
+    <string name="delete_message_title">Delete this message?</string>
+    <string name="delete_message_body">It\'s deleted from this phone only.</string>
+    <string name="status_sending">Sending…</string>
+    <string name="status_sent">Sent</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_not_delivered">Not delivered</string>
+    <string name="status_failed">Not sent</string>
+    <string name="details_type_sms">Text message (SMS)</string>
+    <string name="details_type_mms">Picture message (MMS)</string>
+    <string name="details_from">From: %1$s</string>
+    <string name="details_to">To: %1$s</string>
+    <string name="details_received">Received: %1$s</string>
+    <string name="details_sent">Sent: %1$s</string>
+    <string name="details_sim">SIM: %1$s</string>
+    <string name="details_subject">Subject: %1$s</string>
+    <string name="details_status">Status: %1$s</string>
+    <string name="details_attachments">Attachments: %1$s</string>
+
+    <!-- Picture messages -->
+    <string name="mms_waiting">Picture message</string>
+    <string name="mms_tap_to_fetch">Tap to fetch it</string>
+    <string name="mms_fetch">Fetch</string>
+    <string name="mms_expires">Until %1$s</string>
+    <string name="mms_fetch_failed">Couldn\'t fetch the picture message. Check that mobile data is on, then try again.</string>
+    <string name="attachment_picture">Picture</string>
+    <string name="attachment_picture_message">Picture message</string>
+    <string name="attachment_video">Video</string>
+    <string name="attachment_audio">Audio</string>
+    <string name="attachment_contact">Contact card</string>
+    <string name="attachment_file">File</string>
+    <string name="attachment_open_failed">No app on this phone can open that</string>
+
+    <!-- Sending -->
+    <string name="send_no_recipient">Who should this go to? Add a number first.</string>
+    <string name="send_empty">There\'s nothing to send</string>
+    <string name="send_store_failed">Couldn\'t save the message. Is TextCtrl still your SMS app?</string>
+    <string name="send_failed">Couldn\'t send the message</string>
+    <string name="send_attachment_unreadable">Couldn\'t read that attachment</string>
+    <string name="send_attachment_too_big">%1$s is too big for a picture message</string>
+    <string name="send_picture_too_big">That picture can\'t be made small enough for a picture message</string>
+
+    <!-- New chat -->
+    <string name="new_chat_hint">Name or number</string>
+    <string name="new_chat_send_to">Send to %1$s</string>
+    <string name="new_chat_add_to_group">Add to group</string>
+    <string name="new_chat_remove_from_group">Remove from group</string>
+    <string name="new_chat_start_one">Chat with %1$s</string>
+    <plurals name="new_chat_start_group">
+        <item quantity="one">Chat with %1$d person</item>
+        <item quantity="other">Group chat with %1$d people</item>
+    </plurals>
+    <string name="contacts_allow">Show your contacts</string>
+    <string name="contacts_allow_body">To find people by name. Contacts are only read on this phone.</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search messages</string>
+    <string name="search_start">Search your messages</string>
+    <string name="search_start_body">Find texts and picture messages by their words. Searching happens on this phone only.</string>
+    <string name="search_none">Nothing found</string>
+    <string name="search_none_body">No message has those words. Try fewer or different ones.</string>
+    <string name="search_you_to">You to %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_messages">Messages</string>
+    <string name="channel_messages_desc">New texts and picture messages</string>
+    <string name="channel_failed">Messages not sent</string>
+    <string name="channel_failed_desc">When a message you sent couldn\'t go out</string>
+    <string name="notify_new_message">New message</string>
+    <plurals name="notify_new_messages">
+        <item quantity="one">%1$d new message</item>
+        <item quantity="other">%1$d new messages</item>
+    </plurals>
+    <string name="notify_reply">Reply</string>
+    <string name="notify_reply_hint">Message</string>
+    <string name="notify_mark_read">Mark as read</string>
+    <string name="notify_failed_title">Message not sent</string>
+    <string name="notify_failed_body">To %1$s. Open the chat to try again.</string>
+    <string name="notify_failed_body_private">Open TextCtrl to try again.</string>
+
+    <!-- You -->
+    <string name="you_is_default">Your SMS app · Google-free · no internet access</string>
+    <string name="you_not_default">Not your SMS app right now</string>
+    <string name="group_sims">Your SIMs</string>
+    <string name="blocked_title">Blocked numbers</string>
+    <string name="blocked_subtitle">Texts and calls from these never reach you</string>
+    <string name="notification_settings">Notification sounds</string>
+    <string name="notification_settings_subtitle">Sound, vibration and pop-ups, in Android\'s settings</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="group_appearance">Appearance</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system">Follow system</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_black">Pure black</string>
+    <string name="dynamic_colour">Use wallpaper colours</string>
+    <string name="dynamic_colour_subtitle">Replaces the default colours with ones from your wallpaper</string>
+    <string name="group_privacy">Privacy and security</string>
+    <string name="privacy_footer">TextCtrl has no internet access, analytics or tracking. Your texts go only to the people you send them to, over the mobile network.</string>
+    <string name="lock_app">App lock</string>
+    <string name="lock_app_subtitle">Ask for an app PIN (and optionally your fingerprint) when opening TextCtrl. While locked, your drafts stay encrypted with the PIN and the recent-apps screen hides your chats.</string>
+    <string name="lock_change_pin">Change app PIN</string>
+    <string name="lock_change_pin_subtitle">At least %1$d digits, separate from your phone\'s PIN</string>
+    <string name="lock_fingerprint">Unlock with fingerprint</string>
+    <string name="lock_fingerprint_settings_subtitle">Only strong biometrics such as your fingerprint, checked by the phone\'s secure hardware. The PIN is still needed after a restart and every 72 hours.</string>
+    <string name="lock_fingerprint_unavailable">Set up a fingerprint on this phone first</string>
+    <string name="lock_fingerprint_setup_failed">Couldn\'t set up fingerprint unlock</string>
+    <string name="lock_fingerprint_enable_title">Turn on fingerprint unlock</string>
+    <string name="lock_fingerprint_enable_subtitle">Confirm your fingerprint</string>
+    <string name="lock_again">Lock again</string>
+    <string name="lock_again_immediately">As soon as you leave the app</string>
+    <string name="lock_again_1m">After 1 minute away</string>
+    <string name="lock_again_5m">After 5 minutes away</string>
+    <string name="lock_again_15m">After 15 minutes away</string>
+    <string name="lock_again_1h">After 1 hour away</string>
+    <string name="lock_again_restart">Only when the app restarts</string>
+    <string name="hide_screenshots">Hide in screenshots</string>
+    <string name="hide_screenshots_subtitle">Screenshots and screen recordings show a blank screen</string>
+    <string name="hide_recents">Hide in recent apps</string>
+    <string name="hide_recents_subtitle">The recent apps view shows a blank card instead of the app</string>
+    <string name="notify_content">Notification content</string>
+    <string name="notify_content_all">Name and message</string>
+    <string name="notify_content_name">Name only</string>
+    <string name="notify_content_nothing">Nothing (just \"new message\")</string>
+    <string name="group_messages">Messages</string>
+    <string name="delivery_reports">Delivery reports</string>
+    <string name="delivery_reports_subtitle">Ask the network to tell you when a text reaches the other phone. Some carriers charge for these.</string>
+    <string name="auto_download">Fetch picture messages automatically</string>
+    <string name="auto_download_subtitle">Uses mobile data. When off, tap a picture message to fetch it.</string>
+    <string name="group_mms">Group texts as picture messages</string>
+    <string name="group_mms_subtitle">A text to several people goes out as one group message, so everyone sees the replies. When off, everyone gets their own text.</string>
+    <string name="sim_for_new">SIM for new chats</string>
+    <string name="sim_default">The phone\'s default</string>
+    <string name="sms_app">SMS app</string>
+    <string name="sms_app_yes">TextCtrl is your SMS app</string>
+    <string name="sms_app_no">TextCtrl isn\'t your SMS app. Tap to change it.</string>
+
+    <!-- Blocked numbers -->
+    <string name="blocked_add">Block a number</string>
+    <string name="blocked_number">Phone number</string>
+    <string name="blocked_empty">No blocked numbers</string>
+    <string name="blocked_empty_body">Block a number from its chat, or with the + button.</string>
+    <string name="blocked_footer">This is Android\'s own block list, shared with your phone app. Tap a number to unblock it.</string>
+    <string name="unblock">Unblock</string>
+    <string name="unblock_title">Unblock %1$s?</string>
+    <string name="unblock_body">Texts and calls from this number will reach you again.</string>
+
+    <!-- App lock -->
+    <string name="lock_title">TextCtrl is locked</string>
+    <string name="lock_enter_pin">Enter your PIN</string>
+    <string name="lock_pin_due">Enter your PIN. It\'s needed after a restart and every 72 hours.</string>
+    <string name="lock_wrong_pin">Wrong PIN</string>
+    <string name="lock_too_many">Too many tries. Try again in %1$d s</string>
+    <string name="lock_use_fingerprint">Use fingerprint</string>
+    <string name="lock_use_pin">Use PIN</string>
+    <string name="lock_fingerprint_title">Unlock TextCtrl</string>
+    <string name="lock_fingerprint_subtitle">Confirm it\'s you to see your messages</string>
+    <string name="lock_fingerprint_changed">A fingerprint was added or removed. Unlock with your PIN, then turn fingerprint unlock on again.</string>
+    <string name="lock_fingerprint_failed">Couldn\'t unlock with your fingerprint. Use your PIN.</string>
+    <string name="lock_fingerprint_key_failed">Fingerprint didn\'t unlock the key</string>
+    <string name="lock_fingerprint_prompt_failed">Couldn\'t show the fingerprint prompt</string>
+    <string name="lock_prompt_failed">Couldn\'t show the unlock prompt</string>
+    <string name="lock_forgot">Forgot PIN?</string>
+    <string name="lock_forgot_title">Forgot your PIN?</string>
+    <string name="lock_forgot_body">The PIN can\'t be recovered. Confirm it\'s you with your phone\'s own screen lock to turn the app lock off. Drafts encrypted with the old PIN are deleted; your messages stay.</string>
+    <string name="lock_forgot_no_screen_lock">The PIN can\'t be recovered, and this phone has no screen lock to confirm it\'s you. To start over, clear TextCtrl\'s storage in Android\'s settings (your messages stay).</string>
+    <string name="lock_forgot_confirm">Confirm and reset</string>
+    <string name="lock_reset_prompt_title">Reset TextCtrl\'s app lock</string>
+    <string name="lock_reset_prompt_subtitle">Use your phone\'s screen lock to confirm it\'s you</string>
+    <string name="lock_choose_title">Choose an app PIN</string>
+    <string name="lock_choose_intro">At least %1$d digits, different from your phone\'s PIN.</string>
+    <string name="lock_change_title">Change app PIN</string>
+    <string name="lock_change_intro">At least %1$d digits, different from your phone\'s PIN.</string>
+    <string name="lock_disable_title">Turn off app lock</string>
+    <string name="lock_disable_intro">Enter your app PIN to turn the lock off.</string>
+    <string name="lock_current_pin">Enter your current PIN</string>
+    <string name="lock_repeat_pin">Enter the same PIN again</string>
+    <string name="lock_too_easy">Too easy to guess. Try a less obvious PIN.</string>
+    <string name="lock_mismatch">The PINs didn\'t match. Start again.</string>
+    <string name="lock_save_failed">Couldn\'t save the PIN. Try again.</string>
+    <string name="lock_next">Next</string>
+    <string name="lock_done">Done</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_delete">Delete</string>
+    <string name="lock_cancel">Cancel</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Picture message files handed to Android's MMS service, deleted once sent or fetched. -->
+    <cache-path name="mms" path="mms/" />
+    <!-- Attachments copied out to open in another app. -->
+    <cache-path name="open" path="open/" />
+</paths>
