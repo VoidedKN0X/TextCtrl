@@ -138,6 +138,7 @@ private fun MainScaffold() {
 
     CompositionLocalProvider(LocalNavigator provides navigator) {
         BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            val twoPane = maxWidth >= 840.dp
             if (maxWidth >= 600.dp) {
                 // Tablets and unfolded foldables: a side rail.
                 Row(Modifier.fillMaxSize()) {
@@ -157,7 +158,7 @@ private fun MainScaffold() {
                         }
                         Spacer(Modifier.weight(1f))
                     }
-                    CompositionLocalProvider(LocalTwoPane provides (maxWidth >= 840.dp)) {
+                    CompositionLocalProvider(LocalTwoPane provides twoPane) {
                         Box(Modifier.weight(1f).fillMaxHeight().navigationBarsPadding().imePadding()) { AppNavHost(navController) }
                     }
                 }
