@@ -4,6 +4,25 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.5.0 (2026-10-25)
+
+Send contact cards, swipe chats to archive or delete them, and read and reply in floating bubbles.
+
+### New
+
+- **Send a contact.** In a chat, tap **+** › **Contact** and pick someone from your phone's contacts. TextCtrl makes a contact card (vCard 3.0, the format every phone understands) and sends it as a picture message. With the contacts permission the whole contact goes: name, every phone number and email address, company and job title, postal addresses and websites (never their photo, notes or birthday). Without it, Android's contact picker lets you pick one number, and only that name and number are sent.
+- **Contact cards in chats.** Contact cards you send or receive now show as a card with the person's name, company and numbers instead of a file name. Received cards have an **Add to contacts** button that opens your contacts app with everything filled in, so you can check it and save. Older cards from other phones (vCard 2.1, also with accented letters) are read too; a card that can't be read still shows as a file you can open.
+- **Swipe actions.** Swipe a chat left or right in Chats or Archived to act on it straight away. Choose what each direction does under Settings › Chat list: archive, delete, mark as read or unread, pin, mute, block, or nothing. Out of the box, swipe right marks as read or unread and swipe left archives. The colour and label behind the row show what will happen before you let go.
+- **Undo for swipes.** Archive, delete and block show an **Undo** bar for a few seconds instead of asking first. A deleted chat disappears at once and is only really deleted once the bar has gone.
+- **Bubbles.** New messages can float as an Android bubble over other apps: tap it to read the whole chat and reply without leaving what you were doing, and drag it away to close it. Turn it on under Settings › Notifications › Bubbles, for all chats or only the chats you choose (then use **Show as bubble** in a chat's menu). If bubbles are turned off for TextCtrl in Android's settings, TextCtrl tells you and opens that setting.
+
+### Security
+
+- **Bubbles respect the app lock.** While TextCtrl is locked, a bubble shows the lock screen and nothing of the chat; it unlocks with your PIN or fingerprint like the app itself. With the app lock on, the chat's conversation shortcut that Android needs for a bubble has no name or picture.
+- **Hide in screenshots** and **Hide in recent apps** apply to bubbles too, and the lock screen inside a bubble is always kept out of screenshots.
+- **Hidden chats never bubble**, and the bubble screen can only be opened by TextCtrl's own notifications.
+- No new permissions: picking a contact without the contacts permission only gives TextCtrl that one number.
+
 ## v0.4.0 (2026-10-25)
 
 Light mode that follows the device theme: TextCtrl is now light when your phone is set to light and dark when it is set to dark, and switches by itself (also with a dark-mode schedule). There is still no theme setting in the app, and no wallpaper colours.

@@ -79,6 +79,16 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <!-- One chat floating in an Android bubble. Only TextCtrl's own notifications open it. -->
+        <activity
+            android:name=".notify.BubbleActivity"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Incoming texts. Only Android itself can send this (BROADCAST_SMS). -->
         <receiver
             android:name=".sms.SmsDeliverReceiver"

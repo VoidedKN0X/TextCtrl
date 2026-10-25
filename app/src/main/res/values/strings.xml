@@ -467,6 +467,42 @@
     <string name="text_size_large">Large</string>
     <string name="text_size_larger">Larger</string>
 
+    <!-- Contact cards -->
+    <string name="attach_contact">Contact</string>
+    <string name="vcard_unreadable">Couldn\'t read that contact</string>
+    <string name="vcard_too_many">You can attach up to 5 things to one message</string>
+    <plurals name="vcard_more">
+        <item quantity="one">%1$d more</item>
+        <item quantity="other">%1$d more</item>
+    </plurals>
+
+    <!-- Swipe actions -->
+    <string name="group_chat_list">Chat list</string>
+    <string name="swipe_right">Swipe right</string>
+    <string name="swipe_left">Swipe left</string>
+    <string name="swipe_footer">What swiping a chat sideways does in Chats and Archived. Archive, delete and block can be undone for a few seconds.</string>
+    <string name="swipe_none">Nothing</string>
+    <string name="swipe_read">Mark as read or unread</string>
+    <string name="swipe_pin">Pin or unpin</string>
+    <string name="swipe_mute">Mute or unmute</string>
+    <string name="swipe_archived">Archived %1$s</string>
+    <string name="swipe_unarchived">Moved %1$s back to Chats</string>
+    <string name="swipe_deleted">Deleted the chat with %1$s</string>
+    <string name="swipe_blocked">Blocked %1$s</string>
+    <string name="swipe_block_group">Only chats with one person can be blocked</string>
+
+    <!-- Bubbles -->
+    <string name="group_notifications">Notifications</string>
+    <string name="bubbles">Bubbles</string>
+    <string name="bubbles_off">Off</string>
+    <string name="bubbles_chosen">Chats you choose</string>
+    <string name="bubbles_all">All chats</string>
+    <string name="bubbles_footer">New messages can float as a bubble over other apps; tap it to read and reply without leaving what you\'re doing. With Chats you choose, turn it on in a chat\'s menu. Hidden chats never bubble, and the app lock and Hide in screenshots apply inside bubbles too.</string>
+    <string name="bubbles_blocked">Bubbles are turned off for TextCtrl in Android\'s settings. Allow them there to see bubbles.</string>
+    <string name="bubble_chat_on">Show as bubble</string>
+    <string name="bubble_chat_off">Don\'t show as bubble</string>
+    <string name="bubble_locked_label">Chat</string>
+
     <!-- Widget -->
     <string name="widget_title">Recent chats</string>
     <string name="widget_description">Your newest chats at a glance</string>

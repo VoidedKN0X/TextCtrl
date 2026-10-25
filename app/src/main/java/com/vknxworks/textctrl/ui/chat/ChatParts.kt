@@ -331,6 +331,7 @@ fun Bubble(
                                 .combinedClickable(onClick = { if (selected) tap() else onOpenPart(part) }, onLongClick = onLongClick),
                         )
                     } else {
+                        val fileRow: @Composable () -> Unit = {
                         Surface(shape = shape, color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.combinedClickable(onClick = { if (selected) tap() else onOpenPart(part) }, onLongClick = onLongClick)) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -359,6 +360,20 @@ fun Bubble(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
+                        }
+                        }
+                        if (part.isContactCard) {
+                            ContactCardBubble(
+                                part = part,
+                                incoming = incoming,
+                                selected = selected,
+                                onTap = tap,
+                                onOpen = { onOpenPart(part) },
+                                onLongClick = onLongClick,
+                                fallback = fileRow,
+                            )
+                        } else {
+                            fileRow()
                         }
                     }
                 }
@@ -537,7 +552,7 @@ fun Composer(
                         } else {
                             Surface(shape = RoundedCornerShape(14.dp), color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.size(72.dp)) {
                                 Column(Modifier.padding(6.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                    Icon(if (a.mime.startsWith("video/")) Icons.Outlined.Videocam else Icons.Outlined.InsertDriveFile, null, tint = cs.primary)
+                                    Icon(when { a.mime.startsWith("video/") -> Icons.Outlined.Videocam; a.mime.contains("vcard", ignoreCase = true) -> Icons.Outlined.ContactPage; else -> Icons.Outlined.InsertDriveFile }, null, tint = cs.primary)
                                     Text(a.name, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
                                 }
                             }

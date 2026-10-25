@@ -29,7 +29,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Forward
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ContactPage
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.AddCircleOutline
@@ -98,6 +100,7 @@ import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.data.schedule.Scheduled
 import com.vknxworks.textctrl.data.settings.AutoDelete
+import com.vknxworks.textctrl.data.settings.BubbleMode
 import com.vknxworks.textctrl.sms.Attachment
 import com.vknxworks.textctrl.sms.Contact
 import com.vknxworks.textctrl.sms.Contacts
@@ -106,6 +109,7 @@ import com.vknxworks.textctrl.sms.Messenger
 import com.vknxworks.textctrl.sms.MmsPart
 import com.vknxworks.textctrl.sms.Reactions
 import com.vknxworks.textctrl.sms.SendStatus
+import com.vknxworks.textctrl.sms.VCard
 import com.vknxworks.textctrl.ui.components.ActionSheet
 import com.vknxworks.textctrl.ui.components.Avatar
 import com.vknxworks.textctrl.ui.components.ChoiceSheet
@@ -136,6 +140,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 private const val MAX_ATTACHMENTS = 5
+
+/**
+ * The phone's contact picker. Input: whether TextCtrl may read contacts (then a whole contact is picked);
+ * otherwise a single phone number is picked, which the picker lets TextCtrl read without any permission.
+ */
+private object PickContactContract : androidx.activity.result.contract.ActivityResultContract<Boolean, Uri?>() {
+    override fun createIntent(context: android.content.Context, input: Boolean): Intent =
+        Intent(Intent.ACTION_PICK, if (input) ContactsContract.Contacts.CONTENT_URI else ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+
+    override fun parseResult(resultCode: Int, intent: Intent?): Uri? =
+        if (resultCode == android.app.Activity.RESULT_OK) intent?.data else null
+}
 
 /**
  * One chat. [onBack] replaces the back arrow's usual job, for the chat pane next to the chat list on
@@ -172,6 +188,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     val muted by c.chats.muted.collectAsStateWithLifecycle()
     val archived by c.chats.archived.collectAsStateWithLifecycle()
     val pinned by c.chats.pinned.collectAsStateWithLifecycle()
+    val bubbled by c.chats.bubbled.collectAsStateWithLifecycle()
     val autoDeleteOverrides by c.chats.autoDelete.collectAsStateWithLifecycle()
     val scheduledAll by c.scheduler.items.collectAsStateWithLifecycle()
     val pending = remember(scheduledAll, threadId) { scheduledAll.filter { it.threadId == threadId } }
@@ -253,6 +270,23 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     }
     val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         addAttachments(uris.map { uri -> Attachment(uri, context.contentResolver.getType(uri) ?: "application/octet-stream", Messenger.displayName(context, uri)) })
+    }
+
+    // A contact card: with the contacts permission the whole contact is read, without it only the one
+    // number picked in the phone's contact picker (which grants access to just that row).
+    val wholeContact = c.contacts.granted
+    val pickContact = rememberLauncherForActivityResult(PickContactContract) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        c.runTask {
+            val card = withContext(Dispatchers.IO) { VCard.read(context, uri, wholeContact) }
+            if (card == null) {
+                Toast.makeText(context, context.getString(R.string.vcard_unreadable), Toast.LENGTH_SHORT).show()
+            } else {
+                val file = withContext(Dispatchers.IO) { VCard.toAttachment(context, card) }
+                if (attachments.size >= MAX_ATTACHMENTS) Toast.makeText(context, context.getString(R.string.vcard_too_many), Toast.LENGTH_SHORT).show()
+                else addAttachments(listOf(file))
+            }
+        }
     }
 
     /** Sends now, after the undo window, or at [at] when scheduled. */
@@ -521,6 +555,15 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                     )
                 }
             })
+            if (settings.bubbles == BubbleMode.CHOSEN && threadId !in hidden) {
+                add(
+                    if (threadId in bubbled) SheetAction(stringResource(R.string.bubble_chat_off), Icons.Outlined.ChatBubbleOutline) { c.chats.setBubbled(threadId, false) }
+                    else SheetAction(stringResource(R.string.bubble_chat_on), Icons.Outlined.ChatBubbleOutline) {
+                        c.chats.setBubbled(threadId, true)
+                        if (!c.notifier.bubblesAllowed()) Toast.makeText(context, context.getString(R.string.bubbles_blocked), Toast.LENGTH_LONG).show()
+                    },
+                )
+            }
             add(SheetAction(stringResource(R.string.auto_delete_chat), Icons.Outlined.AutoDelete) { autoDeleteMenu = true })
             add(
                 if (threadId in archived) SheetAction(stringResource(R.string.unarchive), Icons.Outlined.Unarchive) { c.chats.setArchived(threadId, false) }
@@ -587,6 +630,10 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                 SheetAction(stringResource(R.string.attach_file), Icons.Outlined.AttachFile) {
                     AppLock.expectReturn()
                     pickFiles.launch(arrayOf("*/*"))
+                },
+                SheetAction(stringResource(R.string.attach_contact), Icons.Outlined.ContactPage) {
+                    AppLock.expectReturn()
+                    pickContact.launch(wholeContact)
                 },
                 SheetAction(stringResource(R.string.schedule_title), Icons.Outlined.Schedule) { scheduleMenu = true },
             ),

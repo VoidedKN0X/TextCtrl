@@ -20,6 +20,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.vknxworks.textctrl.MainActivity
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.data.lock.LockVault
+import com.vknxworks.textctrl.data.settings.BubbleMode
 import com.vknxworks.textctrl.data.settings.ChatPrefs
 import com.vknxworks.textctrl.data.settings.NotificationContent
 import com.vknxworks.textctrl.data.settings.SettingsRepository
@@ -145,19 +146,23 @@ class Notifier(
                     style.addMessage(if (showText) preview(m) else str(R.string.notify_new_message), m.date, person)
                 }
                 builder.setStyle(style).setContentTitle(title)
+                val bubble = !hidden && wantsBubble(threadId, s)
                 // Conversation shortcuts put the chat in Android's Conversations section. Not with the app
-                // lock on: they'd show names in the launcher and share sheet.
-                if (!vault.enabled && !hidden) {
+                // lock on: they'd show names in the launcher and share sheet. A chat that bubbles still
+                // needs one (Android only bubbles conversations), so with the lock on it gets a nameless one.
+                val named = !vault.enabled && !hidden
+                if (named || bubble) {
                     runCatching {
                         val shortcut = ShortcutInfoCompat.Builder(context, shortcutId(threadId))
-                            .setShortLabel(title.take(40).ifBlank { str(R.string.app_name) })
+                            .setShortLabel(if (named) title.take(40).ifBlank { str(R.string.app_name) } else str(R.string.bubble_locked_label))
                             .setLongLived(true)
                             .setIntent(openActivityIntent(threadId))
-                            .setPersons(people.values.toTypedArray())
-                            .setIcon(people.values.firstOrNull()?.icon ?: IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+                            .apply { if (named) setPersons(people.values.toTypedArray()) }
+                            .setIcon((if (named) people.values.firstOrNull()?.icon else null) ?: IconCompat.createWithResource(context, R.mipmap.ic_launcher))
                             .build()
                         ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
                         builder.setShortcutId(shortcutId(threadId))
+                        if (bubble) builder.setBubbleMetadata(bubbleMetadata(threadId))
                     }
                 }
             }
@@ -183,6 +188,41 @@ class Notifier(
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .build()
         runCatching { nm.notify(TAG_FAILED, threadId.toInt(), n) }
+    }
+
+    // ---------------------------------------------------------------- bubbles
+
+    /** Chats whose bubble is open right now; their notification stays, or the bubble would close. */
+    private val openBubbles = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+
+    fun bubbleOpened(threadId: Long) { openBubbles += threadId }
+    fun bubbleClosed(threadId: Long) { openBubbles -= threadId }
+
+    /** "Bubbles" in Settings: every chat, or the chats you chose. */
+    private fun wantsBubble(threadId: Long, s: com.vknxworks.textctrl.data.settings.AppSettings): Boolean = when (s.bubbles) {
+        BubbleMode.OFF -> false
+        BubbleMode.ALL -> true
+        BubbleMode.CHOSEN -> chats.isBubbled(threadId)
+    }
+
+    /** Whether Android lets TextCtrl show bubbles at all (you can turn them off for the app in Android's settings). */
+    fun bubblesAllowed(): Boolean = runCatching {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager != null && manager.bubblePreference != NotificationManager.BUBBLE_PREFERENCE_NONE
+    }.getOrDefault(false)
+
+    private fun bubbleMetadata(threadId: Long): NotificationCompat.BubbleMetadata {
+        val intent = Intent(context, BubbleActivity::class.java)
+            .setAction(MainActivity.ACTION_OPEN_CHAT)
+            .setData(Uri.parse("textctrl://bubble/$threadId"))
+            .putExtra(MainActivity.EXTRA_THREAD_ID, threadId)
+        // Mutable as Android requires for bubbles; explicit, so it can only open TextCtrl's own screen.
+        val pi = PendingIntent.getActivity(context, threadId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        return NotificationCompat.BubbleMetadata.Builder(pi, IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+            .setDesiredHeight(640)
+            .setAutoExpandBubble(false)
+            .setSuppressNotification(false)
+            .build()
     }
 
     // ---------------------------------------------------------------- per-chat sound
@@ -228,7 +268,8 @@ class Notifier(
     }
 
     fun cancel(threadId: Long) {
-        nm.cancel(threadId.toInt())
+        // Removing the notification would close its bubble while you're reading in it.
+        if (threadId !in openBubbles) nm.cancel(threadId.toInt())
         nm.cancel(TAG_FAILED, threadId.toInt())
     }
 

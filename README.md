@@ -16,12 +16,15 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Instant**: new messages arrive the moment your phone receives them (see [How messages arrive](#how-messages-arrive))
 - **Group chats** as one group picture message, so everyone sees the replies (or separate texts, if you prefer)
 - **Pictures, videos and files**: attach up to 5, pictures are shrunk to fit your carrier's limit; view pictures full screen, save them to your phone or share them
+- **Contact cards**: send a contact from your phone's contacts, and see received ones as a card with **Add to contacts**
 - **Scheduled messages**: hold the send button to send later, even if the phone restarts in between
 - **Undo send**: a few seconds to take a message back before it goes out
 - **Reactions** (👍 ❤️ 😂 …) that work with iPhones and Google Messages over plain SMS, shown as badges on the message
 - **Copy one-time codes** straight from the message or its notification
 - **Notifications** with **Reply** and **Mark as read**, per-chat **mute** and **sound**, and a choice of what they show
+- **Bubbles**: read and reply in a floating bubble over other apps, for all chats or the ones you choose (the app lock applies there too)
 - **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
+- **Swipe actions** you choose for left and right in the chat list, with **Undo** for archive, delete and block
 - **Filters** for unread chats and **unknown senders** (numbers not in your contacts)
 - **Hidden chats** behind a PIN of their own (see [Hidden chats](#hidden-chats))
 - **Search** all your messages, one person's, or inside a chat, on the phone

@@ -60,6 +60,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.vknxworks.textctrl.data.settings.SwipeAction
+import com.vknxworks.textctrl.ui.components.CtrlControlShape
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -371,32 +386,134 @@ private fun ChatList(
     BackHandler(enabled = selection.isNotEmpty()) { selection.clear() }
     val chosen = list.filter { it.conversation.threadId in selection }
 
+    val settings by c.settings.settings.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    // Chats swiped away to be deleted: hidden at once, deleted for real once the Undo bar is gone.
+    val pendingDelete = remember { mutableStateListOf<Long>() }
+    val shown = remember(list, pendingDelete.toList()) { list.filter { it.conversation.threadId !in pendingDelete } }
+    val swipeEnabled = !hiddenList && selection.isEmpty()
+
+    /** Shows the Undo bar; [commit] runs once it's gone without Undo, [undo] when Undo is tapped. */
+    fun offerUndo(message: String, undo: () -> Unit, commit: () -> Unit = {}) {
+        scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
+            var undone = false
+            try {
+                val result = snackbar.showSnackbar(message, actionLabel = context.getString(R.string.undo), duration = SnackbarDuration.Short)
+                if (result == SnackbarResult.ActionPerformed) { undone = true; undo() }
+            } finally {
+                // Also when the screen goes away while the bar is up: the action still happens.
+                if (!undone) commit()
+            }
+        }
+    }
+
+    fun onSwipe(item: ChatItem, action: SwipeAction) {
+        val id = item.conversation.threadId
+        when (action) {
+            SwipeAction.NONE -> Unit
+            SwipeAction.READ -> if (item.conversation.unread > 0) {
+                c.runTask { c.store.markRead(id); c.notifier.cancel(id) }
+            } else {
+                c.runTask { c.store.markUnread(id) }
+            }
+            SwipeAction.PIN -> c.chats.setPinned(id, id !in pinned)
+            SwipeAction.MUTE -> {
+                val on = id !in muted
+                c.chats.setMuted(id, on)
+                if (on) c.notifier.cancel(id)
+            }
+            SwipeAction.ARCHIVE -> {
+                c.chats.setArchived(id, !archivedTab)
+                offerUndo(
+                    context.getString(if (archivedTab) R.string.swipe_unarchived else R.string.swipe_archived, item.title),
+                    undo = { c.chats.setArchived(id, archivedTab) },
+                )
+            }
+            SwipeAction.DELETE -> {
+                pendingDelete.add(id)
+                offerUndo(
+                    context.getString(R.string.swipe_deleted, item.title),
+                    undo = { pendingDelete.remove(id) },
+                    commit = { c.runTask { deleteChats(c, listOf(id)) }; pendingDelete.remove(id) },
+                )
+            }
+            SwipeAction.BLOCK -> {
+                val number = item.conversation.addresses.singleOrNull()
+                if (item.conversation.isGroup || number == null || !c.blocklist.canBlock) {
+                    android.widget.Toast.makeText(context, context.getString(R.string.swipe_block_group), android.widget.Toast.LENGTH_SHORT).show()
+                    return
+                }
+                val wasArchived = archivedTab
+                c.runTask {
+                    c.blocklist.block(number)
+                    c.chats.setArchived(id, true)
+                }
+                offerUndo(
+                    context.getString(R.string.swipe_blocked, item.title),
+                    undo = { c.runTask { c.blocklist.unblock(number); c.chats.setArchived(id, wasArchived) } },
+                )
+            }
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
+        Box(Modifier.weight(1f).fillMaxWidth()) {
         LazyColumn(
-            Modifier.weight(1f).fillMaxWidth(),
+            Modifier.fillMaxSize(),
             state = state,
             contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp + LocalBottomClearance.current),
         ) {
-            itemsIndexed(list, key = { _, row -> row.conversation.threadId }) { index, item ->
+            itemsIndexed(shown, key = { _, row -> row.conversation.threadId }) { index, item ->
                 val id = item.conversation.threadId
-                ChatRow(
-                    first = index == 0,
-                    item = item,
-                    pinned = id in pinned,
-                    muted = id in muted,
-                    draft = id in drafts,
-                    scheduled = id in scheduledThreads,
-                    selected = id in selection,
-                    open = id == openThread,
-                    modifier = Modifier.animateItem(),
-                    onClick = {
-                        if (selection.isNotEmpty()) {
-                            if (id in selection) selection.remove(id) else selection.add(id)
-                        } else {
-                            onOpen(id)
-                        }
-                    },
-                    onLongClick = { if (id in selection) selection.remove(id) else selection.add(id) },
+                val row: @Composable (Modifier) -> Unit = { mod ->
+                    ChatRow(
+                        first = index == 0,
+                        item = item,
+                        pinned = id in pinned,
+                        muted = id in muted,
+                        draft = id in drafts,
+                        scheduled = id in scheduledThreads,
+                        selected = id in selection,
+                        open = id == openThread,
+                        modifier = mod,
+                        onClick = {
+                            if (selection.isNotEmpty()) {
+                                if (id in selection) selection.remove(id) else selection.add(id)
+                            } else {
+                                onOpen(id)
+                            }
+                        },
+                        onLongClick = { if (id in selection) selection.remove(id) else selection.add(id) },
+                    )
+                }
+                if (swipeEnabled && (settings.swipeLeft != SwipeAction.NONE || settings.swipeRight != SwipeAction.NONE)) {
+                    SwipeableChat(
+                        item = item,
+                        right = settings.swipeRight,
+                        left = settings.swipeLeft,
+                        pinned = id in pinned,
+                        muted = id in muted,
+                        archivedTab = archivedTab,
+                        modifier = Modifier.animateItem(),
+                        onSwipe = { onSwipe(item, it) },
+                    ) { row(Modifier) }
+                } else {
+                    row(Modifier.animateItem())
+                }
+            }
+        }
+            SnackbarHost(
+                snackbar,
+                Modifier.align(Alignment.BottomCenter).padding(bottom = LocalBottomClearance.current + 8.dp, start = 12.dp, end = 12.dp),
+            ) { data ->
+                Snackbar(
+                    data,
+                    shape = CtrlControlShape,
+                    containerColor = CtrlColors.Raised,
+                    contentColor = CtrlColors.Text,
+                    actionColor = CtrlColors.AccentText,
                 )
             }
         }
@@ -494,16 +611,7 @@ private fun ChatList(
             deleting = null
             selection.clear()
             val ids = items.map { it.conversation.threadId }
-            c.runTask {
-                for (id in ids) {
-                    c.scheduler.items.value.filter { it.threadId == id }.forEach { c.scheduler.cancel(it.id) }
-                    c.store.deleteThread(id)
-                    c.chats.forget(id)
-                    c.notifier.cancel(id)
-                    c.notifier.removeShortcut(id)
-                    c.notifier.deleteChatChannel(id)
-                }
-            }
+            c.runTask { deleteChats(c, ids) }
         }
     }
 
@@ -657,3 +765,100 @@ private fun ChatRow(
 /** "3 people" style subtitle for a group, used by the chat screen too. */
 @Composable
 fun peopleCount(n: Int): String = pluralStringResource(R.plurals.people, n, n)
+
+/** Deletes chats with everything TextCtrl keeps about them. */
+private suspend fun deleteChats(c: AppContainer, ids: List<Long>) {
+    for (id in ids) {
+        c.scheduler.items.value.filter { it.threadId == id }.forEach { c.scheduler.cancel(it.id) }
+        c.store.deleteThread(id)
+        c.chats.forget(id)
+        c.notifier.cancel(id)
+        c.notifier.removeShortcut(id)
+        c.notifier.deleteChatChannel(id)
+    }
+}
+
+/** What a swipe action looks like behind the row, for this chat right now. */
+private data class SwipeLook(val label: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector, val destructive: Boolean)
+
+private fun swipeLook(action: SwipeAction, unread: Boolean, pinned: Boolean, muted: Boolean, archivedTab: Boolean): SwipeLook? = when (action) {
+    SwipeAction.NONE -> null
+    SwipeAction.ARCHIVE -> if (archivedTab) SwipeLook(R.string.unarchive, Icons.Outlined.Unarchive, false) else SwipeLook(R.string.archive, Icons.Outlined.Archive, false)
+    SwipeAction.DELETE -> SwipeLook(R.string.delete, Icons.Outlined.Delete, true)
+    SwipeAction.READ -> if (unread) SwipeLook(R.string.mark_read, Icons.Outlined.MarkChatRead, false) else SwipeLook(R.string.mark_unread, Icons.Outlined.MarkChatUnread, false)
+    SwipeAction.PIN -> SwipeLook(if (pinned) R.string.unpin else R.string.pin, Icons.Outlined.PushPin, false)
+    SwipeAction.MUTE -> if (muted) SwipeLook(R.string.unmute, Icons.Outlined.Notifications, false) else SwipeLook(R.string.mute, Icons.Outlined.NotificationsOff, false)
+    SwipeAction.BLOCK -> SwipeLook(R.string.block, Icons.Outlined.Block, true)
+}
+
+/**
+ * A chat row that can be swiped left or right (Settings › Chat list). The row springs back after the
+ * action; archive, delete and block show an Undo bar instead of asking first.
+ */
+@Composable
+private fun SwipeableChat(
+    item: ChatItem,
+    right: SwipeAction,
+    left: SwipeAction,
+    pinned: Boolean,
+    muted: Boolean,
+    archivedTab: Boolean,
+    modifier: Modifier,
+    onSwipe: (SwipeAction) -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val haptics = LocalHapticFeedback.current
+    val currentOnSwipe by rememberUpdatedState(onSwipe)
+    val currentRight by rememberUpdatedState(right)
+    val currentLeft by rememberUpdatedState(left)
+    val lastFired = remember { longArrayOf(0L) }
+    val state = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            val action = when (value) {
+                SwipeToDismissBoxValue.StartToEnd -> currentRight
+                SwipeToDismissBoxValue.EndToStart -> currentLeft
+                SwipeToDismissBoxValue.Settled -> null
+            }
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (action != null && action != SwipeAction.NONE && now - lastFired[0] > 600) {
+                lastFired[0] = now
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                currentOnSwipe(action)
+            }
+            // Always spring back: the list itself shows what changed.
+            false
+        },
+        positionalThreshold = { distance -> distance * 0.35f },
+    )
+    val unread = item.conversation.unread > 0
+    SwipeToDismissBox(
+        state = state,
+        modifier = modifier,
+        enableDismissFromStartToEnd = right != SwipeAction.NONE,
+        enableDismissFromEndToStart = left != SwipeAction.NONE,
+        backgroundContent = {
+            val direction = state.dismissDirection
+            val action = when (direction) {
+                SwipeToDismissBoxValue.StartToEnd -> right
+                SwipeToDismissBoxValue.EndToStart -> left
+                SwipeToDismissBoxValue.Settled -> null
+            }
+            val look = action?.let { swipeLook(it, unread, pinned, muted, archivedTab) }
+            if (look != null) {
+                val bg = if (look.destructive) CtrlColors.Error else CtrlColors.Accent
+                val fg = if (look.destructive) Color.White else CtrlColors.OnAccent
+                Row(
+                    Modifier.fillMaxSize().background(bg).padding(horizontal = Gutter),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = if (direction == SwipeToDismissBoxValue.StartToEnd) Arrangement.Start else Arrangement.End,
+                ) {
+                    Icon(look.icon, null, Modifier.size(22.dp), tint = fg)
+                    Spacer(Modifier.width(10.dp))
+                    Text(stringResource(look.label).uppercase(), style = CtrlType.Status, color = fg, maxLines = 1)
+                }
+            }
+        },
+    ) {
+        Box(Modifier.background(CtrlColors.Background)) { content() }
+    }
+}

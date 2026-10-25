@@ -40,6 +40,13 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     /** Chats with their own auto-delete choice, instead of the one in Settings. */
     val autoDelete: StateFlow<Map<Long, AutoDelete>> = _autoDelete.asStateFlow()
 
+    private val _bubbled = MutableStateFlow(readSet(K_BUBBLED))
+    /** Chats chosen to show as bubbles (with "Bubbles: Chosen chats"). */
+    val bubbled: StateFlow<Set<Long>> = _bubbled.asStateFlow()
+
+    fun setBubbled(threadId: Long, on: Boolean) = toggle(K_BUBBLED, _bubbled, threadId, on)
+    fun isBubbled(threadId: Long) = threadId in _bubbled.value
+
     fun setPinned(threadId: Long, on: Boolean) = toggle(K_PINNED, _pinned, threadId, on)
     fun setArchived(threadId: Long, on: Boolean) = toggle(K_ARCHIVED, _archived, threadId, on)
     fun setMuted(threadId: Long, on: Boolean) = toggle(K_MUTED, _muted, threadId, on)
@@ -86,6 +93,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setMuted(threadId, false)
         setHidden(threadId, false)
         setAutoDelete(threadId, null)
+        setBubbled(threadId, false)
         saveDraft(threadId, "")
     }
 
@@ -175,5 +183,6 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val K_DRAFTS = "draft_ids"
         const val K_HIDDEN = "hidden_enc"
         const val K_AUTO_DELETE = "auto_delete"
+        const val K_BUBBLED = "bubbled"
     }
 }

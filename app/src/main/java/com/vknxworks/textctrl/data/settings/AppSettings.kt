@@ -77,6 +77,24 @@ enum class BubbleColor(@StringRes val label: Int, val argb: Long) {
     GRAPHITE(R.string.bubble_graphite, 0xFF4A505B),
 }
 
+/** What swiping a chat in the chat list does. */
+enum class SwipeAction(@StringRes val label: Int) {
+    NONE(R.string.swipe_none),
+    ARCHIVE(R.string.archive),
+    DELETE(R.string.delete),
+    READ(R.string.swipe_read),
+    PIN(R.string.swipe_pin),
+    MUTE(R.string.swipe_mute),
+    BLOCK(R.string.block),
+}
+
+/** Which chats' notifications can float as Android bubbles. */
+enum class BubbleMode(@StringRes val label: Int) {
+    OFF(R.string.bubbles_off),
+    CHOSEN(R.string.bubbles_chosen),
+    ALL(R.string.bubbles_all),
+}
+
 data class AppSettings(
     val theme: ThemeChoice = ThemeChoice.SYSTEM,
     val dynamicColor: Boolean = false,
@@ -104,6 +122,11 @@ data class AppSettings(
     val autoDelete: AutoDelete = AutoDelete.NEVER,
     val textSize: TextSize = TextSize.DEFAULT,
     val bubbleColor: BubbleColor = BubbleColor.ACCENT,
+    /** Swiping a chat to the right (start to end) in the chat list. */
+    val swipeRight: SwipeAction = SwipeAction.READ,
+    /** Swiping a chat to the left (end to start) in the chat list. */
+    val swipeLeft: SwipeAction = SwipeAction.ARCHIVE,
+    val bubbles: BubbleMode = BubbleMode.OFF,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -125,6 +148,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val autoDelete = stringPreferencesKey("auto_delete")
         val textSize = stringPreferencesKey("text_size")
         val bubbleColor = stringPreferencesKey("bubble_color")
+        val swipeRight = stringPreferencesKey("swipe_right")
+        val swipeLeft = stringPreferencesKey("swipe_left")
+        val bubbles = stringPreferencesKey("bubbles")
     }
 
     val settings: StateFlow<AppSettings> = context.appDataStore.data
@@ -152,6 +178,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         autoDelete = enumOr(this[K.autoDelete], AutoDelete.NEVER),
         textSize = enumOr(this[K.textSize], TextSize.DEFAULT),
         bubbleColor = enumOr(this[K.bubbleColor], BubbleColor.ACCENT),
+        swipeRight = enumOr(this[K.swipeRight], SwipeAction.READ),
+        swipeLeft = enumOr(this[K.swipeLeft], SwipeAction.ARCHIVE),
+        bubbles = enumOr(this[K.bubbles], BubbleMode.OFF),
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -174,6 +203,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.autoDelete] = s.autoDelete.name
             p[K.textSize] = s.textSize.name
             p[K.bubbleColor] = s.bubbleColor.name
+            p[K.swipeRight] = s.swipeRight.name
+            p[K.swipeLeft] = s.swipeLeft.name
+            p[K.bubbles] = s.bubbles.name
         }
     }
 
