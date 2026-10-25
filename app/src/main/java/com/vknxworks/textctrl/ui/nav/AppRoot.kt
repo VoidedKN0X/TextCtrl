@@ -69,6 +69,8 @@ import com.vknxworks.textctrl.ui.theme.CtrlColors
 import com.vknxworks.textctrl.ui.search.SearchScreen
 import com.vknxworks.textctrl.ui.settings.BackupScreen
 import com.vknxworks.textctrl.ui.settings.BlockedScreen
+import com.vknxworks.textctrl.ui.settings.FiltersScreen
+import com.vknxworks.textctrl.ui.settings.SpamScreen
 import com.vknxworks.textctrl.ui.settings.HiddenChatsScreen
 import com.vknxworks.textctrl.ui.settings.ScheduledScreen
 import com.vknxworks.textctrl.ui.settings.SettingsScreen
@@ -234,5 +236,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<HiddenRoute> { HiddenChatsScreen() }
         composable<ScheduledRoute> { ScheduledScreen() }
         composable<BackupRoute> { BackupScreen() }
+        composable<SpamRoute> { SpamScreen() }
+        composable<FiltersRoute> { FiltersScreen() }
     }
 }

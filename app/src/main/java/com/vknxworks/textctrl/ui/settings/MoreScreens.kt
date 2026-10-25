@@ -76,6 +76,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.data.backup.BackupState
+import com.vknxworks.textctrl.data.backup.XmlState
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.SaveAs
+import androidx.compose.ui.res.pluralStringResource
 import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.schedule.Scheduled
 import com.vknxworks.textctrl.ui.chats.HiddenChatList
@@ -440,6 +444,7 @@ fun BackupScreen() {
                     onClick = if (running || !c.isDefaultSmsApp) null else ({ c.backup.reset(); asking = BackupAction.RESTORE }),
                 )
             }
+            XmlSection(running)
             when (val s = state) {
                 is BackupState.Running -> Column(Modifier.fillMaxWidth().padding(horizontal = Gutter + 4.dp, vertical = 12.dp)) {
                     Text(
@@ -550,4 +555,118 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
+}
+
+// ======================================================================== SMS Backup & Restore files
+
+/**
+ * Import and export in SMS Backup & Restore's XML format, to move messages between TextCtrl and other
+ * SMS apps. Not encrypted: that's the format other apps read.
+ */
+@Composable
+private fun XmlSection(backupRunning: Boolean) {
+    val context = LocalContext.current
+    val c = context.container
+    val state by c.xmlTransfer.state.collectAsStateWithLifecycle()
+    val running = state is XmlState.Running
+    var confirmExport by remember { mutableStateOf(false) }
+
+    val view = LocalView.current
+    DisposableEffect(running) {
+        if (running) view.keepScreenOn = true
+        onDispose { if (running) view.keepScreenOn = false }
+    }
+
+    val open = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) c.runTask { c.xmlTransfer.import(uri) }
+    }
+    val create = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/xml")) { uri ->
+        if (uri != null) c.runTask { c.xmlTransfer.export(uri) }
+    }
+    val busy = running || backupRunning
+
+    Group(stringResource(R.string.xml_group), footer = stringResource(R.string.xml_footer)) {
+        GroupRow(
+            stringResource(R.string.xml_import),
+            stringResource(if (c.isDefaultSmsApp) R.string.xml_import_subtitle else R.string.xml_import_not_default),
+            icon = Icons.Outlined.FileOpen,
+            showChevron = true,
+            onClick = if (busy || !c.isDefaultSmsApp) null else ({
+                c.xmlTransfer.reset()
+                AppLock.expectReturn()
+                open.launch(arrayOf("text/xml", "application/xml", "text/plain", "application/octet-stream"))
+            }),
+        )
+        GroupRow(
+            stringResource(R.string.xml_export),
+            stringResource(R.string.xml_export_subtitle),
+            icon = Icons.Outlined.SaveAs,
+            showChevron = true,
+            onClick = if (busy) null else ({ c.xmlTransfer.reset(); confirmExport = true }),
+        )
+    }
+    when (val s = state) {
+        is XmlState.Running -> Column(Modifier.fillMaxWidth().padding(horizontal = Gutter + 4.dp, vertical = 12.dp)) {
+            Text(
+                if (s.total > 0) stringResource(if (s.importing) R.string.xml_importing_of else R.string.xml_exporting_of, s.done, s.total)
+                else stringResource(if (s.importing) R.string.xml_importing else R.string.xml_exporting, s.done),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(Modifier.height(8.dp))
+            val modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+            if (s.total > 0) {
+                LinearProgressIndicator(
+                    progress = { (s.done.toFloat() / s.total).coerceIn(0f, 1f) },
+                    modifier = modifier,
+                    color = CtrlColors.Accent,
+                    trackColor = CtrlColors.Track,
+                    gapSize = 0.dp,
+                    strokeCap = StrokeCap.Butt,
+                    drawStopIndicator = {},
+                )
+            } else {
+                LinearProgressIndicator(modifier, color = CtrlColors.Accent, trackColor = CtrlColors.Track, gapSize = 0.dp, strokeCap = StrokeCap.Butt)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(R.string.backup_keep_open), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        is XmlState.Done -> Text(
+            if (s.importing) {
+                listOfNotNull(
+                    stringResource(R.string.xml_imported, s.sms, s.mms),
+                    if (s.skipped > 0) pluralStringResource(R.plurals.xml_skipped, s.skipped, s.skipped) else null,
+                    if (s.failed > 0) pluralStringResource(R.plurals.xml_failed_count, s.failed, s.failed) else null,
+                ).joinToString(" ")
+            } else {
+                stringResource(R.string.xml_exported, s.sms, s.mms)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = Gutter + 4.dp, vertical = 12.dp),
+        )
+        is XmlState.Failed -> Text(
+            s.message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(horizontal = Gutter + 4.dp, vertical = 12.dp),
+        )
+        XmlState.Idle -> Unit
+    }
+
+    if (confirmExport) {
+        CtrlAlertDialog(
+            onDismissRequest = { confirmExport = false },
+            title = { Text(stringResource(R.string.xml_export_title)) },
+            text = { Text(stringResource(R.string.xml_export_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmExport = false
+                    AppLock.expectReturn()
+                    val stamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT).format(Date())
+                    create.launch("sms-$stamp.xml")
+                }) { Text(stringResource(R.string.xml_export)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmExport = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
 }

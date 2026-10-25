@@ -8,6 +8,7 @@ import android.os.IBinder
 import android.provider.Telephony
 import android.telephony.SubscriptionManager
 import com.vknxworks.textctrl.container
+import com.vknxworks.textctrl.data.filters.RuleAction
 import com.vknxworks.textctrl.sms.mms.PduParser
 import com.vknxworks.textctrl.sms.mms.PduType
 import kotlinx.coroutines.CancellationException
@@ -45,6 +46,10 @@ class SmsDeliverReceiver : BroadcastReceiver() {
             for ((address, pieces) in parts.groupBy { it.displayOriginatingAddress ?: it.originatingAddress.orEmpty() }) {
                 val first = pieces.first()
                 val body = pieces.joinToString("") { it.displayMessageBody ?: it.messageBody.orEmpty() }
+                // Your own filters, before anything is stored or shown. Block: the text is dropped here.
+                val known = runCatching { c.store.threadIdFor(listOf(address)) }.getOrNull()
+                val verdict = runCatching { c.filters.check(address, body, known) }.getOrNull()
+                if (verdict == RuleAction.BLOCK) continue
                 val uri = c.store.insertIncomingSms(
                     address = address,
                     body = body,
@@ -55,8 +60,15 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                     replyPath = first.isReplyPathPresent,
                 ) ?: continue
                 val thread = c.store.threadOf(uri) ?: continue
-                c.chats.unarchive(thread)
-                c.notifier.onIncoming(thread)
+                when {
+                    verdict == RuleAction.SPAM -> c.chats.markSpamByFilter(thread)
+                    // Muted by a rule: in its chat as usual, without a notification.
+                    verdict == RuleAction.MUTE -> c.chats.unarchive(thread)
+                    else -> {
+                        c.chats.unarchive(thread)
+                        c.notifier.onIncoming(thread)
+                    }
+                }
             }
             c.store.touch()
         }

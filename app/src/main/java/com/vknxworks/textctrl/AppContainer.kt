@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.vknxworks.textctrl.data.backup.Backup
+import com.vknxworks.textctrl.data.backup.XmlTransfer
+import com.vknxworks.textctrl.data.filters.Filters
 import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.schedule.Cleaner
 import com.vknxworks.textctrl.data.schedule.Scheduler
@@ -47,11 +49,13 @@ class AppContainer(val context: Context) {
     val contacts = Contacts(context)
     val sims = Sims(context)
     val blocklist = Blocklist(context)
+    val filters = Filters(context, store, contacts, chats)
     val notifier = Notifier(context, store, contacts, settings, chats, vault)
-    val messenger = Messenger(context, store, sims, settings, chats, notifier)
+    val messenger = Messenger(context, store, sims, settings, chats, notifier, filters)
     val scheduler = Scheduler(context, appScope, messenger, notifier)
     val cleaner = Cleaner(context, store, settings, chats)
     val backup = Backup(context, store, sims)
+    val xmlTransfer = XmlTransfer(context, store, sims, contacts)
     val widgets = Widgets(context, appScope, store, contacts, chats, settings, vault)
 
     /** The hidden chats' own PIN, separate from the app lock. */

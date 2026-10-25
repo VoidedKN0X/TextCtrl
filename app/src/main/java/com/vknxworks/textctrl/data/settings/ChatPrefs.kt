@@ -47,6 +47,28 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     fun setBubbled(threadId: Long, on: Boolean) = toggle(K_BUBBLED, _bubbled, threadId, on)
     fun isBubbled(threadId: Long) = threadId in _bubbled.value
 
+    private val _spam = MutableStateFlow(readSet(K_SPAM))
+    /** Chats in the Spam folder: kept out of Chats, Archived, Search and the widget, and never notified. */
+    val spam: StateFlow<Set<Long>> = _spam.asStateFlow()
+
+    private val _notSpam = MutableStateFlow(readSet(K_NOT_SPAM))
+
+    fun isSpam(threadId: Long) = threadId in _spam.value
+
+    /** A chat you moved out of Spam (or never want there): filters leave it alone from then on. */
+    fun isNotSpam(threadId: Long) = threadId in _notSpam.value
+
+    /** Moves a chat into the Spam folder (or out of it again, which also trusts it from then on). */
+    fun setSpam(threadId: Long, on: Boolean) {
+        toggle(K_SPAM, _spam, threadId, on)
+        toggle(K_NOT_SPAM, _notSpam, threadId, !on)
+    }
+
+    /** A filter put a new message's chat into Spam. Chats you rescued from Spam aren't touched. */
+    fun markSpamByFilter(threadId: Long) {
+        if (!isNotSpam(threadId)) toggle(K_SPAM, _spam, threadId, true)
+    }
+
     fun setPinned(threadId: Long, on: Boolean) = toggle(K_PINNED, _pinned, threadId, on)
     fun setArchived(threadId: Long, on: Boolean) = toggle(K_ARCHIVED, _archived, threadId, on)
     fun setMuted(threadId: Long, on: Boolean) = toggle(K_MUTED, _muted, threadId, on)
@@ -94,6 +116,8 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setHidden(threadId, false)
         setAutoDelete(threadId, null)
         setBubbled(threadId, false)
+        toggle(K_SPAM, _spam, threadId, false)
+        toggle(K_NOT_SPAM, _notSpam, threadId, false)
         saveDraft(threadId, "")
     }
 
@@ -184,5 +208,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val K_HIDDEN = "hidden_enc"
         const val K_AUTO_DELETE = "auto_delete"
         const val K_BUBBLED = "bubbled"
+        const val K_SPAM = "spam"
+        const val K_NOT_SPAM = "not_spam"
     }
 }

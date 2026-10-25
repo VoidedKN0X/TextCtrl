@@ -75,7 +75,7 @@ class Notifier(
             store.markRead(threadId)
             return
         }
-        if (chats.isMuted(threadId)) return
+        if (chats.isMuted(threadId) || chats.isSpam(threadId)) return
         val s = settings.stored.first()
         // Texts from strangers can stay quiet when they're kept apart from your chats.
         if (s.separateUnknown && !s.notifyUnknown && isUnknown(threadId)) return

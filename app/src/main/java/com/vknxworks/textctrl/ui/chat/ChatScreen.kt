@@ -53,6 +53,7 @@ import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.Schedule
@@ -189,6 +190,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     val archived by c.chats.archived.collectAsStateWithLifecycle()
     val pinned by c.chats.pinned.collectAsStateWithLifecycle()
     val bubbled by c.chats.bubbled.collectAsStateWithLifecycle()
+    val spamSet by c.chats.spam.collectAsStateWithLifecycle()
     val autoDeleteOverrides by c.chats.autoDelete.collectAsStateWithLifecycle()
     val scheduledAll by c.scheduler.items.collectAsStateWithLifecycle()
     val pending = remember(scheduledAll, threadId) { scheduledAll.filter { it.threadId == threadId } }
@@ -595,6 +597,15 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                     }
                 })
             }
+            add(
+                if (threadId in spamSet) SheetAction(stringResource(R.string.spam_restore), Icons.Outlined.Report) { c.chats.setSpam(threadId, false) }
+                else SheetAction(stringResource(R.string.spam_move), Icons.Outlined.Report) {
+                    c.chats.setSpam(threadId, true)
+                    c.notifier.cancel(threadId)
+                    Toast.makeText(context, context.getString(R.string.spam_moved), Toast.LENGTH_SHORT).show()
+                    close()
+                },
+            )
             if (to.size == 1 && c.blocklist.canBlock) {
                 add(SheetAction(stringResource(R.string.block), Icons.Outlined.Block, destructive = true) { blocking = true })
             }

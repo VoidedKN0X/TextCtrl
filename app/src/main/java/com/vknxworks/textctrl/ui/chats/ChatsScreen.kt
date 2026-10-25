@@ -48,6 +48,8 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PersonOff
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.outlined.Report
+import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.outlined.Unarchive
@@ -179,7 +181,8 @@ fun ChatsScreen() {
     var chosenFilter by rememberSaveable { mutableStateOf(Filter.ALL) }
     var openThread by rememberSaveable { mutableStateOf<Long?>(null) }
 
-    val visible = remember(chats, archived, hidden) { chats?.filter { it.conversation.threadId !in archived && it.conversation.threadId !in hidden } }
+    val spam by c.chats.spam.collectAsStateWithLifecycle()
+    val visible = remember(chats, archived, hidden, spam) { chats?.filter { it.conversation.threadId !in archived && it.conversation.threadId !in hidden && it.conversation.threadId !in spam } }
     val unknownCount = visible?.count { it.unknown } ?: 0
     val unreadCount = visible?.count { it.conversation.unread > 0 } ?: 0
     // "Unknown senders" only exists while that setting is on.
@@ -307,7 +310,8 @@ fun ArchivedScreen() {
     val chats by rememberChats()
     val archived by c.chats.archived.collectAsStateWithLifecycle()
     val hidden by c.chats.hidden.collectAsStateWithLifecycle()
-    val list = remember(chats, archived, hidden) { chats?.filter { it.conversation.threadId in archived && it.conversation.threadId !in hidden } }
+    val spam by c.chats.spam.collectAsStateWithLifecycle()
+    val list = remember(chats, archived, hidden, spam) { chats?.filter { it.conversation.threadId in archived && it.conversation.threadId !in hidden && it.conversation.threadId !in spam } }
     val selection = remember { mutableStateListOf<Long>() }
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         if (selection.isEmpty()) TabTitle(stringResource(R.string.tab_archived)) else SelectionTitle(selection.size) { selection.clear() }
@@ -343,6 +347,26 @@ fun HiddenChatList() {
     }
 }
 
+/** The Spam folder: chats your filters (or you) moved there. Restore brings a chat back and trusts it. */
+@Composable
+fun SpamChatList() {
+    val c = LocalContext.current.container
+    val nav = LocalNavigator.current
+    val chats by rememberChats()
+    val spam by c.chats.spam.collectAsStateWithLifecycle()
+    val hidden by c.chats.hidden.collectAsStateWithLifecycle()
+    val list = remember(chats, spam, hidden) { chats?.filter { it.conversation.threadId in spam && it.conversation.threadId !in hidden } }
+    val selection = remember { mutableStateListOf<Long>() }
+    Column(Modifier.fillMaxSize()) {
+        if (selection.isNotEmpty()) SelectionTitle(selection.size) { selection.clear() }
+        when {
+            list == null -> LoadingView()
+            list.isEmpty() -> MessageView(Icons.Outlined.Report, stringResource(R.string.spam_empty), stringResource(R.string.spam_empty_body))
+            else -> ChatList(list, archivedTab = false, state = rememberLazyListState(), selection = selection, openThread = null, onOpen = { nav.chat(it) }, spamList = true)
+        }
+    }
+}
+
 @Composable
 private fun SelectionTitle(count: Int, onClose: () -> Unit) {
     Row(
@@ -368,6 +392,7 @@ private fun ChatList(
     openThread: Long?,
     onOpen: (Long) -> Unit,
     hiddenList: Boolean = false,
+    spamList: Boolean = false,
 ) {
     val c = LocalContext.current.container
     val nav = LocalNavigator.current
@@ -392,7 +417,7 @@ private fun ChatList(
     // Chats swiped away to be deleted: hidden at once, deleted for real once the Undo bar is gone.
     val pendingDelete = remember { mutableStateListOf<Long>() }
     val shown = remember(list, pendingDelete.toList()) { list.filter { it.conversation.threadId !in pendingDelete } }
-    val swipeEnabled = !hiddenList && selection.isEmpty()
+    val swipeEnabled = !hiddenList && !spamList && selection.isEmpty()
 
     /** Shows the Undo bar; [commit] runs once it's gone without Undo, [undo] when Undo is tapped. */
     fun offerUndo(message: String, undo: () -> Unit, commit: () -> Unit = {}) {
@@ -544,6 +569,13 @@ private fun ChatList(
                         c.runTask { sel.forEach { c.store.markUnread(it) } }
                     }
                 }
+                if (spamList) {
+                    BarAction(Icons.Outlined.Restore, stringResource(R.string.spam_restore)) {
+                        chosen.forEach { c.chats.setSpam(it.conversation.threadId, false) }
+                        selection.clear()
+                    }
+                    BarAction(Icons.Outlined.Delete, stringResource(R.string.delete)) { deleting = chosen }
+                } else {
                 if (!archivedTab && !hiddenList) {
                     BarAction(Icons.Outlined.PushPin, stringResource(if (allPinned) R.string.unpin else R.string.pin)) {
                         chosen.forEach { c.chats.setPinned(it.conversation.threadId, !allPinned) }
@@ -563,6 +595,7 @@ private fun ChatList(
                 }
                 BarAction(Icons.Outlined.Delete, stringResource(R.string.delete)) { deleting = chosen }
                 BarAction(Icons.Outlined.MoreVert, stringResource(R.string.more)) { more = true }
+                }
             }
         }
     }
@@ -590,6 +623,14 @@ private fun ChatList(
                         c.pendingHide = sel.first()
                         nav.navigate(HiddenRoute)
                     }
+                })
+            }
+            if (!hiddenList && !spamList) {
+                add(SheetAction(stringResource(R.string.spam_move), Icons.Outlined.Report) {
+                    val sel = chosen.map { it.conversation.threadId }
+                    selection.clear()
+                    sel.forEach { c.chats.setSpam(it, true); c.notifier.cancel(it) }
+                    android.widget.Toast.makeText(context, context.getString(R.string.spam_moved), android.widget.Toast.LENGTH_SHORT).show()
                 })
             }
             val single = chosen.singleOrNull()

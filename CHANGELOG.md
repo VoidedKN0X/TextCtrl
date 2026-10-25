@@ -4,6 +4,25 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.0 (2026-10-25)
+
+Your own spam and keyword filters with a Spam folder, and moving messages to and from other SMS apps with SMS Backup & Restore files.
+
+### New
+
+- **Filters.** Under your profile picture › **Filters**, add your own rules to catch texts and picture messages: with certain words or phrases, matching a pattern (regular expression, for those who want it), from numbers starting with a code you choose (for example +44 or 0900), from short numbers of 3 to 8 digits, from senders with a name instead of a number, or from numbers not in your contacts. Each rule can be switched off without deleting it and shows how many messages it caught.
+- **What a rule does, per rule:** **Block** throws the message away the moment it arrives, so it's never stored or shown; **Move to Spam** keeps it in the Spam folder; **Keep, but don't notify** leaves it in its chat as usual without a notification. When several rules match, the strictest one wins.
+- **Checked before any notification.** Rules run on the phone as soon as a message arrives, before anything is notified. Rules about the sender already apply to the notice of a picture message, rules about the text once it's fetched.
+- **Never filter my contacts** (on by default): messages from people in your contacts, and chats you've written in, always come through.
+- **Spam folder.** Under your profile picture › **Spam**: chats your filters moved there, kept out of Chats, Archived, Search and the widget, and never notified. Select chats to mark them **Not spam** (they go back to Chats and your filters leave them alone from then on) or delete them. You can also move any chat to Spam yourself, from its menu or by selecting it in the chat list (**More › Move to Spam**).
+- **Import from SMS Backup & Restore.** Under **Backup and restore › Import from an XML file**, pick a backup made by SMS Backup & Restore (or any app using its format). Texts and picture messages, with their pictures, files and group chats, are added to your phone's messages with a progress bar and a summary of how many were imported, already there or unreadable. The file is read bit by bit, so big backups with lots of pictures work too. Messages already on the phone (same time, same number and same text) aren't added twice, so importing the same file again does nothing.
+- **Export to SMS Backup & Restore.** **Export to an XML file** saves every text and picture message in the same format, wherever you choose, so you can take them to another SMS app or back up with other tools. TextCtrl asks first, because these files aren't encrypted (other apps can't read encrypted ones); TextCtrl's own encrypted backup is unchanged.
+
+### Privacy
+
+- There's still no spam database and nothing goes online: TextCtrl has no internet access, and all filtering happens on the phone.
+- Your filter rules are stored encrypted with a key in the phone's secure hardware, so they work while the app is locked.
+
 ## v0.5.0 (2026-10-25)
 
 Send contact cards, swipe chats to archive or delete them, and read and reply in floating bubbles.

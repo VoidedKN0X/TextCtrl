@@ -94,6 +94,10 @@ import com.vknxworks.textctrl.ui.lock.AppLock
 import com.vknxworks.textctrl.ui.lock.PinRequest
 import com.vknxworks.textctrl.ui.lock.findActivity
 import com.vknxworks.textctrl.ui.nav.BlockedRoute
+import com.vknxworks.textctrl.ui.nav.FiltersRoute
+import com.vknxworks.textctrl.ui.nav.SpamRoute
+import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.Report
 import com.vknxworks.textctrl.ui.nav.LocalNavigator
 import com.vknxworks.textctrl.ui.nav.SettingsRoute
 import com.vknxworks.textctrl.ui.theme.Gutter
@@ -187,6 +191,8 @@ fun YouScreen() {
                 GroupRow(stringResource(R.string.scheduled_list_title), stringResource(R.string.scheduled_list_subtitle), icon = Icons.Outlined.Schedule, showChevron = true, onClick = { nav.navigate(ScheduledRoute) })
                 GroupRow(stringResource(R.string.hidden_title), stringResource(R.string.hidden_subtitle), icon = Icons.Outlined.VisibilityOff, showChevron = true, onClick = { nav.navigate(HiddenRoute) })
                 GroupRow(stringResource(R.string.blocked_title), stringResource(R.string.blocked_subtitle), icon = Icons.Outlined.Block, showChevron = true, onClick = { nav.navigate(BlockedRoute) })
+                GroupRow(stringResource(R.string.spam_title), stringResource(R.string.spam_subtitle), icon = Icons.Outlined.Report, showChevron = true, onClick = { nav.navigate(SpamRoute) })
+                GroupRow(stringResource(R.string.filters_title), stringResource(R.string.filters_subtitle), icon = Icons.Outlined.FilterAlt, showChevron = true, onClick = { nav.navigate(FiltersRoute) })
                 GroupRow(stringResource(R.string.backup_title), stringResource(R.string.backup_subtitle), icon = Icons.Outlined.Backup, showChevron = true, onClick = { nav.navigate(BackupRoute) })
                 GroupRow(
                     stringResource(R.string.notification_settings),

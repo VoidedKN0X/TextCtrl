@@ -18,3 +18,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object HiddenRoute
 @Serializable data object ScheduledRoute
 @Serializable data object BackupRoute
+@Serializable data object SpamRoute
+@Serializable data object FiltersRoute

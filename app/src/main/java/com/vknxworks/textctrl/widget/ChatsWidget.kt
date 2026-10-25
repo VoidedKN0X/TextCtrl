@@ -58,7 +58,7 @@ class Widgets(
 
     fun start() {
         scope.launch {
-            combine(store.changes, contacts.changes, chats.hidden, chats.archived, settings.stored) { _, _, _, _, _ -> }
+            combine(store.changes, contacts.changes, chats.hidden, chats.archived, chats.spam, settings.stored) { _ -> }
                 .debounce(1500)
                 .collect { runCatching { update() } }
         }
@@ -80,8 +80,9 @@ class Widgets(
             else -> {
                 val hidden = chats.hidden.value
                 val archived = chats.archived.value
+                val spam = chats.spam.value
                 val list = runCatching { store.conversations() }.getOrDefault(emptyList())
-                    .filter { it.threadId !in hidden && it.threadId !in archived }
+                    .filter { it.threadId !in hidden && it.threadId !in archived && it.threadId !in spam }
                     .filter { conv ->
                         !s.separateUnknown || conv.isGroup || conv.hasOutgoing || !contacts.granted ||
                             conv.addresses.firstOrNull()?.let { contacts.lookup(it).name } != null

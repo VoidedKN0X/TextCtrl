@@ -503,6 +503,89 @@
     <string name="bubble_chat_off">Don\'t show as bubble</string>
     <string name="bubble_locked_label">Chat</string>
 
+    <!-- Spam folder and filters -->
+    <string name="save">Save</string>
+    <string name="spam_title">Spam</string>
+    <string name="spam_subtitle">Chats your filters moved away, without notifications</string>
+    <string name="spam_empty">No spam</string>
+    <string name="spam_empty_body">Chats your filters catch, or that you move here, show up here without notifying you. Set up filters with the button at the top.</string>
+    <string name="spam_move">Move to Spam</string>
+    <string name="spam_moved">Moved to Spam</string>
+    <string name="spam_restore">Not spam</string>
+    <string name="filters_title">Filters</string>
+    <string name="filters_subtitle">Block or sort out texts by words, numbers and senders</string>
+    <string name="filters_intro">Your own rules, checked on the phone the moment a text or picture message arrives, before any notification. There\'s no spam database or online service: TextCtrl has no internet access.</string>
+    <string name="filters_skip_contacts">Never filter my contacts</string>
+    <string name="filters_skip_contacts_subtitle">Messages from people in your contacts, or chats you wrote in, always come through</string>
+    <string name="filters_rules">Rules</string>
+    <string name="filters_empty">No filters yet</string>
+    <string name="filters_empty_body">Add a rule to block or sort out texts with certain words, from short numbers, from numbers starting with a code, or from senders you don\'t know.</string>
+    <string name="filter_add">Add filter</string>
+    <string name="filter_edit">Edit filter</string>
+    <plurals name="filter_hits">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+    <plurals name="filters_blocked_count">
+        <item quantity="one">%1$d message blocked so far.</item>
+        <item quantity="other">%1$d messages blocked so far.</item>
+    </plurals>
+    <string name="rule_kind">Catch messages</string>
+    <string name="rule_action">Then</string>
+    <string name="rule_keyword">With these words</string>
+    <string name="rule_regex">Matching a pattern (regex)</string>
+    <string name="rule_prefix">From numbers starting with</string>
+    <string name="rule_short_code">From short numbers (3 to 8 digits)</string>
+    <string name="rule_named_sender">From senders with a name instead of a number</string>
+    <string name="rule_unknown">From numbers not in your contacts</string>
+    <string name="rule_action_block">Block (delete straight away)</string>
+    <string name="rule_action_spam">Move to Spam</string>
+    <string name="rule_action_mute">Keep, but don\'t notify</string>
+    <string name="rule_action_help">Block throws the message away, it\'s never shown or stored. Spam keeps it in the Spam folder. Neither notifies you.</string>
+    <string name="rule_summary_keyword">Words: %1$s</string>
+    <string name="rule_summary_regex">Pattern: %1$s</string>
+    <string name="rule_summary_prefix">Numbers starting with %1$s</string>
+    <string name="rule_pattern_keyword">Words or phrases</string>
+    <string name="rule_pattern_regex">Regular expression</string>
+    <string name="rule_pattern_prefix">Number prefixes</string>
+    <string name="rule_pattern_hint">Separate several with commas. Upper and lower case don\'t matter.</string>
+    <string name="rule_pattern_needed">Fill this in</string>
+    <string name="rule_pattern_long">That\'s too long (up to 300 characters)</string>
+    <string name="rule_regex_invalid">That isn\'t a valid regular expression</string>
+    <string name="rule_prefix_invalid">Use digits and +, like +44 or 0900</string>
+    <string name="rule_no_pattern">Nothing else to fill in.</string>
+    <string name="rule_unknown_needs_contacts">Needs the contacts permission to tell who\'s unknown; until then this rule does nothing.</string>
+
+    <!-- SMS Backup & Restore files -->
+    <string name="xml_group">Other SMS apps</string>
+    <string name="xml_footer">The XML format of SMS Backup &amp; Restore, which many SMS apps and backup tools read and write. These files aren\'t encrypted, so keep them somewhere safe. Messages already on the phone aren\'t added twice.</string>
+    <string name="xml_import">Import from an XML file</string>
+    <string name="xml_import_subtitle">Texts and picture messages from SMS Backup &amp; Restore or another SMS app</string>
+    <string name="xml_import_not_default">Only possible while TextCtrl is your SMS app</string>
+    <string name="xml_export">Export to an XML file</string>
+    <string name="xml_export_subtitle">Every text and picture message, to open in SMS Backup &amp; Restore or another SMS app</string>
+    <string name="xml_export_title">Export without encryption?</string>
+    <string name="xml_export_body">Other SMS apps need this file as plain XML, so anyone who gets hold of it can read your messages. For a backup only TextCtrl needs, use Back up now instead.</string>
+    <string name="xml_importing">Importing… %1$d messages</string>
+    <string name="xml_importing_of">Importing… %1$d of %2$d messages</string>
+    <string name="xml_exporting">Exporting… %1$d messages</string>
+    <string name="xml_exporting_of">Exporting… %1$d of %2$d messages</string>
+    <string name="xml_imported">Imported %1$d texts and %2$d picture messages.</string>
+    <plurals name="xml_skipped">
+        <item quantity="one">%1$d was already on the phone.</item>
+        <item quantity="other">%1$d were already on the phone.</item>
+    </plurals>
+    <plurals name="xml_failed_count">
+        <item quantity="one">%1$d couldn\'t be read.</item>
+        <item quantity="other">%1$d couldn\'t be read.</item>
+    </plurals>
+    <string name="xml_exported">Exported %1$d texts and %2$d picture messages.</string>
+    <string name="xml_failed">That didn\'t work</string>
+    <string name="xml_cant_read">Couldn\'t open that file</string>
+    <string name="xml_cant_write">Couldn\'t write to that file</string>
+    <string name="xml_not_backup">That isn\'t an SMS Backup &amp; Restore XML file</string>
+    <string name="xml_damaged_partial">The file is damaged or incomplete. %1$d messages up to that point were imported.</string>
+
     <!-- Widget -->
     <string name="widget_title">Recent chats</string>
     <string name="widget_description">Your newest chats at a glance</string>

@@ -26,10 +26,12 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
 - **Swipe actions** you choose for left and right in the chat list, with **Undo** for archive, delete and block
 - **Filters** for unread chats and **unknown senders** (numbers not in your contacts)
+- **Spam and keyword filters** of your own: block or sort out texts by words, patterns, number prefixes, short numbers or unknown senders, with a **Spam** folder to restore or delete them
 - **Hidden chats** behind a PIN of their own (see [Hidden chats](#hidden-chats))
 - **Search** all your messages, one person's, or inside a chat, on the phone
 - **Delete old messages** automatically, for everything or per chat
 - **Encrypted backup and restore** to a file you keep (see [Backup and restore](#backup-and-restore))
+- **Import and export SMS Backup & Restore XML files**, to move messages to and from other SMS apps
 - **Dual SIM**: pick the SIM per chat, and a default for new chats
 - **Delivery reports** (optional), **retry** for messages that didn't go out, and a counter for long texts
 - **Blocked numbers** using Android's own block list, shared with your phone app
@@ -104,6 +106,8 @@ Under your profile picture › **Backup and restore**, TextCtrl saves every text
 
 The file is encrypted with a password you choose (at least 8 characters): AES-256-GCM with a key made from the password with PBKDF2 (600,000 rounds), in chunks that can't be changed, reordered or cut off unnoticed. Without the password nobody can open it, and it can't be recovered, so write it down.
 
+**Coming from or going to another SMS app?** The same screen imports and exports the XML files of SMS Backup & Restore, which many SMS apps and backup tools understand. Importing skips messages that are already on the phone. These XML files aren't encrypted (other apps couldn't read them otherwise), so TextCtrl asks before exporting one.
+
 ## App lock
 
 Turn it on under your profile picture › **Settings > Privacy and security > App lock**. It's off until you turn it on.
@@ -137,7 +141,7 @@ The lock and PIN screens are always kept out of screenshots and recordings, what
 - **Copied text** is marked as sensitive: Android's clipboard preview and keyboards with a clipboard history don't show or keep it.
 - **Links** in messages open in your browser only when you tap them; TextCtrl doesn't load link previews.
 - **Scheduled messages** are stored encrypted with a key in the phone's secure hardware until they go out, and are sent with Android's own alarms.
-- **Unknown senders** are worked out on the phone from your contacts; there's no spam service.
+- **Unknown senders** and your **spam filters** are worked out on the phone from your contacts and your own rules; there's no spam database or service. The rules are stored encrypted with a key in the phone's secure hardware.
 - **Reactions** are ordinary texts, the same format iPhones and Google Messages use with SMS phones; no RCS or Google services.
 - **No automatic backups:** Android doesn't back up TextCtrl's own data or move it to a new phone. Make an encrypted backup yourself under **Backup and restore**.
 

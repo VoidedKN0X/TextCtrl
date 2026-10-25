@@ -96,6 +96,8 @@ fun SearchScreen() {
                 c.store.search(query)
                     // Hidden chats stay out of search unless they're showing.
                     .filter { c.hiddenOpen || it.threadId !in c.chats.hidden.value }
+                    // Spam stays out of search too; it has its own folder.
+                    .filter { it.threadId !in c.chats.spam.value }
                     .map { Found(it, c.contacts.displayName(it.address.substringBefore(", "))) }
             }
         }.getOrDefault(emptyList())
@@ -182,7 +184,7 @@ fun SearchScreen() {
     }
     SearchPersonSheet(
         open = pickingPerson,
-        chats = chats?.filter { c.hiddenOpen || it.conversation.threadId !in hidden },
+        chats = chats?.filter { (c.hiddenOpen || it.conversation.threadId !in hidden) && it.conversation.threadId !in c.chats.spam.value },
         onPick = { personThread = it; pickingPerson = false },
         onDismiss = { pickingPerson = false },
     )
