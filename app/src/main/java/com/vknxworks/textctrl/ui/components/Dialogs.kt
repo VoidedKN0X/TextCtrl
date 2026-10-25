@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.vknxworks.textctrl.R
+import com.vknxworks.textctrl.ui.theme.CtrlColors
 
 /** Runs a task that outlives the screen or sheet that started it, reporting a failure as a toast. */
 fun AppContainer.runTask(block: suspend () -> Unit) {
@@ -60,12 +61,12 @@ data class SheetAction(
 )
 
 @Composable
-fun ActionItem(icon: ImageVector, label: String, tint: Color = MaterialTheme.colorScheme.onSurfaceVariant, textColor: Color = MaterialTheme.colorScheme.onSurface, onClick: () -> Unit) {
+fun ActionItem(icon: ImageVector, label: String, tint: Color = CtrlColors.Muted, textColor: Color = CtrlColors.Text, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(onClick = onClick).padding(horizontal = 24.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, null, tint = tint)
+        Icon(icon, null, Modifier.size(22.dp), tint = tint)
         Spacer(Modifier.width(20.dp))
         Text(label, style = MaterialTheme.typography.bodyLarge, color = textColor)
     }
@@ -77,12 +78,14 @@ fun ActionSheet(title: String?, subtitle: String?, actions: List<SheetAction>, o
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        shape = CtrlSheetShape,
+        containerColor = CtrlColors.Surface,
+        contentColor = CtrlColors.Text,
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 8.dp)) {
             if (title != null) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
-                    Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(title, style = MaterialTheme.typography.titleMedium, color = CtrlColors.Text, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     if (!subtitle.isNullOrBlank()) {
                         Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
@@ -111,10 +114,10 @@ fun TextInputDialog(
     onConfirm: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf(initial) }
-    AlertDialog(
+    CtrlAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
-        text = { OutlinedTextField(text, { text = it }, label = { Text(label) }, singleLine = true, modifier = Modifier.fillMaxWidth()) },
+        text = { OutlinedTextField(text, { text = it }, label = { Text(label) }, singleLine = true, shape = CtrlFieldShape, colors = ctrlFieldColors(), modifier = Modifier.fillMaxWidth()) },
         confirmButton = { TextButton(onClick = { onConfirm(text.trim()) }, enabled = text.isNotBlank()) { Text(confirm) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
@@ -123,7 +126,7 @@ fun TextInputDialog(
 /** Asks before something that can't be undone. The confirm button is red. */
 @Composable
 fun ConfirmDialog(title: String, body: String?, confirm: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    AlertDialog(
+    CtrlAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = if (body != null) { { Text(body) } } else null,
@@ -135,7 +138,7 @@ fun ConfirmDialog(title: String, body: String?, confirm: String, onDismiss: () -
 /** Just tells the user something, with one button to close it. */
 @Composable
 fun InfoDialog(title: String, body: String, onDismiss: () -> Unit) {
-    AlertDialog(
+    CtrlAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(body) },

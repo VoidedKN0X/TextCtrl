@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,9 +28,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Forward
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.AddCircleOutline
@@ -63,10 +65,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -111,6 +110,13 @@ import com.vknxworks.textctrl.ui.components.ActionSheet
 import com.vknxworks.textctrl.ui.components.Avatar
 import com.vknxworks.textctrl.ui.components.ChoiceSheet
 import com.vknxworks.textctrl.ui.components.ConfirmDialog
+import com.vknxworks.textctrl.ui.components.CtrlBackButton
+import com.vknxworks.textctrl.ui.components.CtrlFieldShape
+import com.vknxworks.textctrl.ui.components.CtrlSquareButton
+import com.vknxworks.textctrl.ui.components.CtrlSubTopBar
+import com.vknxworks.textctrl.ui.components.ctrlFieldColors
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import com.vknxworks.textctrl.ui.components.InfoDialog
 import com.vknxworks.textctrl.ui.components.LoadingView
 import com.vknxworks.textctrl.ui.components.MessageView
@@ -146,11 +152,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     // A hidden chat only opens while the hidden chats are showing.
     if (threadId in hidden && !c.hiddenOpen) {
         Column(Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = {},
-                navigationIcon = { IconButton(onClick = close) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-            )
+            CtrlSubTopBar("", onBack = close)
             Box(Modifier.weight(1f)) {
                 MessageView(Icons.Outlined.Lock, stringResource(R.string.hidden_chat_locked), stringResource(R.string.hidden_chat_locked_body))
             }
@@ -372,24 +374,23 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                 onNewer = { if (matches.isNotEmpty()) matchIndex = (matchIndex - 1).coerceAtLeast(0) },
                 onClose = { searching = false; query = "" },
             )
-            else -> TopAppBar(
-                navigationIcon = { IconButton(onClick = close) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) } },
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Avatar(title, to.sorted().joinToString(), if (group) null else to.firstOrNull()?.let { people[it]?.photo }, group = group, size = 38.dp)
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text(title.ifBlank { " " }, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            val sub = when {
-                                group -> pluralStringResource(R.plurals.people, to.size, to.size)
-                                to.size == 1 && people[to[0]]?.name != null -> Contacts.formatNumber(to[0])
-                                else -> null
-                            }
-                            sub?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1) }
+            else -> CtrlBar {
+                CtrlBackButton(close)
+                Spacer(Modifier.width(12.dp))
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Avatar(title, to.sorted().joinToString(), if (group) null else to.firstOrNull()?.let { people[it]?.photo }, group = group, size = 40.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(title.ifBlank { " " }, style = MaterialTheme.typography.titleMedium, color = CtrlColors.Text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        val sub = when {
+                            group -> pluralStringResource(R.plurals.people, to.size, to.size)
+                            to.size == 1 && people[to[0]]?.name != null -> Contacts.formatNumber(to[0])
+                            else -> null
                         }
+                        sub?.let { Text(it, style = CtrlType.Meta, color = CtrlColors.Muted, maxLines = 1) }
                     }
-                },
-                actions = {
+                }
+                run {
                     if (to.size == 1 && !to[0].contains('@')) {
                         IconButton(onClick = {
                             AppLock.expectReturn()
@@ -397,9 +398,8 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                         }) { Icon(Icons.Outlined.Call, stringResource(R.string.call)) }
                     }
                     IconButton(onClick = { chatMenu = true }) { Icon(Icons.Outlined.MoreVert, stringResource(R.string.more)) }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-            )
+                }
+            }
         }
 
         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -730,10 +730,11 @@ private fun SelectionBar(
 ) {
     val single = messages.size == 1
     val one = messages.firstOrNull()
-    TopAppBar(
-        navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.Filled.Close, stringResource(R.string.close)) } },
-        title = { Text(pluralStringResource(R.plurals.selected_count, count, count)) },
-        actions = {
+    CtrlBar {
+        CtrlSquareButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onClose)
+        Spacer(Modifier.width(12.dp))
+        Text(pluralStringResource(R.plurals.selected_count, count, count), style = MaterialTheme.typography.titleLarge, color = CtrlColors.Text, modifier = Modifier.weight(1f), maxLines = 1)
+        run {
             if (single && one != null && !one.notDownloaded) IconButton(onClick = onReact) { Icon(Icons.Outlined.AddReaction, stringResource(R.string.react)) }
             if (messages.any { it.body.isNotBlank() }) IconButton(onClick = onCopy) { Icon(Icons.Outlined.ContentCopy, stringResource(R.string.copy_text)) }
             if (single) IconButton(onClick = onForward) { Icon(Icons.AutoMirrored.Outlined.Forward, stringResource(R.string.forward)) }
@@ -741,9 +742,8 @@ private fun SelectionBar(
             if (single && one?.status == SendStatus.FAILED) IconButton(onClick = onRetry) { Icon(Icons.Outlined.Refresh, stringResource(R.string.retry)) }
             if (single) IconButton(onClick = onDetails) { Icon(Icons.Outlined.Info, stringResource(R.string.details)) }
             IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, stringResource(R.string.delete)) }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    )
+        }
+    }
 }
 
 /** The top bar while searching in a chat: the words, which match you're on, and older/newer. */
@@ -758,34 +758,36 @@ private fun SearchBar(
 ) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    TopAppBar(
-        navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.close)) } },
-        title = {
-            TextField(
+    CtrlBar {
+        CtrlBackButton(onClose, stringResource(R.string.close))
+        Spacer(Modifier.width(12.dp))
+        run {
+            OutlinedTextField(
                 value = query,
                 onValueChange = onQuery,
-                modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                modifier = Modifier.weight(1f).focusRequester(focus),
                 placeholder = { Text(stringResource(R.string.search_in_chat_hint)) },
+                shape = CtrlFieldShape,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onOlder() }),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
+                colors = ctrlFieldColors(),
                 suffix = if (position != null) {
-                    { Text(stringResource(R.string.search_position, position.first, position.second), style = MaterialTheme.typography.labelMedium) }
+                    { Text(stringResource(R.string.search_position, position.first, position.second), style = CtrlType.Meta, color = CtrlColors.Muted) }
                 } else null,
             )
-        },
-        actions = {
-            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-                IconButton(onClick = onOlder, enabled = position != null) { Icon(Icons.Filled.KeyboardArrowUp, stringResource(R.string.search_older)) }
-                IconButton(onClick = onNewer, enabled = position != null) { Icon(Icons.Filled.KeyboardArrowDown, stringResource(R.string.search_newer)) }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+        }
+        IconButton(onClick = onOlder, enabled = position != null) { Icon(Icons.Filled.KeyboardArrowUp, stringResource(R.string.search_older)) }
+        IconButton(onClick = onNewer, enabled = position != null) { Icon(Icons.Filled.KeyboardArrowDown, stringResource(R.string.search_newer)) }
+    }
+}
+
+/** A chat's top bar row: no colour fill, under the status bar. */
+@Composable
+private fun CtrlBar(content: @Composable RowScope.() -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 68.dp).padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        content = content,
     )
 }

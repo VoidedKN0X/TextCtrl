@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -22,16 +23,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.Archive
@@ -51,13 +54,11 @@ import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -79,6 +80,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.textctrl.AppContainer
 import com.vknxworks.textctrl.R
@@ -89,6 +91,13 @@ import com.vknxworks.textctrl.ui.chat.ChatScreen
 import com.vknxworks.textctrl.ui.components.ActionSheet
 import com.vknxworks.textctrl.ui.components.Avatar
 import com.vknxworks.textctrl.ui.components.ConfirmDialog
+import com.vknxworks.textctrl.ui.components.CtrlButtonShape
+import com.vknxworks.textctrl.ui.components.CtrlCardShape
+import com.vknxworks.textctrl.ui.components.CtrlChip
+import com.vknxworks.textctrl.ui.components.CtrlSquareButton
+import com.vknxworks.textctrl.ui.components.topDivider
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import com.vknxworks.textctrl.ui.components.LoadingView
 import com.vknxworks.textctrl.ui.components.LocalBottomClearance
 import com.vknxworks.textctrl.ui.components.MessageView
@@ -179,9 +188,8 @@ fun ChatsScreen() {
                 if (selection.isEmpty()) {
                     TabTitle(stringResource(R.string.tab_chats)) {
                         if (unreadCount > 0) {
-                            IconButton(onClick = { c.runTask { c.store.markAllRead(); c.notifier.cancelAll() } }) {
-                                Icon(Icons.Outlined.DoneAll, stringResource(R.string.mark_all_read))
-                            }
+                            CtrlSquareButton(Icons.Outlined.DoneAll, stringResource(R.string.mark_all_read), onClick = { c.runTask { c.store.markAllRead(); c.notifier.cancelAll() } })
+                            Spacer(Modifier.width(8.dp))
                         }
                     }
                 } else {
@@ -192,18 +200,18 @@ fun ChatsScreen() {
                         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Gutter),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        FilterChip(filter == Filter.ALL, onClick = { chosenFilter = Filter.ALL }, label = { Text(stringResource(R.string.filter_all)) })
-                        FilterChip(
+                        CtrlChip(filter == Filter.ALL, onClick = { chosenFilter = Filter.ALL }, label = stringResource(R.string.filter_all))
+                        CtrlChip(
                             filter == Filter.UNREAD,
                             onClick = { chosenFilter = if (filter == Filter.UNREAD) Filter.ALL else Filter.UNREAD },
-                            label = { Text(if (unreadCount > 0) stringResource(R.string.filter_unread_n, unreadCount) else stringResource(R.string.filter_unread)) },
+                            label = if (unreadCount > 0) stringResource(R.string.filter_unread_n, unreadCount) else stringResource(R.string.filter_unread),
                         )
                         if (settings.separateUnknown) {
-                            FilterChip(
+                            CtrlChip(
                                 filter == Filter.UNKNOWN,
                                 onClick = { chosenFilter = if (filter == Filter.UNKNOWN) Filter.ALL else Filter.UNKNOWN },
-                                label = { Text(if (unknownCount > 0) stringResource(R.string.filter_unknown_n, unknownCount) else stringResource(R.string.filter_unknown)) },
-                                leadingIcon = { Icon(Icons.Outlined.PersonOff, null, Modifier.size(18.dp)) },
+                                label = if (unknownCount > 0) stringResource(R.string.filter_unknown_n, unknownCount) else stringResource(R.string.filter_unknown),
+                                leadingIcon = Icons.Outlined.PersonOff,
                             )
                         }
                     }
@@ -243,11 +251,12 @@ fun ChatsScreen() {
                 ExtendedFloatingActionButton(
                     onClick = { nav.newChat() },
                     expanded = expandedFab,
-                    icon = { Icon(Icons.Filled.Add, null) },
+                    icon = { Icon(Icons.Outlined.Add, null, Modifier.size(20.dp)) },
                     text = { Text(stringResource(R.string.new_chat)) },
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = CtrlButtonShape,
+                    containerColor = CtrlColors.Accent,
+                    contentColor = CtrlColors.OnAccent,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(end = 20.dp, bottom = if (clearance > 0.dp) clearance + 12.dp else 16.dp),
@@ -260,7 +269,7 @@ fun ChatsScreen() {
         // Wide screens: the list and the open chat side by side.
         Row(Modifier.fillMaxSize()) {
             listPane(Modifier.width(380.dp).fillMaxHeight())
-            VerticalDivider()
+            VerticalDivider(color = CtrlColors.Divider)
             Box(Modifier.weight(1f).fillMaxHeight().statusBarsPadding()) {
                 val id = openThread
                 if (id == null) {
@@ -321,11 +330,14 @@ fun HiddenChatList() {
 
 @Composable
 private fun SelectionTitle(count: Int, onClose: () -> Unit) {
-    TopAppBar(
-        navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.Filled.Close, stringResource(R.string.close)) } },
-        title = { Text(pluralStringResource(R.plurals.selected_count, count, count)) },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-    )
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(start = Gutter - 4.dp, end = Gutter, top = 8.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CtrlSquareButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = onClose)
+        Spacer(Modifier.width(14.dp))
+        Text(pluralStringResource(R.plurals.selected_count, count, count), style = MaterialTheme.typography.titleLarge, color = CtrlColors.Text)
+    }
 }
 
 /**
@@ -365,9 +377,10 @@ private fun ChatList(
             state = state,
             contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp + LocalBottomClearance.current),
         ) {
-            items(list, key = { it.conversation.threadId }) { item ->
+            itemsIndexed(list, key = { _, row -> row.conversation.threadId }) { index, item ->
                 val id = item.conversation.threadId
                 ChatRow(
+                    first = index == 0,
                     item = item,
                     pinned = id in pinned,
                     muted = id in muted,
@@ -393,9 +406,12 @@ private fun ChatList(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(bottom = LocalBottomClearance.current)
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .clip(CtrlCardShape)
+                    .background(CtrlColors.Surface)
+                    .border(1.dp, CtrlColors.ControlOutline, CtrlCardShape)
+                    .padding(horizontal = 4.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 if (anyUnread) {
@@ -512,14 +528,15 @@ private fun ChatList(
 @Composable
 private fun BarAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(onClick = onClick) { Icon(icon, label) }
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        IconButton(onClick = onClick) { Icon(icon, label, Modifier.size(22.dp), tint = CtrlColors.Text) }
+        Text(label.uppercase(), style = CtrlType.Status, color = CtrlColors.Muted, maxLines = 1)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatRow(
+    first: Boolean,
     item: ChatItem,
     pinned: Boolean,
     muted: Boolean,
@@ -538,15 +555,17 @@ private fun ChatRow(
     Row(
         modifier
             .fillMaxWidth()
+            .then(if (first) Modifier else Modifier.topDivider())
             .background(
                 when {
-                    selected -> cs.primary.copy(alpha = 0.14f)
-                    open -> cs.surfaceContainerHigh
+                    selected -> CtrlColors.Accent.copy(alpha = 0.14f)
+                    open -> CtrlColors.Surface
                     else -> Color.Transparent
                 },
             )
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = Gutter, vertical = 10.dp),
+            .heightIn(min = 52.dp)
+            .padding(horizontal = Gutter, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box {
@@ -555,7 +574,7 @@ private fun ChatRow(
                 Icon(
                     Icons.Filled.CheckCircle,
                     null,
-                    Modifier.align(Alignment.BottomEnd).size(20.dp).background(cs.background, CircleShape),
+                    Modifier.align(Alignment.BottomEnd).size(20.dp).background(cs.background, RoundedCornerShape(6.dp)),
                     tint = cs.primary,
                 )
             }
@@ -565,8 +584,8 @@ private fun ChatRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     item.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (unread) FontWeight.ExtraBold else FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (unread) FontWeight.Bold else FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
@@ -586,9 +605,10 @@ private fun ChatRow(
                 Spacer(Modifier.weight(1f))
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    shortTime(context, conv.date),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (unread) cs.primary else cs.onSurfaceVariant,
+                    shortTime(context, conv.date).uppercase(),
+                    style = CtrlType.Status,
+                    color = if (unread) CtrlColors.Accent else CtrlColors.Inactive,
+                    maxLines = 1,
                 )
             }
             Spacer(Modifier.height(2.dp))
@@ -619,13 +639,13 @@ private fun ChatRow(
                 if (unread) {
                     Spacer(Modifier.width(8.dp))
                     Box(
-                        Modifier.widthIn(min = 22.dp).height(22.dp).background(cs.primary, CircleShape).padding(horizontal = 6.dp),
+                        Modifier.widthIn(min = 22.dp).height(22.dp).background(CtrlColors.Accent, RoundedCornerShape(7.dp)).padding(horizontal = 6.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             if (conv.unread > 99) "99+" else conv.unread.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = cs.onPrimary,
+                            style = CtrlType.Status.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
+                            color = CtrlColors.OnAccent,
                         )
                     }
                 }

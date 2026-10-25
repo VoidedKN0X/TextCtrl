@@ -34,7 +34,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **"Text this number"** from your dialer, contacts and links, **share to TextCtrl** from any app, and **reply with a message** when you decline a call
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
-- **Light, dark and pure black** themes, optionally with your wallpaper's colours; your own **bubble colour** and **text size**
+- The **Ctrl / Signal** look shared by every Ctrl app: dark, high-contrast, with your own **bubble colour** and **text size**
 - **Recent chats widget** for the home screen
 - **Tablets and foldables**: chat list and chat side by side
 
@@ -188,4 +188,4 @@ Native Android apps for self-hosted services and everyday tools, all with the sa
 
 TextCtrl is licensed under the [GNU General Public License v3.0](LICENSE). © VKNXWorks
 
-The Manrope font is licensed under the SIL Open Font License; see `FONT-LICENSE-Manrope.txt`.
+The Space Grotesk and JetBrains Mono fonts are licensed under the SIL Open Font License 1.1; see `FONT-LICENSE-SpaceGrotesk.txt` and `FONT-LICENSE-JetBrainsMono.txt`.

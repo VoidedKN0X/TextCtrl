@@ -1,5 +1,8 @@
 package com.vknxworks.textctrl.ui.setup
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.vknxworks.textctrl.ui.components.CtrlWordmark
+import com.vknxworks.textctrl.ui.theme.CtrlColors
 import android.Manifest
 import android.app.role.RoleManager
 import android.content.pm.PackageManager
@@ -20,7 +23,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
@@ -162,10 +164,11 @@ private fun SetupFrame(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Box(
-                Modifier.size(84.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)),
+                Modifier.size(72.dp).clip(RoundedCornerShape(24.dp)).background(CtrlColors.Accent),
                 contentAlignment = Alignment.Center,
-            ) { Icon(icon, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary) }
-            Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+            ) { Icon(icon, null, Modifier.size(32.dp), tint = CtrlColors.OnAccent) }
+            CtrlWordmark()
+            Text(title, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
             Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             Spacer(Modifier.height(4.dp))
             points.forEach { (pointIcon, text) ->

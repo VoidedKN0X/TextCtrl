@@ -4,6 +4,33 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.3.0 (2026-10-25)
+
+A new look: TextCtrl now uses **Ctrl / Signal**, the design shared by every Ctrl app. Everything works the same as before; only the way it looks has changed.
+
+### Changed
+
+- **New colours.** A near-black background (#08080A) with dark grey cards and a violet accent (#B48CFF). Cards, sheets and dialogs have a thin border instead of a shadow, and the status and navigation bars blend into the background with light icons.
+- **New fonts.** Space Grotesk for all text and headings, and JetBrains Mono for times, numbers, counters and section labels. Both fonts are built into the app (no download, nothing from Google).
+- **Top bar.** The main tabs show a TEXT/CTRL wordmark (with the slash in the accent colour) and a square profile button on the right, with a small accent square while TextCtrl is your SMS app. Tapping it opens the You page as before; the tab's name is shown in big type below it.
+- **Pushed screens** (a chat, Settings, Blocked numbers, Backup and so on) have a square back button and the title next to it, without a coloured bar.
+- **Tab bar.** The floating glass tab bar is replaced by a solid floating bar with rounded corners. The open tab is an accent block with its icon and name; the other tabs show only their icon. On tablets the side rail uses the same accent block.
+- **Chat list.** Rows are separated by thin lines; names are a little lighter, times are in mono type (accent when the chat is unread), and the unread counter is a rounded square. Contact pictures and initials are rounded squares instead of circles.
+- **Filters** (All, Unread, Unknown senders, and Everyone on the Search tab) are rounded rectangles that fill with the accent colour when chosen.
+- **Message bubbles.** Your messages are filled with the accent colour (or the bubble colour you picked) with dark text; messages you receive are dark grey with a thin border. Both have 18dp corners with a smaller corner by the sender. Day headings, times and delivery status use mono type, and reactions and the **Copy code** button are rounded rectangles.
+- **Text field and send button.** The message field is a rounded rectangle with a thin border that turns violet while you type; the attach and send buttons are rounded squares (the send button fills with the accent colour when there is something to send). Holding send still schedules the message.
+- **Switches** are rounded rectangles: violet with a dark knob when on, dark grey with a grey knob when off. The whole row still toggles, and TalkBack still reads each one as a switch.
+- **Settings and the You page.** Settings are grouped in cards with thin lines between rows, under mono section labels (PRIVACY, MESSAGES …). The You page has a violet app badge with your number (or whether TextCtrl is your SMS app), a close button, a violet **Support TextCtrl** button near the bottom and a "GOOGLE-FREE · TELEMETRY-FREE · ARM64" footer.
+- **Lock screen.** A violet lock badge, "VKNXWORKS · CTRL" and a big **Locked** title; the PIN shows as small squares that fill in violet; the keypad has large rounded keys in mono type, with the fingerprint key outlined in violet next to 0 and the delete key on the other side. The same keypad is used to choose or change your PIN and for hidden chats. How the lock works hasn't changed.
+- **Dialogs and menus** (confirmations, the backup password, reactions, scheduling, date and time pickers, choice lists) are dark grey with rounded corners and a thin border; text fields in them get the same violet focus border.
+- **Backup progress** is a slim violet bar; loading spinners are violet.
+- **Widget, notifications and launcher icon** use the new violet accent and darker colours (the icon's artwork is unchanged).
+
+### Removed
+
+- **Theme choice and "Use wallpaper colours".** TextCtrl is now always dark, so Settings › Appearance no longer offers Follow system, Light, Dark or Pure black, or wallpaper colours. If you had picked one of these, it is simply ignored.
+- The Manrope font, replaced by Space Grotesk and JetBrains Mono.
+
 ## v0.2.1 (2026-10-23)
 
 ### Fixed

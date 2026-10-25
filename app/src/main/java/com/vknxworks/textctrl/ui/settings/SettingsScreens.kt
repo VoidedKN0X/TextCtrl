@@ -5,7 +5,9 @@ import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,19 +15,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Settings as SettingsIcon
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.outlined.Settings as SettingsIcon
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Fingerprint
@@ -34,7 +38,6 @@ import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.SimCard
 import androidx.compose.material.icons.outlined.Sms
@@ -60,6 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.textctrl.BuildConfig
@@ -69,9 +73,13 @@ import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.settings.AppSettings
 import com.vknxworks.textctrl.data.settings.LockTimeout
 import com.vknxworks.textctrl.data.settings.NotificationContent
-import com.vknxworks.textctrl.data.settings.ThemeChoice
 import com.vknxworks.textctrl.sms.Contacts
 import com.vknxworks.textctrl.ui.components.ConfirmDialog
+import com.vknxworks.textctrl.ui.components.CtrlButton
+import com.vknxworks.textctrl.ui.components.CtrlSquareButton
+import com.vknxworks.textctrl.ui.components.SectionLabel
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import com.vknxworks.textctrl.ui.components.Group
 import com.vknxworks.textctrl.ui.components.GroupChoice
 import com.vknxworks.textctrl.ui.components.GroupRow
@@ -124,20 +132,38 @@ fun YouScreen() {
     }
 
     Column(Modifier.fillMaxSize()) {
-        ScreenTopBar(stringResource(R.string.you_title))
+        Row(
+            Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = Gutter, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CtrlSquareButton(Icons.Outlined.Close, stringResource(R.string.close), onClick = { nav.back() })
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { SectionLabel(stringResource(R.string.you_title)) }
+            Spacer(Modifier.width(44.dp))
+        }
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 24.dp + LocalBottomClearance.current)) {
-            Column(Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = 8.dp, bottom = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.size(96.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)), contentAlignment = Alignment.Center) {
-                    Icon(painterResource(R.drawable.ic_notification), null, Modifier.size(46.dp), tint = MaterialTheme.colorScheme.primary)
+            Row(
+                Modifier.fillMaxWidth().padding(start = Gutter, end = Gutter, top = 8.dp, bottom = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    Modifier.size(68.dp).clip(RoundedCornerShape(22.dp)).background(CtrlColors.Accent),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(painterResource(R.drawable.ic_notification), null, Modifier.size(32.dp), tint = CtrlColors.OnAccent)
                 }
-                Spacer(Modifier.height(14.dp))
-                Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-                Text(
-                    stringResource(if (c.isDefaultSmsApp) R.string.you_is_default else R.string.you_not_default),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall, color = CtrlColors.Text)
+                    // Your own number when the SIM tells it, else whether TextCtrl is your SMS app.
+                    val number = sims.firstNotNullOfOrNull { it.number }?.let { Contacts.formatNumber(it) }
+                    Text(
+                        number ?: stringResource(if (c.isDefaultSmsApp) R.string.you_is_default else R.string.you_not_default),
+                        style = CtrlType.Meta,
+                        color = if (c.isDefaultSmsApp) CtrlColors.Muted else CtrlColors.Error,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
 
             if (sims.isNotEmpty()) {
@@ -153,7 +179,7 @@ fun YouScreen() {
             }
 
             Group {
-                GroupRow(stringResource(R.string.settings), icon = Icons.Filled.SettingsIcon, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
+                GroupRow(stringResource(R.string.settings), icon = Icons.Outlined.SettingsIcon, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
                 GroupRow(stringResource(R.string.scheduled_list_title), stringResource(R.string.scheduled_list_subtitle), icon = Icons.Outlined.Schedule, showChevron = true, onClick = { nav.navigate(ScheduledRoute) })
                 GroupRow(stringResource(R.string.hidden_title), stringResource(R.string.hidden_subtitle), icon = Icons.Outlined.VisibilityOff, showChevron = true, onClick = { nav.navigate(HiddenRoute) })
                 GroupRow(stringResource(R.string.blocked_title), stringResource(R.string.blocked_subtitle), icon = Icons.Outlined.Block, showChevron = true, onClick = { nav.navigate(BlockedRoute) })
@@ -173,16 +199,36 @@ fun YouScreen() {
             }
 
             Group(stringResource(R.string.group_about)) {
-                GroupRow(stringResource(R.string.support_title), stringResource(R.string.support_subtitle), icon = Icons.Filled.Favorite, showChevron = true, onClick = { open(SPONSOR_URL) })
-                GroupRow(stringResource(R.string.bugs_title), stringResource(R.string.bugs_subtitle), icon = Icons.Filled.BugReport, showChevron = true, onClick = { open(ISSUES_URL) })
-                GroupRow(stringResource(R.string.source_title), stringResource(R.string.source_subtitle), icon = Icons.Filled.Code, showChevron = true, onClick = { open(REPO_URL) })
-                GroupRow(stringResource(R.string.licence_title), stringResource(R.string.licence_subtitle), icon = Icons.Filled.Gavel, showChevron = true, onClick = { open(LICENCE_URL) })
+                GroupRow(stringResource(R.string.bugs_title), stringResource(R.string.bugs_subtitle), icon = Icons.Outlined.BugReport, showChevron = true, onClick = { open(ISSUES_URL) })
+                GroupRow(stringResource(R.string.source_title), stringResource(R.string.source_subtitle), icon = Icons.Outlined.Code, showChevron = true, onClick = { open(REPO_URL) })
+                GroupRow(stringResource(R.string.licence_title), stringResource(R.string.licence_subtitle), icon = Icons.Outlined.Gavel, showChevron = true, onClick = { open(LICENCE_URL) })
             }
+            Spacer(Modifier.height(12.dp))
+            CtrlButton(
+                stringResource(R.string.support_title),
+                onClick = { open(SPONSOR_URL) },
+                icon = Icons.Outlined.FavoriteBorder,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter),
+            )
             Text(
-                stringResource(R.string.about_footer, BuildConfig.VERSION_NAME),
+                stringResource(R.string.support_subtitle),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                color = CtrlColors.Muted,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp),
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "GOOGLE-FREE · TELEMETRY-FREE · ARM64",
+                style = CtrlType.Label,
+                color = CtrlColors.Muted,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                stringResource(R.string.about_footer, BuildConfig.VERSION_NAME).uppercase(),
+                style = CtrlType.Label,
+                color = CtrlColors.Inactive,
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 16.dp),
                 textAlign = TextAlign.Center,
             )
         }
@@ -209,18 +255,6 @@ private fun SettingsContent() {
         ScreenTopBar(stringResource(R.string.settings))
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
             Group(stringResource(R.string.group_appearance)) {
-                GroupChoice(
-                    stringResource(R.string.theme),
-                    ThemeChoice.entries.map { it to stringResource(it.label) },
-                    s.theme,
-                    icon = Icons.Outlined.DarkMode,
-                ) { v -> update { it.copy(theme = v) } }
-                GroupSwitch(
-                    stringResource(R.string.dynamic_colour),
-                    stringResource(R.string.dynamic_colour_subtitle),
-                    s.dynamicColor,
-                    icon = Icons.Outlined.Palette,
-                ) { v -> update { it.copy(dynamicColor = v) } }
                 GroupChoice(
                     stringResource(R.string.bubble_colour),
                     BubbleColor.entries.map { it to stringResource(it.label) },
@@ -375,7 +409,7 @@ private fun SettingsContent() {
                     stringResource(R.string.sms_app),
                     stringResource(if (c.isDefaultSmsApp) R.string.sms_app_yes else R.string.sms_app_no),
                     icon = if (c.isDefaultSmsApp) Icons.Outlined.CheckCircle else Icons.Outlined.WarningAmber,
-                    iconTint = if (c.isDefaultSmsApp) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    iconTint = if (c.isDefaultSmsApp) CtrlColors.Accent else CtrlColors.Error,
                     showChevron = true,
                     onClick = {
                         AppLock.expectReturn()
@@ -424,7 +458,7 @@ fun BlockedScreen() {
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.blocked_title)) {
-            if (c.blocklist.canBlock) IconButton(onClick = { adding = true }) { Icon(Icons.Filled.Add, stringResource(R.string.blocked_add)) }
+            if (c.blocklist.canBlock) IconButton(onClick = { adding = true }) { Icon(Icons.Outlined.Add, stringResource(R.string.blocked_add)) }
         }
         val list = numbers
         when {
@@ -437,7 +471,7 @@ fun BlockedScreen() {
                             name,
                             Contacts.formatNumber(number),
                             icon = Icons.Outlined.Block,
-                            iconTint = MaterialTheme.colorScheme.error,
+                            iconTint = CtrlColors.Error,
                             onClick = { removing = number },
                         )
                     }

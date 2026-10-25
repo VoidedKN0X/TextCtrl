@@ -4,6 +4,7 @@ import android.telephony.SmsMessage
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +22,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AudioFile
 import androidx.compose.material.icons.outlined.ContactPage
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -37,20 +37,19 @@ import androidx.compose.material.icons.outlined.InsertDriveFile
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Videocam
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -70,6 +69,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import coil3.compose.AsyncImage
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.data.schedule.Scheduled
@@ -83,6 +83,17 @@ import com.vknxworks.textctrl.sms.Reactions
 import com.vknxworks.textctrl.sms.SendStatus
 import com.vknxworks.textctrl.sms.Sim
 import com.vknxworks.textctrl.ui.components.ActionItem
+import com.vknxworks.textctrl.ui.components.CtrlAlertDialog
+import com.vknxworks.textctrl.ui.components.CtrlChipShape
+import com.vknxworks.textctrl.ui.components.CtrlControlShape
+import com.vknxworks.textctrl.ui.components.CtrlDialogShape
+import com.vknxworks.textctrl.ui.components.CtrlFieldShape
+import com.vknxworks.textctrl.ui.components.CtrlSheetShape
+import com.vknxworks.textctrl.ui.components.CtrlSquareButton
+import com.vknxworks.textctrl.ui.components.ctrlFieldColors
+import com.vknxworks.textctrl.ui.components.topDivider
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import com.vknxworks.textctrl.ui.components.avatarColor
 import com.vknxworks.textctrl.ui.components.clockTime
 import com.vknxworks.textctrl.ui.components.dayHeading
@@ -173,13 +184,14 @@ fun DayHeading(millis: Long) {
     val context = LocalContext.current
     Box(Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
         Text(
-            dayHeading(context, millis),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = dayHeading(context, millis).uppercase(),
+            style = CtrlType.Label,
+            color = CtrlColors.Muted,
             modifier = Modifier
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(horizontal = 12.dp, vertical = 4.dp),
+                .clip(CtrlChipShape)
+                .background(CtrlColors.Surface)
+                .border(1.dp, CtrlColors.Outline, CtrlChipShape)
+                .padding(horizontal = 10.dp, vertical = 5.dp),
         )
     }
 }
@@ -188,9 +200,9 @@ fun DayHeading(millis: Long) {
 @Composable
 fun ownBubbleColors(choice: BubbleColor): Pair<Color, Color> {
     val cs = MaterialTheme.colorScheme
-    if (choice == BubbleColor.ACCENT) return cs.primary to cs.onPrimary
+    if (choice == BubbleColor.ACCENT) return CtrlColors.Accent to CtrlColors.OnAccent
     val bg = Color(choice.argb)
-    return bg to if (bg.luminance() > 0.45f) Color(0xFF15181D) else Color.White
+    return bg to if (bg.luminance() > 0.45f) CtrlColors.OnAccent else CtrlColors.Text
 }
 
 @Composable
@@ -236,24 +248,31 @@ fun Bubble(
     val cs = MaterialTheme.colorScheme
     val incoming = m.incoming
     val failed = m.status == SendStatus.FAILED
+    // Incoming: surface with a hairline border. Yours: the accent (or your bubble colour) with dark text.
     val bubbleColor = when {
-        highlighted -> cs.tertiary.copy(alpha = 0.35f)
-        incoming -> cs.surfaceContainerHigh
+        highlighted -> CtrlColors.Accent.copy(alpha = 0.28f)
+        incoming -> CtrlColors.Surface
         failed -> cs.errorContainer
         else -> ownColors.first
     }
     val textColor = when {
-        highlighted || incoming -> cs.onSurface
+        highlighted || incoming -> CtrlColors.Text
         failed -> cs.onErrorContainer
         else -> ownColors.second
     }
-    val shape = if (incoming) RoundedCornerShape(20.dp, 20.dp, 20.dp, 6.dp) else RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp)
+    val bubbleBorder = when {
+        highlighted -> BorderStroke(1.dp, CtrlColors.Accent)
+        incoming -> BorderStroke(1.dp, CtrlColors.Outline)
+        failed -> BorderStroke(1.dp, CtrlColors.Error.copy(alpha = 0.6f))
+        else -> null
+    }
+    val shape = if (incoming) RoundedCornerShape(18.dp, 18.dp, 18.dp, 6.dp) else RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp)
     val tap: () -> Unit = onClick
 
     Column(
         Modifier
             .fillMaxWidth()
-            .background(if (selected) cs.primary.copy(alpha = 0.14f) else Color.Transparent, RoundedCornerShape(12.dp))
+            .background(if (selected) CtrlColors.Accent.copy(alpha = 0.14f) else Color.Transparent, RoundedCornerShape(12.dp))
             .padding(vertical = 2.dp),
         horizontalAlignment = if (incoming) Alignment.Start else Alignment.End,
     ) {
@@ -276,7 +295,7 @@ fun Bubble(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 if (m.notDownloaded) {
-                    Surface(shape = shape, color = cs.surfaceContainerHigh, modifier = Modifier.combinedClickable(onClick = { if (selected) tap() else onDownload() }, onLongClick = onLongClick)) {
+                    Surface(shape = shape, color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.combinedClickable(onClick = { if (selected) tap() else onDownload() }, onLongClick = onLongClick)) {
                         Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Photo, null, tint = cs.primary)
                             Spacer(Modifier.width(12.dp))
@@ -306,10 +325,11 @@ fun Bubble(
                             modifier = Modifier
                                 .sizeIn(maxWidth = 260.dp, maxHeight = 320.dp)
                                 .clip(RoundedCornerShape(18.dp))
+                                .border(1.dp, CtrlColors.Outline, RoundedCornerShape(18.dp))
                                 .combinedClickable(onClick = { if (selected) tap() else onOpenPart(part) }, onLongClick = onLongClick),
                         )
                     } else {
-                        Surface(shape = shape, color = cs.surfaceContainerHigh, modifier = Modifier.combinedClickable(onClick = { if (selected) tap() else onOpenPart(part) }, onLongClick = onLongClick)) {
+                        Surface(shape = shape, color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.combinedClickable(onClick = { if (selected) tap() else onOpenPart(part) }, onLongClick = onLongClick)) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     when {
@@ -346,13 +366,14 @@ fun Bubble(
                         Surface(
                             shape = shape,
                             color = bubbleColor,
+                            border = bubbleBorder,
                             modifier = Modifier.combinedClickable(
                                 onClick = { if (selected) tap() else if (failed) onRetry() else tap() },
                                 onLongClick = onLongClick,
                             ),
                         ) {
                             Text(
-                                linkify(body.trim(), if (incoming || highlighted) cs.primary else textColor),
+                                linkify(body.trim(), if (incoming || highlighted) CtrlColors.Accent else textColor),
                                 style = textStyle,
                                 color = textColor,
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
@@ -367,10 +388,10 @@ fun Bubble(
                     ) {
                         reactions.forEach { r ->
                             Surface(
-                                shape = CircleShape,
-                                color = if (r.mine) cs.primary.copy(alpha = 0.22f) else cs.surfaceContainerHighest,
-                                border = BorderStroke(1.dp, cs.background),
-                                modifier = Modifier.clip(CircleShape).clickable { onReactionTap(r) },
+                                shape = CtrlChipShape,
+                                color = if (r.mine) CtrlColors.Accent.copy(alpha = 0.22f) else CtrlColors.Raised,
+                                border = BorderStroke(1.dp, if (r.mine) CtrlColors.Accent else CtrlColors.Background),
+                                modifier = Modifier.clip(CtrlChipShape).clickable { onReactionTap(r) },
                             ) {
                                 Text(
                                     if (r.count > 1) "${r.emoji} ${r.count}" else r.emoji,
@@ -385,14 +406,15 @@ fun Bubble(
                     val code = androidx.compose.runtime.remember(m.body) { OneTimeCode.find(m.body) }
                     if (code != null) {
                         Surface(
-                            shape = CircleShape,
-                            color = cs.primary.copy(alpha = 0.16f),
-                            modifier = Modifier.clip(CircleShape).clickable { onCopyCode(code) },
+                            shape = CtrlChipShape,
+                            color = CtrlColors.Surface,
+                            border = BorderStroke(1.dp, CtrlColors.Accent),
+                            modifier = Modifier.clip(CtrlChipShape).clickable { onCopyCode(code) },
                         ) {
-                            Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Outlined.ContentCopy, null, Modifier.size(16.dp), tint = cs.primary)
+                            Row(Modifier.padding(horizontal = 12.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Outlined.ContentCopy, null, Modifier.size(16.dp), tint = CtrlColors.Accent)
                                 Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.copy_code_value, code), style = MaterialTheme.typography.labelLarge, color = cs.primary)
+                                Text(stringResource(R.string.copy_code_value, code), style = CtrlType.Meta.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold), color = CtrlColors.Accent)
                             }
                         }
                     }
@@ -421,8 +443,8 @@ fun Bubble(
                         status,
                         if (failed) stringResource(R.string.tap_to_retry) else null,
                     ).joinToString("  ·  "),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (failed) cs.error else cs.onSurfaceVariant,
+                    style = CtrlType.Status.copy(letterSpacing = 0.04.em),
+                    color = if (failed) CtrlColors.Error else CtrlColors.Inactive,
                 )
             }
         }
@@ -436,10 +458,10 @@ fun PendingBubble(item: Scheduled, now: Long, textStyle: TextStyle, onClick: () 
     val cs = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalAlignment = Alignment.End) {
         Surface(
-            shape = RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp),
-            color = cs.primary.copy(alpha = 0.12f),
-            border = BorderStroke(1.dp, cs.primary.copy(alpha = 0.5f)),
-            modifier = Modifier.widthIn(max = 300.dp).clip(RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp)).clickable(onClick = onClick),
+            shape = RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp),
+            color = CtrlColors.Accent.copy(alpha = 0.10f),
+            border = BorderStroke(1.dp, CtrlColors.Accent.copy(alpha = 0.6f)),
+            modifier = Modifier.widthIn(max = 300.dp).clip(RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp)).clickable(onClick = onClick),
         ) {
             Column(Modifier.padding(horizontal = 14.dp, vertical = 9.dp)) {
                 if (item.text.isNotBlank()) Text(item.text, style = textStyle, color = cs.onSurface)
@@ -463,7 +485,7 @@ fun PendingBubble(item: Scheduled, now: Long, textStyle: TextStyle, onClick: () 
                     stringResource(R.string.undo),
                     style = MaterialTheme.typography.labelLarge,
                     color = cs.primary,
-                    modifier = Modifier.clip(CircleShape).clickable(onClick = onUndo).padding(horizontal = 8.dp, vertical = 2.dp),
+                    modifier = Modifier.clip(CtrlChipShape).clickable(onClick = onUndo).padding(horizontal = 8.dp, vertical = 2.dp),
                 )
             } else {
                 Text(
@@ -495,7 +517,7 @@ fun Composer(
 ) {
     val cs = MaterialTheme.colorScheme
     val canSend = enabled && (text.isNotBlank() || attachments.isNotEmpty())
-    Column(Modifier.fillMaxWidth().background(cs.background).padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 8.dp)) {
+    Column(Modifier.fillMaxWidth().background(CtrlColors.Background).topDivider(0.dp).padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 10.dp)) {
         if (attachments.isNotEmpty()) {
             LazyRow(
                 Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
@@ -508,10 +530,10 @@ fun Composer(
                                 model = a.uri,
                                 contentDescription = a.name,
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)),
+                                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, CtrlColors.Outline, RoundedCornerShape(14.dp)),
                             )
                         } else {
-                            Surface(shape = RoundedCornerShape(14.dp), color = cs.surfaceContainerHigh, modifier = Modifier.size(72.dp)) {
+                            Surface(shape = RoundedCornerShape(14.dp), color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.size(72.dp)) {
                                 Column(Modifier.padding(6.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                                     Icon(if (a.mime.startsWith("video/")) Icons.Outlined.Videocam else Icons.Outlined.InsertDriveFile, null, tint = cs.primary)
                                     Text(a.name, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
@@ -519,52 +541,47 @@ fun Composer(
                             }
                         }
                         Box(
-                            Modifier.align(Alignment.TopEnd).padding(3.dp).size(22.dp).clip(CircleShape).background(cs.inverseSurface.copy(alpha = 0.8f)).clickable { onRemove(a) },
+                            Modifier.align(Alignment.TopEnd).padding(3.dp).size(22.dp).clip(RoundedCornerShape(7.dp)).background(CtrlColors.Background.copy(alpha = 0.85f)).clickable { onRemove(a) },
                             contentAlignment = Alignment.Center,
-                        ) { Icon(Icons.Filled.Close, stringResource(R.string.remove), Modifier.size(14.dp), tint = cs.inverseOnSurface) }
+                        ) { Icon(Icons.Filled.Close, stringResource(R.string.remove), Modifier.size(14.dp), tint = CtrlColors.Text) }
                     }
                 }
             }
         }
         Row(verticalAlignment = Alignment.Bottom) {
-            IconButton(onClick = onAttach, enabled = enabled, modifier = Modifier.padding(bottom = 4.dp)) {
-                Icon(Icons.Outlined.AddCircleOutline, stringResource(R.string.attach))
+            Box(Modifier.padding(bottom = 4.dp)) {
+                CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.attach), onClick = onAttach, size = 48.dp, enabled = enabled)
             }
-            TextField(
+            Spacer(Modifier.width(8.dp))
+            OutlinedTextField(
                 value = text,
                 onValueChange = onText,
-                modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                 placeholder = { Text(stringResource(if (isMms) R.string.compose_mms_hint else R.string.compose_hint)) },
                 maxLines = 6,
-                shape = RoundedCornerShape(26.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = cs.surfaceContainerHigh,
-                    unfocusedContainerColor = cs.surfaceContainerHigh,
-                    disabledContainerColor = cs.surfaceContainer,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                ),
+                shape = CtrlFieldShape,
+                colors = ctrlFieldColors(),
                 enabled = enabled,
                 trailingIcon = if (sim != null) {
                     {
-                        TextButton(onClick = onSim) { Text(stringResource(R.string.sim_slot, sim.slot + 1), style = MaterialTheme.typography.labelMedium) }
+                        TextButton(onClick = onSim) { Text(stringResource(R.string.sim_slot, sim.slot + 1).uppercase(), style = CtrlType.Status) }
                     }
                 } else null,
             )
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(8.dp))
             // Tap to send; hold to schedule it for later.
             val sendLabel = stringResource(R.string.send)
             Box(
                 Modifier
-                    .padding(bottom = 2.dp)
+                    .padding(bottom = 4.dp)
                     .size(48.dp)
-                    .clip(CircleShape)
-                    .background(if (canSend) cs.primary else cs.onSurface.copy(alpha = 0.12f))
+                    .clip(CtrlControlShape)
+                    .background(if (canSend) CtrlColors.Accent else CtrlColors.Surface)
+                    .then(if (canSend) Modifier else Modifier.border(1.dp, CtrlColors.ControlOutline, CtrlControlShape))
                     .combinedClickable(enabled = canSend, onClick = onSend, onLongClick = onSchedule),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.AutoMirrored.Filled.Send, sendLabel, tint = if (canSend) cs.onPrimary else cs.onSurface.copy(alpha = 0.38f))
+                Icon(Icons.AutoMirrored.Outlined.Send, sendLabel, Modifier.size(20.dp), tint = if (canSend) CtrlColors.OnAccent else CtrlColors.Inactive)
             }
         }
         // Long texts are sent in parts; show how many and what's left in this one.
@@ -573,9 +590,9 @@ fun Composer(
             if (info != null && info.size >= 3) {
                 Text(
                     stringResource(R.string.sms_counter, info[2], info[0]),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = cs.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth().padding(end = 64.dp, top = 2.dp),
+                    style = CtrlType.Status,
+                    color = CtrlColors.Muted,
+                    modifier = Modifier.fillMaxWidth().padding(end = 64.dp, top = 4.dp),
                     textAlign = TextAlign.End,
                 )
             }
@@ -588,7 +605,7 @@ fun Composer(
 /** The emoji row for reacting to a message. */
 @Composable
 fun ReactionPicker(mine: Set<String>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
+    CtrlAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.react)) },
         text = {
@@ -613,8 +630,9 @@ private fun EmojiKey(emoji: String, chosen: Boolean, onClick: () -> Unit) {
     Box(
         Modifier
             .size(52.dp)
-            .clip(CircleShape)
-            .background(if (chosen) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceContainerHighest)
+            .clip(CtrlControlShape)
+            .background(if (chosen) CtrlColors.Accent.copy(alpha = 0.22f) else CtrlColors.Raised)
+            .border(1.dp, if (chosen) CtrlColors.Accent else CtrlColors.Outline, CtrlControlShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) { Text(emoji, style = MaterialTheme.typography.headlineSmall) }
@@ -646,7 +664,7 @@ fun ScheduleSheet(onPick: (Long) -> Unit, onDismiss: () -> Unit) {
         }
     }
     if (!picking) {
-        androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+        androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismiss, shape = CtrlSheetShape, containerColor = CtrlColors.Surface, contentColor = CtrlColors.Text) {
             Text(stringResource(R.string.schedule_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
             Text(
                 stringResource(R.string.schedule_body),
@@ -686,9 +704,11 @@ private fun DateTimePicker(onPick: (Long) -> Unit, onDismiss: () -> Unit) {
     if (chosenDate == null) {
         DatePickerDialog(
             onDismissRequest = onDismiss,
+            shape = CtrlDialogShape,
+            colors = DatePickerDefaults.colors(containerColor = CtrlColors.Surface),
             confirmButton = { TextButton(onClick = { date = dateState.selectedDateMillis ?: todayUtc }) { Text(stringResource(R.string.lock_next)) } },
             dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-        ) { DatePicker(dateState) }
+        ) { DatePicker(dateState, colors = DatePickerDefaults.colors(containerColor = CtrlColors.Surface)) }
     } else {
         val start = remember { Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, 1) } }
         val timeState = rememberTimePickerState(
@@ -702,11 +722,18 @@ private fun DateTimePicker(onPick: (Long) -> Unit, onDismiss: () -> Unit) {
             onDismissRequest = onDismiss,
             properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.padding(16.dp)) {
+            Surface(shape = CtrlDialogShape, color = CtrlColors.Surface, border = BorderStroke(1.dp, CtrlColors.Outline), modifier = Modifier.padding(16.dp)) {
                 Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.schedule_time), style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.size(16.dp))
-                    TimePicker(timeState)
+                    TimePicker(
+                        timeState,
+                        colors = TimePickerDefaults.colors(
+                            clockDialColor = CtrlColors.Raised,
+                            timeSelectorUnselectedContainerColor = CtrlColors.Raised,
+                            periodSelectorBorderColor = CtrlColors.ControlOutline,
+                        ),
+                    )
                     if (tooEarly) Text(stringResource(R.string.schedule_past), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }

@@ -1,5 +1,7 @@
 package com.vknxworks.textctrl.ui.components
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -13,7 +15,6 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
@@ -93,8 +94,8 @@ fun fileSize(bytes: Long): String = when {
 // ---------- Avatars ----------
 
 private val avatarColors = listOf(
-    Color(0xFF7FC8F8), Color(0xFF8BD8C6), Color(0xFFF4C76B), Color(0xFFF2A0A0),
-    Color(0xFFC3A6F2), Color(0xFFA6D68A), Color(0xFFF2B880), Color(0xFF9FB4F2),
+    Color(0xFFB48CFF), Color(0xFF7FC8F8), Color(0xFF8BD8C6), Color(0xFFF4C76B),
+    Color(0xFFF2A0A0), Color(0xFFA6D68A), Color(0xFFF2B880), Color(0xFF9FB4F2),
 )
 
 /** A steady colour per person, so the same contact always looks the same. */
@@ -105,17 +106,17 @@ fun avatarColor(key: String): Color = avatarColors[abs(key.hashCode()) % avatarC
 fun Avatar(name: String, key: String, photo: Uri?, group: Boolean = false, size: Dp = 48.dp) {
     val color = avatarColor(key)
     Box(
-        Modifier.size(size).clip(CircleShape).background(color.copy(alpha = 0.22f)),
+        Modifier.size(size).clip(RoundedCornerShape(size * 0.32f)).background(color.copy(alpha = 0.18f)),
         contentAlignment = Alignment.Center,
     ) {
         val letter = name.firstOrNull { it.isLetter() }?.uppercaseChar()
         when {
             group -> Icon(Icons.Filled.Group, null, Modifier.size(size * 0.5f), tint = color)
-            letter != null -> Text(letter.toString(), color = color, style = MaterialTheme.typography.titleMedium, fontSize = (size.value * 0.42f).sp)
+            letter != null -> Text(letter.toString(), color = color, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), fontSize = (size.value * 0.40f).sp)
             else -> Icon(Icons.Filled.Person, null, Modifier.size(size * 0.55f), tint = color)
         }
         if (photo != null && !group) {
-            AsyncImage(model = photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(size).clip(CircleShape))
+            AsyncImage(model = photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(size).clip(RoundedCornerShape(size * 0.32f)))
         }
     }
 }

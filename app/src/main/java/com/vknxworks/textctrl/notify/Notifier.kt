@@ -342,6 +342,6 @@ class Notifier(
         const val CHANNEL_MESSAGES = "messages"
         const val CHANNEL_FAILED = "failed"
         private const val TAG_FAILED = "failed"
-        private const val ACCENT = 0xFF7FC8F8.toInt()
+        private const val ACCENT = 0xFFB48CFF.toInt()
     }
 }

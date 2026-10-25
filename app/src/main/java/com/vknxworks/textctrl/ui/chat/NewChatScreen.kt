@@ -1,5 +1,16 @@
 package com.vknxworks.textctrl.ui.chat
 
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import com.vknxworks.textctrl.ui.components.CtrlButtonShape
+import com.vknxworks.textctrl.ui.components.CtrlChipShape
+import com.vknxworks.textctrl.ui.components.CtrlFieldShape
+import com.vknxworks.textctrl.ui.components.ctrlFieldColors
+import com.vknxworks.textctrl.ui.components.topDivider
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,8 +44,6 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -140,32 +148,32 @@ fun NewChatScreen(forward: Boolean) {
                             onClick = { picked.remove(r) },
                             label = { Text(r.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                             trailingIcon = { Icon(Icons.Filled.CheckCircle, null) },
-                            shape = CircleShape,
-                            colors = InputChipDefaults.inputChipColors(),
+                            shape = CtrlChipShape,
+                            colors = InputChipDefaults.inputChipColors(
+                                selectedContainerColor = CtrlColors.Accent,
+                                selectedLabelColor = CtrlColors.OnAccent,
+                                selectedTrailingIconColor = CtrlColors.OnAccent,
+                            ),
+                            border = null,
                         )
                     }
                 }
             }
-            TextField(
+            OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 8.dp).focusRequester(focus),
                 placeholder = { Text(stringResource(R.string.new_chat_hint)) },
-                leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                leadingIcon = { Icon(Icons.Outlined.Search, null, Modifier.size(20.dp)) },
                 singleLine = true,
-                shape = CircleShape,
+                shape = CtrlFieldShape,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
                 keyboardActions = KeyboardActions(onGo = {
                     if (typedIsNumber) {
                         if (picked.isEmpty()) open(listOf(typed)) else toggle(Recipient(Contacts.formatNumber(typed), typed))
                     } else if (picked.isNotEmpty()) open(picked.map { it.number })
                 }),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
+                colors = ctrlFieldColors(),
             )
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 96.dp)) {
                 if (typedIsNumber) {
@@ -225,7 +233,8 @@ fun NewChatScreen(forward: Boolean) {
                         else pluralStringResource(R.plurals.new_chat_start_group, picked.size, picked.size),
                     )
                 },
-                shape = CircleShape,
+                shape = CtrlButtonShape,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
@@ -246,7 +255,7 @@ private fun PersonRow(
     onGroup: () -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(start = Gutter, end = 8.dp, top = 8.dp, bottom = 8.dp),
+        Modifier.fillMaxWidth().topDivider().clickable(onClick = onClick).heightIn(min = 52.dp).padding(start = Gutter, end = 8.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon) {
@@ -258,8 +267,8 @@ private fun PersonRow(
         }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
-            Text(name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            detail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            Text(name, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            detail?.let { Text(it, style = CtrlType.Meta, color = CtrlColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
         IconButton(onClick = onGroup) {
             if (selected) Icon(Icons.Filled.CheckCircle, stringResource(R.string.new_chat_remove_from_group), tint = MaterialTheme.colorScheme.primary)

@@ -1,5 +1,14 @@
 package com.vknxworks.textctrl.ui.search
 
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.OutlinedTextField
+import com.vknxworks.textctrl.ui.components.CtrlChip
+import com.vknxworks.textctrl.ui.components.CtrlFieldShape
+import com.vknxworks.textctrl.ui.components.ctrlFieldColors
+import com.vknxworks.textctrl.ui.components.topDivider
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,22 +21,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SearchOff
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -100,41 +103,36 @@ fun SearchScreen() {
 
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         TabTitle(stringResource(R.string.tab_search))
-        TextField(
+        OutlinedTextField(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 4.dp),
             placeholder = { Text(stringResource(R.string.search_hint)) },
-            leadingIcon = { Icon(Icons.Filled.Search, null) },
+            leadingIcon = { Icon(Icons.Outlined.Search, null, Modifier.size(20.dp)) },
             trailingIcon = {
                 if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Filled.Close, stringResource(R.string.clear)) }
             },
             singleLine = true,
-            shape = CircleShape,
+            shape = CtrlFieldShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
+            colors = ctrlFieldColors(),
         )
         // Only one chat's messages, when a person is picked.
         val personTitle = chats?.firstOrNull { it.conversation.threadId == personThread }?.title
         Row(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 4.dp)) {
-            FilterChip(
+            CtrlChip(
                 selected = personThread != null,
                 onClick = { if (personThread != null) personThread = null else pickingPerson = true },
-                label = { Text(personTitle?.let { stringResource(R.string.search_in, it) } ?: stringResource(R.string.search_everyone), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                leadingIcon = { Icon(Icons.Outlined.Person, null, Modifier.size(18.dp)) },
+                label = personTitle?.let { stringResource(R.string.search_in, it) } ?: stringResource(R.string.search_everyone),
+                leadingIcon = Icons.Outlined.Person,
                 trailingIcon = if (personThread != null) { { Icon(Icons.Filled.Close, stringResource(R.string.clear), Modifier.size(18.dp)) } } else null,
             )
         }
         val list = results?.filter { personThread == null || it.hit.threadId == personThread }
         when {
             list == null -> MessageView(
-                Icons.Filled.Search,
+                Icons.Outlined.Search,
                 stringResource(R.string.search_start),
                 stringResource(R.string.search_start_body),
                 modifier = Modifier.padding(bottom = LocalBottomClearance.current),
@@ -146,11 +144,12 @@ fun SearchScreen() {
                 modifier = Modifier.padding(bottom = LocalBottomClearance.current),
             )
             else -> LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp + LocalBottomClearance.current)) {
-                items(list, key = { it.hit.messageKey }) { f ->
+                itemsIndexed(list, key = { _, row -> row.hit.messageKey }) { index, f ->
                     val hit = f.hit
                     Row(
                         Modifier
                             .fillMaxWidth()
+                            .then(if (index == 0) Modifier else Modifier.topDivider())
                             .clickable { focus.clearFocus(); nav.chat(hit.threadId, hit.messageKey) }
                             .padding(horizontal = Gutter, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -161,12 +160,12 @@ fun SearchScreen() {
                             Row {
                                 Text(
                                     if (hit.incoming) f.name else stringResource(R.string.search_you_to, f.name),
-                                    style = MaterialTheme.typography.titleSmall,
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f),
                                 )
-                                Text(shortTime(context, hit.date), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(shortTime(context, hit.date).uppercase(), style = CtrlType.Status, color = CtrlColors.Inactive, maxLines = 1)
                             }
                             Text(
                                 highlight(hit.body, query.trim(), MaterialTheme.colorScheme.primary),

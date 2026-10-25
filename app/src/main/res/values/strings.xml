@@ -265,6 +265,7 @@
 
     <!-- App lock -->
     <string name="lock_title">TextCtrl is locked</string>
+    <string name="lock_locked">Locked</string>
     <string name="lock_enter_pin">Enter your PIN</string>
     <string name="lock_pin_due">Enter your PIN. It\'s needed after a restart and every 72 hours.</string>
     <string name="lock_wrong_pin">Wrong PIN</string>

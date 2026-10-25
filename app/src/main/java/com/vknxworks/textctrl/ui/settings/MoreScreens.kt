@@ -1,5 +1,16 @@
 package com.vknxworks.textctrl.ui.settings
 
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.style.TextAlign
+import com.vknxworks.textctrl.ui.components.CtrlAlertDialog
+import com.vknxworks.textctrl.ui.components.CtrlFieldShape
+import com.vknxworks.textctrl.ui.components.ctrlFieldColors
+import com.vknxworks.textctrl.ui.components.topDivider
+import com.vknxworks.textctrl.ui.theme.CtrlColors
+import com.vknxworks.textctrl.ui.theme.CtrlType
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,7 +28,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -31,7 +41,6 @@ import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -330,15 +339,15 @@ fun ScheduledScreen() {
             MessageView(Icons.Outlined.Schedule, stringResource(R.string.scheduled_empty), stringResource(R.string.scheduled_empty_body))
         } else {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 8.dp)) {
-                items(items, key = { it.id }) { item ->
+                itemsIndexed(items, key = { _, row -> row.id }) { index, item ->
                     Row(
-                        Modifier.fillMaxWidth().clickable { menu = item }.padding(horizontal = Gutter, vertical = 12.dp),
+                        Modifier.fillMaxWidth().then(if (index == 0) Modifier else Modifier.topDivider()).clickable { menu = item }.padding(horizontal = Gutter, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Outlined.Schedule, null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(names[item.threadId] ?: "…", style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(names[item.threadId] ?: "…", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Text(
                                 item.text.ifBlank { stringResource(R.string.attachment_picture_message) },
                                 style = MaterialTheme.typography.bodyMedium,
@@ -349,9 +358,10 @@ fun ScheduledScreen() {
                         }
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            shortTime(context, item.at) + "\n" + clockTime(context, item.at),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            (shortTime(context, item.at) + "\n" + clockTime(context, item.at)).uppercase(),
+                            style = CtrlType.Status,
+                            color = CtrlColors.Accent,
+                            textAlign = TextAlign.End,
                         )
                     }
                 }
@@ -437,7 +447,13 @@ fun BackupScreen() {
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                    LinearProgressIndicator(
+                        Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                        color = CtrlColors.Accent,
+                        trackColor = CtrlColors.Track,
+                        gapSize = 0.dp,
+                        strokeCap = StrokeCap.Butt,
+                    )
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.backup_keep_open), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -486,7 +502,7 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
     var tries by remember { mutableIntStateOf(0) }
     val tooShort = first.length < 8
     val mismatch = confirmTwice && first != second
-    AlertDialog(
+    CtrlAlertDialog(
         onDismissRequest = onDismiss,
         // Its own window: kept out of screenshots from its very first frame.
         properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn),
@@ -500,6 +516,8 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    shape = CtrlFieldShape,
+                    colors = ctrlFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (confirmTwice) {
@@ -510,6 +528,8 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         isError = tries > 0 && mismatch,
+                        shape = CtrlFieldShape,
+                        colors = ctrlFieldColors(),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

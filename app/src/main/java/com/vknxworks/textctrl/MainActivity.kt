@@ -8,12 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vknxworks.textctrl.data.settings.ThemeChoice
 import com.vknxworks.textctrl.sms.recipientsOf
 import com.vknxworks.textctrl.ui.components.ScreenPrivacy
 import com.vknxworks.textctrl.ui.components.WindowPrivacy
@@ -26,30 +23,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Dark only: the bars are see-through over the #08080A background, with light icons.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
         val c = container
         if (savedInstanceState == null) handleIntent(intent)
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
-            val dark = when (settings.theme) {
-                ThemeChoice.SYSTEM -> isSystemInDarkTheme()
-                ThemeChoice.LIGHT -> false
-                ThemeChoice.DARK, ThemeChoice.BLACK -> true
-            }
-            // Keep status and navigation bar icons readable when the app theme differs from the system's.
-            DisposableEffect(dark) {
-                val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
-                else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
-                onDispose { }
-            }
             // "Hide in screenshots" (off by default); always on for the lock and PIN screens.
             val covered = (c.vault.enabled && !AppLock.unlocked) || AppLock.request != null
             val secure = settings.hideScreenshots || covered || ScreenPrivacy.forced > 0
             // "Hide in recent apps" (off by default). With the app lock on, Recents always shows a blank
             // card: a preview there would show your texts without the PIN.
             WindowPrivacy(this, secure, hideRecents = settings.hideRecents || c.vault.enabled)
-            TextCtrlTheme(settings.theme, settings.dynamicColor) {
+            TextCtrlTheme {
                 AppLockGate { AppRoot() }
             }
         }

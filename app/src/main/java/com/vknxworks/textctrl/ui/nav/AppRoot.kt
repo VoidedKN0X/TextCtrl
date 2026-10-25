@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -18,11 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Search
@@ -30,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,8 +62,10 @@ import com.vknxworks.textctrl.ui.chat.ChatScreen
 import com.vknxworks.textctrl.ui.chat.NewChatScreen
 import com.vknxworks.textctrl.ui.chats.ArchivedScreen
 import com.vknxworks.textctrl.ui.chats.ChatsScreen
+import com.vknxworks.textctrl.ui.components.CtrlBottomBar
+import com.vknxworks.textctrl.ui.components.CtrlNavItem
 import com.vknxworks.textctrl.ui.components.LocalBottomClearance
-import com.vknxworks.textctrl.ui.components.LocalHazeState
+import com.vknxworks.textctrl.ui.theme.CtrlColors
 import com.vknxworks.textctrl.ui.search.SearchScreen
 import com.vknxworks.textctrl.ui.settings.BackupScreen
 import com.vknxworks.textctrl.ui.settings.BlockedScreen
@@ -74,8 +74,6 @@ import com.vknxworks.textctrl.ui.settings.ScheduledScreen
 import com.vknxworks.textctrl.ui.settings.SettingsScreen
 import com.vknxworks.textctrl.ui.settings.YouScreen
 import com.vknxworks.textctrl.ui.setup.SetupScreen
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -90,12 +88,12 @@ fun AppRoot() {
     }
 }
 
-private data class TopDest(val route: Any, val item: TabItem)
+private data class TopDest(val route: Any, val item: CtrlNavItem)
 
 private val topDestinations = listOf(
-    TopDest(ChatsRoute, TabItem(R.string.tab_chats, Icons.Outlined.ChatBubbleOutline, Icons.Filled.ChatBubble)),
-    TopDest(ArchivedRoute, TabItem(R.string.tab_archived, Icons.Outlined.Archive, Icons.Filled.Archive)),
-    TopDest(SearchRoute, TabItem(R.string.tab_search, Icons.Outlined.Search, Icons.Filled.Search)),
+    TopDest(ChatsRoute, CtrlNavItem(R.string.tab_chats, Icons.Outlined.ChatBubbleOutline)),
+    TopDest(ArchivedRoute, CtrlNavItem(R.string.tab_archived, Icons.Outlined.Archive)),
+    TopDest(SearchRoute, CtrlNavItem(R.string.tab_search, Icons.Outlined.Search)),
 )
 
 @Composable
@@ -144,7 +142,7 @@ private fun MainScaffold() {
                 Row(Modifier.fillMaxSize()) {
                     NavigationRail(
                         containerColor = MaterialTheme.colorScheme.background,
-                        modifier = Modifier.fillMaxHeight().statusBarsPadding(),
+                        modifier = Modifier.fillMaxHeight().statusBarsPadding().navigationBarsPadding(),
                     ) {
                         Spacer(Modifier.weight(1f))
                         topDestinations.forEachIndexed { i, top ->
@@ -152,8 +150,15 @@ private fun MainScaffold() {
                             NavigationRailItem(
                                 selected = selected,
                                 onClick = { selectTab(i) },
-                                icon = { Icon(if (selected) top.item.selectedIcon else top.item.icon, contentDescription = stringResource(top.item.label)) },
+                                icon = { Icon(top.item.icon, contentDescription = stringResource(top.item.label), modifier = Modifier.size(20.dp)) },
                                 label = { Text(stringResource(top.item.label)) },
+                                colors = NavigationRailItemDefaults.colors(
+                                    selectedIconColor = CtrlColors.OnAccent,
+                                    selectedTextColor = CtrlColors.Text,
+                                    indicatorColor = CtrlColors.Accent,
+                                    unselectedIconColor = CtrlColors.Muted,
+                                    unselectedTextColor = CtrlColors.Muted,
+                                ),
                             )
                         }
                         Spacer(Modifier.weight(1f))
@@ -170,8 +175,8 @@ private fun MainScaffold() {
 }
 
 /**
- * Phones: content runs edge to edge and scrolls under a floating glass island.
- * The island shows on the main tabs; pushed screens get the full height.
+ * Phones: content runs edge to edge and scrolls under the floating Ctrl bottom bar.
+ * The bar shows on the main tabs; pushed screens get the full height.
  */
 @Composable
 private fun PhoneLayout(
@@ -180,17 +185,13 @@ private fun PhoneLayout(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
 ) {
-    val hazeState = rememberHazeState()
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
 
-    CompositionLocalProvider(
-        LocalHazeState provides hazeState,
-        LocalBottomClearance provides if (showTabs) overlayHeight else 0.dp,
-    ) {
+    CompositionLocalProvider(LocalBottomClearance provides if (showTabs) overlayHeight else 0.dp) {
         Box(Modifier.fillMaxSize()) {
-            // Pushed screens stop above the navigation bar and the keyboard; the tabs scroll under the glass island.
-            Box(Modifier.fillMaxSize().hazeSource(hazeState).then(if (showTabs) Modifier else Modifier.navigationBarsPadding().imePadding())) {
+            // Pushed screens stop above the navigation bar and the keyboard; the tabs scroll under the bar.
+            Box(Modifier.fillMaxSize().then(if (showTabs) Modifier else Modifier.navigationBarsPadding().imePadding())) {
                 AppNavHost(navController)
             }
             Column(
@@ -199,16 +200,15 @@ private fun PhoneLayout(
                     .fillMaxWidth()
                     .onSizeChanged { overlayHeight = with(density) { it.height.toDp() } }
                     .navigationBarsPadding()
-                    .padding(bottom = 12.dp),
+                    .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 AnimatedVisibility(
                     visible = showTabs,
                     enter = fadeIn() + slideInVertically { it / 2 },
                     exit = fadeOut() + slideOutVertically { it / 2 },
                 ) {
-                    GlassTabBar(items = topDestinations.map { it.item }, selectedIndex = selectedIndex, onSelect = onSelect)
+                    CtrlBottomBar(items = topDestinations.map { it.item }, selectedIndex = selectedIndex, onSelect = onSelect)
                 }
             }
         }
