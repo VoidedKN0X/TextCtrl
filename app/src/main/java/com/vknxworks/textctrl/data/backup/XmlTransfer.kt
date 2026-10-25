@@ -75,6 +75,9 @@ class XmlTransfer(
                 raw ?: throw IOException(str(R.string.xml_cant_read))
                 val parser = Xml.newPullParser()
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+                // A DOCTYPE is never read: no entities from it, and nothing outside the file (no XXE).
+                runCatching { parser.setFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL, false) }
+                runCatching { parser.setFeature(XmlPullParser.FEATURE_VALIDATION, false) }
                 parser.setInput(BufferedInputStream(raw, 64 * 1024), null)
                 var sawRoot = false
                 var mmsRecord: XmlMms? = null
@@ -99,8 +102,18 @@ class XmlTransfer(
                                 }
                             }
                             "mms" -> if (sawRoot) mmsRecord = readMmsHead(parser)
-                            "part" -> mmsRecord?.parts?.let { parts -> readPart(parser)?.let { parts += it } }
-                            "addr" -> mmsRecord?.addrs?.let { addrs ->
+                            "part" -> mmsRecord?.let { r ->
+                                // A picture message with absurdly many or big parts isn't kept in memory: it's skipped.
+                                if (r.parts.size >= MAX_PARTS || r.bytes > MAX_MMS_BYTES) {
+                                    r.tooBig = true
+                                } else {
+                                    readPart(parser)?.let { part ->
+                                        r.parts += part
+                                        r.bytes += part.data.size
+                                    }
+                                }
+                            }
+                            "addr" -> mmsRecord?.addrs?.takeIf { it.size < MAX_ADDRS }?.let { addrs ->
                                 val a = parser.attr("address")
                                 val t = parser.attr("type")?.toIntOrNull()
                                 if (a != null && t != null) addrs += a to t
@@ -112,6 +125,7 @@ class XmlTransfer(
                         if (r != null) {
                             val key = mmsKey(r.dateSec, r.box, r.text())
                             when {
+                                r.tooBig || r.bytes > MAX_MMS_BYTES -> failed++
                                 key in existingMms -> skipped++
                                 insertMms(r, own) -> { mms++; existingMms += key }
                                 else -> failed++
@@ -129,6 +143,14 @@ class XmlTransfer(
             }
             store.touch()
             _state.value = XmlState.Done(importing = true, sms = sms, mms = mms, skipped = skipped, failed = failed)
+        } catch (e: OutOfMemoryError) {
+            // A single huge attachment in the file: stop cleanly instead of crashing.
+            if (sms + mms > 0) store.touch()
+            _state.value = XmlState.Failed(if (sms + mms > 0) str(R.string.xml_damaged_partial, sms + mms) else str(R.string.xml_failed))
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            if (sms + mms > 0) store.touch()
+            _state.value = XmlState.Idle
+            throw e
         } catch (e: Exception) {
             if (sms + mms > 0) store.touch()
             val message = when (e) {
@@ -152,6 +174,9 @@ class XmlTransfer(
         val parts: MutableList<PduPart> = ArrayList(),
         val addrs: MutableList<Pair<String, Int>> = ArrayList(),
     ) {
+        var bytes = 0L
+        var tooBig = false
+
         fun text(): String = parts.filter { it.isText }.joinToString("\n") { it.text() }.trim()
     }
 
@@ -475,9 +500,12 @@ class XmlTransfer(
                 out.flush()
             }
             _state.value = XmlState.Done(importing = false, sms = sms, mms = mms)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Half a file would look like a complete export: remove it. Also when there was no memory left.
             runCatching { android.provider.DocumentsContract.deleteDocument(cr, target) }
-            _state.value = XmlState.Failed(e.message ?: str(R.string.xml_failed))
+            _state.value = if (e is kotlinx.coroutines.CancellationException) XmlState.Idle
+            else XmlState.Failed((e as? Exception)?.message ?: str(R.string.xml_failed))
+            if (e is kotlinx.coroutines.CancellationException) throw e
         }
     }
 
@@ -490,5 +518,9 @@ class XmlTransfer(
 
     private companion object {
         const val UNKNOWN_NAME = "(Unknown)"
+        /** Limits for one picture message read from a file (real ones are far smaller). */
+        const val MAX_PARTS = 64
+        const val MAX_ADDRS = 200
+        const val MAX_MMS_BYTES = 64L * 1024 * 1024
     }
 }

@@ -197,16 +197,19 @@ class Scheduler(
         json.decodeFromString(ListSerializer(Scheduled.serializer()), plain).sortedBy { it.at }
     }.getOrDefault(emptyList())
 
+    /** Saves the schedule. A failure (the secure hardware busy, storage full) never crashes: the alarms are set either way. */
     private fun write() {
-        val list = _items.value
-        if (list.isEmpty()) {
-            file.delete()
-            return
+        runCatching {
+            val list = _items.value
+            if (list.isEmpty()) {
+                file.delete()
+                return
+            }
+            val plain = json.encodeToString(ListSerializer(Scheduled.serializer()), list)
+            val tmp = File(file.path + ".tmp")
+            tmp.writeText(KeystoreCrypto.encrypt(plain))
+            if (!tmp.renameTo(file)) tmp.delete()
         }
-        val plain = json.encodeToString(ListSerializer(Scheduled.serializer()), list)
-        val tmp = File(file.path + ".tmp")
-        tmp.writeText(KeystoreCrypto.encrypt(plain))
-        tmp.renameTo(file)
     }
 
     companion object {

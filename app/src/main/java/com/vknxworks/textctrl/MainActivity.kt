@@ -65,7 +65,13 @@ class MainActivity : ComponentActivity() {
     /** Turns a notification tap, "text this number", a share or a shortcut into something to open. */
     private fun handleIntent(intent: Intent?) {
         intent ?: return
-        val action = when (intent.action) {
+        // Other apps start this screen: a malformed intent (bad extras) is ignored instead of crashing.
+        val action = runCatching { actionFor(intent) }.getOrNull()
+        if (action != null) container.pendingAction.value = action
+    }
+
+    private fun actionFor(intent: Intent): PendingAction? {
+        return when (intent.action) {
             ACTION_OPEN_CHAT -> intent.getLongExtra(EXTRA_THREAD_ID, -1L).takeIf { it >= 0 }?.let { PendingAction.OpenChat(it) }
             ACTION_NEW_CHAT -> PendingAction.NewChat
             Intent.ACTION_SENDTO, Intent.ACTION_VIEW -> {
@@ -94,7 +100,6 @@ class MainActivity : ComponentActivity() {
             }
             else -> null
         }
-        if (action != null) container.pendingAction.value = action
     }
 
     /**

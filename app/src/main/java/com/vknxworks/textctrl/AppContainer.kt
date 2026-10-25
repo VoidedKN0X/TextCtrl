@@ -22,6 +22,7 @@ import com.vknxworks.textctrl.sms.Messenger
 import com.vknxworks.textctrl.sms.Sims
 import com.vknxworks.textctrl.ui.lock.AppLock
 import com.vknxworks.textctrl.widget.Widgets
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,7 +39,11 @@ sealed interface PendingAction {
 
 /** Manual dependency container; one per process. */
 class AppContainer(val context: Context) {
-    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    /**
+     * Work that outlives a screen. A failure in one job never takes the app down (that would also stop
+     * an incoming text from being stored); each job handles its own expected errors.
+     */
+    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, _ -> })
 
     val settings = SettingsRepository(context, appScope)
 

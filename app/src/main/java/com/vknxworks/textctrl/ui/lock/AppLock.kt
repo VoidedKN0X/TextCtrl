@@ -324,7 +324,12 @@ fun AppLockGate(content: @Composable () -> Unit) {
         return
     }
     val vault = c.vault
+    val activity = context.findActivity()
     when {
+        // Locking while the screen is closing (Back on the first screen, swiped from Recents): nothing new
+        // is shown on a window that's going away; the app is locked and opens locked next time.
+        vault.enabled && !AppLock.unlocked && (activity?.isFinishing == true || activity?.isDestroyed == true) ->
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
         vault.enabled && !AppLock.unlocked -> PinLockScreen()
         else -> Box(Modifier.fillMaxSize()) {
             content()
@@ -417,6 +422,8 @@ private fun PinLockScreen() {
 
     fun askFingerprint() {
         val a = activity ?: return
+        // Locked while leaving (Back on the first screen, swiped away): no prompt for a closing screen.
+        if (a.isFinishing || a.isDestroyed) return
         val cipher = vault.biometricUnlockCipher() ?: run {
             message = if (!vault.biometricEnabled) context.getString(R.string.lock_fingerprint_changed) else null
             return
@@ -495,7 +502,7 @@ private fun PinLockScreen() {
         ) {
             forgetting = false
             val a = activity ?: return@ConfirmDialog
-            if (!canReset) return@ConfirmDialog
+            if (!canReset || a.isFinishing || a.isDestroyed) return@ConfirmDialog
             // Only the phone's owner may reset it: confirm with the phone's own screen lock first.
             AppLock.screenLockAuthenticate(a) { error ->
                 if (error == null) scope.launch { c.resetLock() } else message = error

@@ -4,6 +4,27 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.1 (2026-10-25)
+
+A safety and clean-up release: incoming texts are even harder to lose, and closing a locked TextCtrl no longer risks a crash.
+
+### Fixed
+
+- **Incoming texts are never lost to a hiccup.** If the phone's message store is briefly busy when a text arrives, TextCtrl now tries again before giving up, and a problem with one text in a delivery no longer stops the others from being saved. A filter rule that fails always lets the text through.
+- **No crash when closing TextCtrl with the app lock on.** With **Lock again: As soon as you leave the app**, pressing Back on the chat list or swiping TextCtrl away from Recents could crash it while the lock screen (or the fingerprint prompt) tried to open on a closing window. TextCtrl still locks straight away and opens locked next time. The same applies to bubbles.
+- **A slow filter pattern can't hold up your messages.** A regular expression that takes too long on a message (some patterns can run for minutes) now counts as no match after a fraction of a second and is skipped from then on, instead of delaying the message and its notification.
+- **Background tasks can't crash the app.** Saving filter rules or scheduled messages, updating the widget and other work done in the background now fail quietly instead of closing TextCtrl, for example when the phone's secure hardware is briefly busy.
+- **Links and shares from other apps** with broken data are ignored instead of crashing TextCtrl.
+- **Export to an XML file** no longer leaves half a file behind if the phone runs out of memory, and a cancelled export or import resets its progress bar.
+
+### Security
+
+- **Safer XML import.** Files are read without processing document type declarations, so a crafted file can't pull in outside content or blow up in memory through entities. A picture message in a file with absurdly many or huge attachments is skipped (and counted as unreadable) instead of exhausting memory.
+
+### Changed
+
+- Internal cleanup: removed unused code.
+
 ## v0.6.0 (2026-10-25)
 
 Your own spam and keyword filters with a Spam folder, and moving messages to and from other SMS apps with SMS Backup & Restore files.

@@ -12,6 +12,7 @@ import com.vknxworks.textctrl.data.filters.RuleAction
 import com.vknxworks.textctrl.sms.mms.PduParser
 import com.vknxworks.textctrl.sms.mms.PduType
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Runs [block] off the main thread while keeping the broadcast alive until it's done. */
@@ -44,30 +45,45 @@ class SmsDeliverReceiver : BroadcastReceiver() {
             val c = context.container
             // One delivery is usually one message split into parts; keep senders apart just in case.
             for ((address, pieces) in parts.groupBy { it.displayOriginatingAddress ?: it.originatingAddress.orEmpty() }) {
-                val first = pieces.first()
-                val body = pieces.joinToString("") { it.displayMessageBody ?: it.messageBody.orEmpty() }
-                // Your own filters, before anything is stored or shown. Block: the text is dropped here.
-                val known = runCatching { c.store.threadIdFor(listOf(address)) }.getOrNull()
-                val verdict = runCatching { c.filters.check(address, body, known) }.getOrNull()
-                if (verdict == RuleAction.BLOCK) continue
-                val uri = c.store.insertIncomingSms(
-                    address = address,
-                    body = body,
-                    sentAt = first.timestampMillis,
-                    subId = subId,
-                    protocol = first.protocolIdentifier,
-                    serviceCenter = first.serviceCenterAddress,
-                    replyPath = first.isReplyPathPresent,
-                ) ?: continue
-                val thread = c.store.threadOf(uri) ?: continue
-                when {
-                    verdict == RuleAction.SPAM -> c.chats.markSpamByFilter(thread)
-                    // Muted by a rule: in its chat as usual, without a notification.
-                    verdict == RuleAction.MUTE -> c.chats.unarchive(thread)
-                    else -> {
-                        c.chats.unarchive(thread)
-                        c.notifier.onIncoming(thread)
+                // Each text on its own: a problem with one never stops the others from being stored.
+                try {
+                    val first = pieces.first()
+                    val body = pieces.joinToString("") { it.displayMessageBody ?: it.messageBody.orEmpty() }
+                    // Your own filters, before anything is stored or shown. Block: the text is dropped here.
+                    // A filter that fails lets the text through: it's never lost because of a rule.
+                    val known = runCatching { c.store.threadIdFor(listOf(address)) }.getOrNull()
+                    val verdict = runCatching { c.filters.check(address, body, known) }.getOrNull()
+                    if (verdict == RuleAction.BLOCK) continue
+                    val insert = {
+                        c.store.insertIncomingSms(
+                            address = address,
+                            body = body,
+                            sentAt = first.timestampMillis,
+                            subId = subId,
+                            protocol = first.protocolIdentifier,
+                            serviceCenter = first.serviceCenterAddress,
+                            replyPath = first.isReplyPathPresent,
+                        )
                     }
+                    // Android hands the text over only once: if the message store is busy, try again.
+                    val uri = runCatching { insert() }.getOrNull() ?: run {
+                        delay(500)
+                        runCatching { insert() }.getOrNull()
+                    } ?: continue
+                    val thread = c.store.threadOf(uri) ?: continue
+                    when {
+                        verdict == RuleAction.SPAM -> runCatching { c.chats.markSpamByFilter(thread) }
+                        // Muted by a rule: in its chat as usual, without a notification.
+                        verdict == RuleAction.MUTE -> runCatching { c.chats.unarchive(thread) }
+                        else -> {
+                            runCatching { c.chats.unarchive(thread) }
+                            runCatching { c.notifier.onIncoming(thread) }
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Throwable) {
+                    // Go on with the next text.
                 }
             }
             c.store.touch()

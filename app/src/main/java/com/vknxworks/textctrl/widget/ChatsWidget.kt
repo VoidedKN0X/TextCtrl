@@ -33,7 +33,7 @@ class ChatsWidgetProvider : AppWidgetProvider() {
         val pending = goAsync()
         c.appScope.launch {
             try {
-                c.widgets.update()
+                runCatching { c.widgets.update() }
             } finally {
                 pending.finish()
             }
@@ -121,7 +121,4 @@ class Widgets(
 
     private fun activity(code: Int, intent: Intent): PendingIntent =
         PendingIntent.getActivity(context, code, intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-    @Suppress("unused")
-    private fun formatted(n: String) = Contacts.formatNumber(n)
 }

@@ -139,7 +139,9 @@ class Filters(context: Context, private val store: MessageStore, private val con
 
     private fun matches(rule: FilterRule, address: String, body: String, known: Boolean): Boolean = when (rule.kind) {
         RuleKind.KEYWORD -> keywords(rule.pattern).any { body.contains(it, ignoreCase = true) }
-        RuleKind.REGEX -> compile(rule.pattern)?.let { r -> runCatching { r.containsMatchIn(body.take(MAX_BODY)) }.getOrDefault(false) } ?: false
+        // With a time limit: a pattern that takes too long (catastrophic backtracking) just doesn't match,
+        // so it can never hold up an incoming message.
+        RuleKind.REGEX -> compile(rule.pattern)?.let { r -> regexMatches(rule.pattern, r, body.take(MAX_BODY)) } ?: false
         RuleKind.PREFIX -> prefixes(rule.pattern).any { startsWithNumber(address, it) }
         RuleKind.SHORT_CODE -> isShortCode(address)
         RuleKind.NAMED_SENDER -> address.any { it.isLetter() } && !address.contains('@')
@@ -153,8 +155,34 @@ class Filters(context: Context, private val store: MessageStore, private val con
         regexCache.getOrPut(pattern) { validRegex(pattern) }
     }
 
+    /** Patterns that took too long once; they're skipped from then on (until the app restarts or the rule changes). */
+    private val slowPatterns = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+
+    private val regexThreads = java.util.concurrent.Executors.newCachedThreadPool { r ->
+        Thread(r, "textctrl-filter").apply { isDaemon = true; priority = Thread.MIN_PRIORITY }
+    }
+
+    /**
+     * Runs a regular expression with a time limit: one that takes too long (catastrophic backtracking)
+     * counts as no match, so a rule can never hold up or lose an incoming message.
+     */
+    private fun regexMatches(pattern: String, regex: Regex, text: String): Boolean {
+        if (pattern in slowPatterns) return false
+        val task = runCatching { regexThreads.submit<Boolean> { regex.containsMatchIn(text) } }.getOrNull() ?: return false
+        return try {
+            task.get(REGEX_TIME_MS, java.util.concurrent.TimeUnit.MILLISECONDS)
+        } catch (_: java.util.concurrent.TimeoutException) {
+            slowPatterns += pattern
+            task.cancel(true)
+            false
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     companion object {
         private const val MAX_BODY = 4000
+        private const val REGEX_TIME_MS = 300L
         const val MAX_PATTERN = 300
 
         fun keywords(pattern: String): List<String> = pattern.split(',', '\n').map { it.trim() }.filter { it.isNotEmpty() }
@@ -187,10 +215,13 @@ class Filters(context: Context, private val store: MessageStore, private val con
         json.decodeFromString(FilterFile.serializer(), plain)
     }.getOrDefault(FilterFile())
 
+    /** Saves the rules. A failure (for example the secure hardware being busy) keeps them in memory and never crashes. */
     private fun write() {
-        val plain = json.encodeToString(FilterFile.serializer(), _state.value)
-        val tmp = File(file.path + ".tmp")
-        tmp.writeText(KeystoreCrypto.encrypt(plain))
-        tmp.renameTo(file)
+        runCatching {
+            val plain = json.encodeToString(FilterFile.serializer(), _state.value)
+            val tmp = File(file.path + ".tmp")
+            tmp.writeText(KeystoreCrypto.encrypt(plain))
+            if (!tmp.renameTo(file)) tmp.delete()
+        }
     }
 }
