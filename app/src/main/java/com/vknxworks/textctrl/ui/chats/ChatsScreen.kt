@@ -607,7 +607,7 @@ private fun ChatRow(
                 Text(
                     shortTime(context, conv.date).uppercase(),
                     style = CtrlType.Status,
-                    color = if (unread) CtrlColors.Accent else CtrlColors.Inactive,
+                    color = if (unread) CtrlColors.AccentText else CtrlColors.Inactive,
                     maxLines = 1,
                 )
             }

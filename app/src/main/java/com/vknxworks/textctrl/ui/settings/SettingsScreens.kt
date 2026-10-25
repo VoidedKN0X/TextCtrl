@@ -409,7 +409,7 @@ private fun SettingsContent() {
                     stringResource(R.string.sms_app),
                     stringResource(if (c.isDefaultSmsApp) R.string.sms_app_yes else R.string.sms_app_no),
                     icon = if (c.isDefaultSmsApp) Icons.Outlined.CheckCircle else Icons.Outlined.WarningAmber,
-                    iconTint = if (c.isDefaultSmsApp) CtrlColors.Accent else CtrlColors.Error,
+                    iconTint = if (c.isDefaultSmsApp) CtrlColors.AccentText else CtrlColors.Error,
                     showChevron = true,
                     onClick = {
                         AppLock.expectReturn()

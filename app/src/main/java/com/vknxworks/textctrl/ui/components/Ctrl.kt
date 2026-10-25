@@ -112,7 +112,7 @@ fun CtrlWordmark(name: String = "TEXT", modifier: Modifier = Modifier) {
     Text(
         buildAnnotatedString {
             append(name)
-            withStyle(SpanStyle(color = CtrlColors.Accent)) { append("/") }
+            withStyle(SpanStyle(color = CtrlColors.AccentText)) { append("/") }
             append("CTRL")
         },
         style = CtrlType.Wordmark,
@@ -284,6 +284,7 @@ fun CtrlHeroCard(
 }
 
 /** A list row's 1dp top divider, inset by the page margin. */
+@Composable
 fun Modifier.topDivider(inset: Dp = Gutter, color: Color = CtrlColors.Divider): Modifier = drawBehind {
     val x = inset.toPx()
     drawLine(color, Offset(x, 0f), Offset(size.width - x, 0f), strokeWidth = 1.dp.toPx())
@@ -392,8 +393,8 @@ fun ctrlFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = CtrlColors.Surface,
     disabledContainerColor = CtrlColors.Surface,
     errorContainerColor = CtrlColors.Surface,
-    cursorColor = CtrlColors.Accent,
-    focusedBorderColor = CtrlColors.Accent,
+    cursorColor = CtrlColors.AccentText,
+    focusedBorderColor = CtrlColors.AccentText,
     unfocusedBorderColor = CtrlColors.ControlOutline,
     disabledBorderColor = CtrlColors.Outline,
     errorBorderColor = CtrlColors.Error,
@@ -401,7 +402,7 @@ fun ctrlFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
     unfocusedLeadingIconColor = CtrlColors.Muted,
     focusedTrailingIconColor = CtrlColors.Muted,
     unfocusedTrailingIconColor = CtrlColors.Muted,
-    focusedLabelColor = CtrlColors.Accent,
+    focusedLabelColor = CtrlColors.AccentText,
     unfocusedLabelColor = CtrlColors.Muted,
     focusedPlaceholderColor = CtrlColors.Muted,
     unfocusedPlaceholderColor = CtrlColors.Muted,

@@ -1,5 +1,7 @@
 package com.vknxworks.textctrl.ui.components
 
+import androidx.compose.ui.graphics.lerp
+import com.vknxworks.textctrl.ui.theme.LocalCtrlColors
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import android.content.ContentValues
@@ -101,12 +103,17 @@ private val avatarColors = listOf(
 /** A steady colour per person, so the same contact always looks the same. */
 fun avatarColor(key: String): Color = avatarColors[abs(key.hashCode()) % avatarColors.size]
 
+/** [color] as text or an icon: as is in dark, darkened in light so it reads on a pale background. */
+@Composable
+fun avatarInk(color: Color): Color = if (LocalCtrlColors.current.isDark) color else lerp(color, Color.Black, 0.5f)
+
 /** A contact's picture, their initial on a colour, or a group badge. */
 @Composable
 fun Avatar(name: String, key: String, photo: Uri?, group: Boolean = false, size: Dp = 48.dp) {
-    val color = avatarColor(key)
+    val tone = avatarColor(key)
+    val color = avatarInk(tone)
     Box(
-        Modifier.size(size).clip(RoundedCornerShape(size * 0.32f)).background(color.copy(alpha = 0.18f)),
+        Modifier.size(size).clip(RoundedCornerShape(size * 0.32f)).background(tone.copy(alpha = if (LocalCtrlColors.current.isDark) 0.18f else 0.30f)),
         contentAlignment = Alignment.Center,
     ) {
         val letter = name.firstOrNull { it.isLetter() }?.uppercaseChar()

@@ -36,7 +36,7 @@ fun Throwable.friendlyMessage(): String = when (this) {
 
 @Composable
 fun LoadingView(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = CtrlColors.Accent, trackColor = CtrlColors.Track) }
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = CtrlColors.AccentText, trackColor = CtrlColors.Track) }
 }
 
 @Composable

@@ -107,7 +107,7 @@ class Notifier(
 
         val builder = NotificationCompat.Builder(context, channelFor(threadId))
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(ACCENT)
+            .setColor(context.getColor(R.color.notify_accent))
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(open)
@@ -174,7 +174,7 @@ class Notifier(
         else str(R.string.notify_failed_body, addresses.joinToString(", ") { contacts.displayName(it) })
         val n = NotificationCompat.Builder(context, CHANNEL_FAILED)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(ACCENT)
+            .setColor(context.getColor(R.color.notify_accent))
             .setCategory(NotificationCompat.CATEGORY_ERROR)
             .setContentTitle(str(R.string.notify_failed_title))
             .setContentText(text)
@@ -277,7 +277,7 @@ class Notifier(
 
     private fun publicVersion(open: PendingIntent) = NotificationCompat.Builder(context, CHANNEL_MESSAGES)
         .setSmallIcon(R.drawable.ic_notification)
-        .setColor(ACCENT)
+        .setColor(context.getColor(R.color.notify_accent))
         .setContentTitle(str(R.string.app_name))
         .setContentText(str(R.string.notify_new_message))
         .setContentIntent(open)
@@ -342,6 +342,5 @@ class Notifier(
         const val CHANNEL_MESSAGES = "messages"
         const val CHANNEL_FAILED = "failed"
         private const val TAG_FAILED = "failed"
-        private const val ACCENT = 0xFFB48CFF.toInt()
     }
 }

@@ -1,5 +1,6 @@
 package com.vknxworks.textctrl.ui.chat
 
+import com.vknxworks.textctrl.ui.components.avatarInk
 import android.telephony.SmsMessage
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -202,7 +203,8 @@ fun ownBubbleColors(choice: BubbleColor): Pair<Color, Color> {
     val cs = MaterialTheme.colorScheme
     if (choice == BubbleColor.ACCENT) return CtrlColors.Accent to CtrlColors.OnAccent
     val bg = Color(choice.argb)
-    return bg to if (bg.luminance() > 0.45f) CtrlColors.OnAccent else CtrlColors.Text
+    // Dark bubble colours keep light text in both themes.
+    return bg to if (bg.luminance() > 0.45f) CtrlColors.OnAccent else Color(0xFFF4F4F2)
 }
 
 @Composable
@@ -261,7 +263,7 @@ fun Bubble(
         else -> ownColors.second
     }
     val bubbleBorder = when {
-        highlighted -> BorderStroke(1.dp, CtrlColors.Accent)
+        highlighted -> BorderStroke(1.dp, CtrlColors.AccentText)
         incoming -> BorderStroke(1.dp, CtrlColors.Outline)
         failed -> BorderStroke(1.dp, CtrlColors.Error.copy(alpha = 0.6f))
         else -> null
@@ -280,7 +282,7 @@ fun Bubble(
             Text(
                 it,
                 style = MaterialTheme.typography.labelMedium,
-                color = avatarColor(m.address),
+                color = avatarInk(avatarColor(m.address)),
                 modifier = Modifier.padding(start = 12.dp, top = 6.dp, bottom = 2.dp),
             )
         }
@@ -373,7 +375,7 @@ fun Bubble(
                             ),
                         ) {
                             Text(
-                                linkify(body.trim(), if (incoming || highlighted) CtrlColors.Accent else textColor),
+                                linkify(body.trim(), if (incoming || highlighted) CtrlColors.AccentText else textColor),
                                 style = textStyle,
                                 color = textColor,
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
@@ -390,7 +392,7 @@ fun Bubble(
                             Surface(
                                 shape = CtrlChipShape,
                                 color = if (r.mine) CtrlColors.Accent.copy(alpha = 0.22f) else CtrlColors.Raised,
-                                border = BorderStroke(1.dp, if (r.mine) CtrlColors.Accent else CtrlColors.Background),
+                                border = BorderStroke(1.dp, if (r.mine) CtrlColors.AccentText else CtrlColors.Background),
                                 modifier = Modifier.clip(CtrlChipShape).clickable { onReactionTap(r) },
                             ) {
                                 Text(
@@ -408,13 +410,13 @@ fun Bubble(
                         Surface(
                             shape = CtrlChipShape,
                             color = CtrlColors.Surface,
-                            border = BorderStroke(1.dp, CtrlColors.Accent),
+                            border = BorderStroke(1.dp, CtrlColors.AccentText),
                             modifier = Modifier.clip(CtrlChipShape).clickable { onCopyCode(code) },
                         ) {
                             Row(Modifier.padding(horizontal = 12.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Outlined.ContentCopy, null, Modifier.size(16.dp), tint = CtrlColors.Accent)
+                                Icon(Icons.Outlined.ContentCopy, null, Modifier.size(16.dp), tint = CtrlColors.AccentText)
                                 Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.copy_code_value, code), style = CtrlType.Meta.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold), color = CtrlColors.Accent)
+                                Text(stringResource(R.string.copy_code_value, code), style = CtrlType.Meta.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold), color = CtrlColors.AccentText)
                             }
                         }
                     }
@@ -460,7 +462,7 @@ fun PendingBubble(item: Scheduled, now: Long, textStyle: TextStyle, onClick: () 
         Surface(
             shape = RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp),
             color = CtrlColors.Accent.copy(alpha = 0.10f),
-            border = BorderStroke(1.dp, CtrlColors.Accent.copy(alpha = 0.6f)),
+            border = BorderStroke(1.dp, CtrlColors.AccentText.copy(alpha = 0.6f)),
             modifier = Modifier.widthIn(max = 300.dp).clip(RoundedCornerShape(18.dp, 18.dp, 6.dp, 18.dp)).clickable(onClick = onClick),
         ) {
             Column(Modifier.padding(horizontal = 14.dp, vertical = 9.dp)) {
@@ -632,7 +634,7 @@ private fun EmojiKey(emoji: String, chosen: Boolean, onClick: () -> Unit) {
             .size(52.dp)
             .clip(CtrlControlShape)
             .background(if (chosen) CtrlColors.Accent.copy(alpha = 0.22f) else CtrlColors.Raised)
-            .border(1.dp, if (chosen) CtrlColors.Accent else CtrlColors.Outline, CtrlControlShape)
+            .border(1.dp, if (chosen) CtrlColors.AccentText else CtrlColors.Outline, CtrlControlShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) { Text(emoji, style = MaterialTheme.typography.headlineSmall) }

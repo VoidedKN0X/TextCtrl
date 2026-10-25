@@ -47,6 +47,7 @@ import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.ui.nav.LocalNavigator
 import com.vknxworks.textctrl.ui.theme.CtrlColors
 import com.vknxworks.textctrl.ui.theme.Gutter
+import com.vknxworks.textctrl.ui.theme.LocalCtrlColors
 
 // ---------- Top bars ----------
 
@@ -182,7 +183,7 @@ fun GroupRow(
     title: String,
     subtitle: String? = null,
     icon: ImageVector? = null,
-    iconTint: Color = CtrlColors.Accent,
+    iconTint: Color = CtrlColors.AccentText,
     titleColor: Color = CtrlColors.Text,
     showChevron: Boolean = false,
     onClick: (() -> Unit)? = null,
@@ -208,7 +209,7 @@ fun GroupSwitch(
             title,
             subtitle,
             icon,
-            CtrlColors.Accent,
+            CtrlColors.AccentText,
             if (enabled) CtrlColors.Text else CtrlColors.Inactive,
             trailing = { CtrlSwitch(checked, onCheckedChange = null, enabled = enabled) },
             showChevron = false,
@@ -247,7 +248,7 @@ fun <T> ChoiceSheet(
         shape = CtrlSheetShape,
         containerColor = CtrlColors.Surface,
         contentColor = CtrlColors.Text,
-        scrimColor = Color.Black.copy(alpha = 0.6f),
+        scrimColor = Color.Black.copy(alpha = if (LocalCtrlColors.current.isDark) 0.6f else 0.32f),
     ) {
         SectionLabel(title, Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
         LazyColumn(Modifier.navigationBarsPadding(), contentPadding = PaddingValues(bottom = 16.dp)) {
@@ -266,10 +267,10 @@ fun <T> ChoiceSheet(
                     Text(
                         label,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = if (isSel) CtrlColors.Accent else CtrlColors.Text,
+                        color = if (isSel) CtrlColors.AccentText else CtrlColors.Text,
                         modifier = Modifier.weight(1f),
                     )
-                    if (isSel) Icon(Icons.Outlined.Check, stringResource(R.string.selected), Modifier.size(20.dp), tint = CtrlColors.Accent)
+                    if (isSel) Icon(Icons.Outlined.Check, stringResource(R.string.selected), Modifier.size(20.dp), tint = CtrlColors.AccentText)
                 }
             }
         }

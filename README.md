@@ -34,7 +34,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **"Text this number"** from your dialer, contacts and links, **share to TextCtrl** from any app, and **reply with a message** when you decline a call
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
-- The **Ctrl / Signal** look shared by every Ctrl app: dark, high-contrast, with your own **bubble colour** and **text size**
+- The **Ctrl / Signal** look shared by every Ctrl app: high-contrast **dark and light** modes that follow your phone's setting, with your own **bubble colour** and **text size**
 - **Recent chats widget** for the home screen
 - **Tablets and foldables**: chat list and chat side by side
 

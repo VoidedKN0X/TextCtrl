@@ -360,7 +360,7 @@ fun ScheduledScreen() {
                         Text(
                             (shortTime(context, item.at) + "\n" + clockTime(context, item.at)).uppercase(),
                             style = CtrlType.Status,
-                            color = CtrlColors.Accent,
+                            color = CtrlColors.AccentText,
                             textAlign = TextAlign.End,
                         )
                     }

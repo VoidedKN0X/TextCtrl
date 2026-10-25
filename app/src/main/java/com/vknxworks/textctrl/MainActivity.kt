@@ -1,5 +1,7 @@
 package com.vknxworks.textctrl
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.DisposableEffect
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -23,22 +25,27 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Dark only: the bars are see-through over the #08080A background, with light icons.
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-        )
+        enableEdgeToEdge()
         val c = container
         if (savedInstanceState == null) handleIntent(intent)
         setContent {
             val settings by c.settings.settings.collectAsStateWithLifecycle()
+            // Follows the device's dark/light setting. The bars are see-through over the app's background,
+            // with light icons in dark mode and dark icons in light mode.
+            val dark = isSystemInDarkTheme()
+            DisposableEffect(dark) {
+                val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
+                else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                onDispose { }
+            }
             // "Hide in screenshots" (off by default); always on for the lock and PIN screens.
             val covered = (c.vault.enabled && !AppLock.unlocked) || AppLock.request != null
             val secure = settings.hideScreenshots || covered || ScreenPrivacy.forced > 0
             // "Hide in recent apps" (off by default). With the app lock on, Recents always shows a blank
             // card: a preview there would show your texts without the PIN.
             WindowPrivacy(this, secure, hideRecents = settings.hideRecents || c.vault.enabled)
-            TextCtrlTheme {
+            TextCtrlTheme(dark) {
                 AppLockGate { AppRoot() }
             }
         }

@@ -235,8 +235,8 @@ fun NewChatScreen(forward: Boolean) {
                 },
                 shape = CtrlButtonShape,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = CtrlColors.Accent,
+                contentColor = CtrlColors.OnAccent,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
             )
         }
@@ -271,7 +271,7 @@ private fun PersonRow(
             detail?.let { Text(it, style = CtrlType.Meta, color = CtrlColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
         IconButton(onClick = onGroup) {
-            if (selected) Icon(Icons.Filled.CheckCircle, stringResource(R.string.new_chat_remove_from_group), tint = MaterialTheme.colorScheme.primary)
+            if (selected) Icon(Icons.Filled.CheckCircle, stringResource(R.string.new_chat_remove_from_group), tint = CtrlColors.AccentText)
             else Icon(Icons.Outlined.GroupAdd, stringResource(R.string.new_chat_add_to_group), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

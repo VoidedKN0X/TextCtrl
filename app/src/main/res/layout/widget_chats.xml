@@ -23,7 +23,7 @@
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
             android:text="@string/widget_title"
-            android:textColor="#FFF4F4F2"
+            android:textColor="@color/widget_text"
             android:textSize="18sp" />
 
         <ImageView

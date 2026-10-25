@@ -4,6 +4,28 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.4.0 (2026-10-25)
+
+Light mode that follows the device theme: TextCtrl is now light when your phone is set to light and dark when it is set to dark, and switches by itself (also with a dark-mode schedule). There is still no theme setting in the app, and no wallpaper colours.
+
+### New
+
+- **Signal Light.** A warm off-white background (#F5F5F1) with white cards, sheets and dialogs, thin light-grey borders (#DEDED7 on cards, #D2D2CA on buttons, fields and the tab bar), light dividers between rows and near-black text (#0B0B0D) with grey secondary text.
+- **Messages in light mode.** Messages you receive are white with a thin #DEDED7 border; your own messages keep the violet fill with dark text (or the bubble colour you picked). Links, sender names and contact initials are darkened slightly so they read on white.
+- **Accent that stays readable.** Violet fills (the open tab, primary buttons, switches that are on, PIN dots, your bubbles, unread counters, the lock and profile badges) are the same #B48CFF in both modes. Violet text and icons on a light background, such as the slash in TEXT/CTRL, unread times, links, the Copy code button, focused text fields, the fingerprint key and scheduled-message times, use a deeper violet (#6A3BDB) so they stay readable.
+- **Switches in light mode** are light grey with a grey knob when off, violet with a dark knob when on.
+- **Lock screen in light mode:** white keys with a thin border, empty PIN squares with a grey outline, the same violet lock badge and fingerprint key.
+- **Floating tab bar in light mode:** white with a thin border; the open tab is still a violet block.
+- **Status and navigation bars** match the background in both modes, with dark icons in light mode and light icons in dark mode.
+- **Widget** follows the phone's setting too: light background and white rows in light mode, dark in dark mode.
+- **Notifications** use the deeper violet accent while the phone is in light mode.
+
+### Changed
+
+- The dark look from 0.3.0 is unchanged and still used whenever your phone is in dark mode.
+- Dialogs, menus, choice sheets, date and time pickers, the backup progress bar, empty-state badges and error messages all have light versions (errors use #D93636 on light).
+- The full-screen picture viewer stays black in both modes, so photos are shown without distraction. The launcher icon is unchanged.
+
 ## v0.3.0 (2026-10-25)
 
 A new look: TextCtrl now uses **Ctrl / Signal**, the design shared by every Ctrl app. Everything works the same as before; only the way it looks has changed.
@@ -28,7 +50,7 @@ A new look: TextCtrl now uses **Ctrl / Signal**, the design shared by every Ctrl
 
 ### Removed
 
-- **Theme choice and "Use wallpaper colours".** TextCtrl is now always dark, so Settings › Appearance no longer offers Follow system, Light, Dark or Pure black, or wallpaper colours. If you had picked one of these, it is simply ignored.
+- **Theme choice and "Use wallpaper colours".** TextCtrl is now always dark (from 0.4.0 it follows your phone's dark/light setting instead), so Settings › Appearance no longer offers Follow system, Light, Dark or Pure black, or wallpaper colours. If you had picked one of these, it is simply ignored.
 - The Manrope font, replaced by Space Grotesk and JetBrains Mono.
 
 ## v0.2.1 (2026-10-23)

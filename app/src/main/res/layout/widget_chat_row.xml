@@ -25,7 +25,7 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:maxLines="1"
-            android:textColor="#FFF4F4F2"
+            android:textColor="@color/widget_text"
             android:textSize="14sp" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="#FFA3A3AB"
+            android:textColor="@color/widget_muted"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textColor="#FFA3A3AB"
+        android:textColor="@color/widget_muted"
         android:textSize="11sp" />
 
     <ImageView
