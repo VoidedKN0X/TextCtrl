@@ -80,7 +80,7 @@ object AvatarIcons {
         val out = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(out)
         canvas.drawColor(bg)
-        val base = runCatching { ResourcesCompat.getFont(context, R.font.manrope) }.getOrNull() ?: Typeface.DEFAULT
+        val base = runCatching { ResourcesCompat.getFont(context, R.font.space_grotesk) }.getOrNull() ?: Typeface.DEFAULT
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = ink
             typeface = Typeface.create(base, 700, false)
