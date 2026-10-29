@@ -4,6 +4,19 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.2 (2026-10-29)
+
+Bubbles look right on more phones.
+
+### Fixed
+
+- **Bubble pictures fill the whole bubble.** A contact's photo was shown as a smaller circle inside the bubble, so the bubble looked smaller and further from the screen edge than it is. The gap was biggest on OPPO, OnePlus and realme phones (ColorOS, OxygenOS, realme UI), which add padding of their own. Bubbles and the chat's icon in Android's conversation list now use a full-size picture on every phone: the contact's photo, their initial on their colour when there's no photo, or a picture for group chats (two initials, or two outlines), instead of TextCtrl's app icon for people without a photo.
+- **No empty bars inside an open bubble.** Some phones told the bubble about the status bar and navigation bar even though a bubble never sits under them, which left empty space at the top and bottom of the bubble and its lock screen. That space is gone; the keyboard still pushes the text field up as before.
+
+### Changed
+
+- **README:** a note on how bubbles differ per phone brand. Where a bubble rests on the screen and how far it sits from the edge is set by the phone's own software, which no app can change.
+
 ## v0.6.1 (2026-10-25)
 
 A safety and clean-up release: incoming texts are even harder to lose, and closing a locked TextCtrl no longer risks a crash.

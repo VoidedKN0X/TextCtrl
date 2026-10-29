@@ -10,7 +10,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -77,21 +82,26 @@ class BubbleActivity : ComponentActivity() {
             val secure = settings.hideScreenshots || covered || ScreenPrivacy.forced > 0
             WindowPrivacy(this, secure, hideRecents = settings.hideRecents || c.vault.enabled)
             TextCtrlTheme(dark) {
-                AppLockGate {
-                    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        val navController = rememberNavController()
-                        val navigator = remember(navController) { Navigator(navController) }
-                        CompositionLocalProvider(LocalNavigator provides navigator) {
-                            Box(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
-                                NavHost(navController, startDestination = ChatRoute(threadId)) {
-                                    composable<ChatRoute> {
-                                        val r = it.toRoute<ChatRoute>()
-                                        // The first chat's back arrow closes the bubble; chats opened from it go back.
-                                        val first = navController.previousBackStackEntry == null
-                                        ChatScreen(r.threadId, r.highlight, onBack = if (first) ({ finish() }) else null)
+                // A bubble never sits under the status bar or the navigation bar, but some skins still report
+                // them to it, which left empty bars at the top and bottom of the bubble (and its lock screen).
+                // They're ignored here; only the keyboard still moves the text field up.
+                Box(Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.statusBars.union(WindowInsets.navigationBars).union(WindowInsets.displayCutout))) {
+                    AppLockGate {
+                        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                            val navController = rememberNavController()
+                            val navigator = remember(navController) { Navigator(navController) }
+                            CompositionLocalProvider(LocalNavigator provides navigator) {
+                                Box(Modifier.fillMaxSize().imePadding()) {
+                                    NavHost(navController, startDestination = ChatRoute(threadId)) {
+                                        composable<ChatRoute> {
+                                            val r = it.toRoute<ChatRoute>()
+                                            // The first chat's back arrow closes the bubble; chats opened from it go back.
+                                            val first = navController.previousBackStackEntry == null
+                                            ChatScreen(r.threadId, r.highlight, onBack = if (first) ({ finish() }) else null)
+                                        }
+                                        composable<NewChatRoute> { NewChatScreen(it.toRoute<NewChatRoute>().forward) }
+                                        composable<HiddenRoute> { HiddenChatsScreen() }
                                     }
-                                    composable<NewChatRoute> { NewChatScreen(it.toRoute<NewChatRoute>().forward) }
-                                    composable<HiddenRoute> { HiddenChatsScreen() }
                                 }
                             }
                         }

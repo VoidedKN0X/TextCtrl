@@ -89,6 +89,7 @@ Settings, your SIMs, blocked numbers and About are behind the profile picture at
 - **"Not sent":** tap the message to try again. A notification tells you when a message fails while you're elsewhere.
 - **Another app became your SMS app:** TextCtrl shows a screen to make it your SMS app again. Texts received in the meantime are in the shared message store, so you'll see them.
 - **Group chats:** with **Group texts as picture messages** on (the default), a message to several people goes out as one group message and replies show up in the same chat. Turn it off to send everyone their own text.
+- **Bubbles on different phones:** where a bubble rests on the screen, how far it sits from the edge and how it opens are decided by your phone's software, not by TextCtrl, so they differ per brand. Pixel, Motorola, Nothing and other near-stock phones show Android's own bubbles at the very edge. On Samsung, pick **Bubbles** under Settings › Notifications › Advanced settings › Floating notifications (**Smart pop-up view** is Samsung's own version and doesn't use TextCtrl's bubbles). OPPO, OnePlus and realme (ColorOS, OxygenOS, realme UI) draw bubbles in their own style, a little in from the edge; you can drag a bubble, but it settles where the phone puts it. If you don't see bubbles at all, check that bubbles are allowed for TextCtrl in Android's notification settings.
 
 ## Hidden chats
 

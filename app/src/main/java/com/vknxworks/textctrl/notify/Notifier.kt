@@ -153,16 +153,20 @@ class Notifier(
                 val named = !vault.enabled && !hidden
                 if (named || bubble) {
                     runCatching {
+                        // A full-size picture of the chat, so the bubble and the conversation icon fill their
+                        // circle on every phone. A locked TextCtrl shows only its own icon.
+                        val chatIcon = if (named) AvatarIcons.forChat(context, contacts, addresses)
+                        else IconCompat.createWithResource(context, R.mipmap.ic_launcher)
                         val shortcut = ShortcutInfoCompat.Builder(context, shortcutId(threadId))
                             .setShortLabel(if (named) title.take(40).ifBlank { str(R.string.app_name) } else str(R.string.bubble_locked_label))
                             .setLongLived(true)
                             .setIntent(openActivityIntent(threadId))
                             .apply { if (named) setPersons(people.values.toTypedArray()) }
-                            .setIcon((if (named) people.values.firstOrNull()?.icon else null) ?: IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+                            .setIcon(chatIcon)
                             .build()
                         ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
                         builder.setShortcutId(shortcutId(threadId))
-                        if (bubble) builder.setBubbleMetadata(bubbleMetadata(threadId))
+                        if (bubble) builder.setBubbleMetadata(bubbleMetadata(threadId, chatIcon))
                     }
                 }
             }
@@ -211,14 +215,14 @@ class Notifier(
         manager != null && manager.bubblePreference != NotificationManager.BUBBLE_PREFERENCE_NONE
     }.getOrDefault(false)
 
-    private fun bubbleMetadata(threadId: Long): NotificationCompat.BubbleMetadata {
+    private fun bubbleMetadata(threadId: Long, icon: IconCompat): NotificationCompat.BubbleMetadata {
         val intent = Intent(context, BubbleActivity::class.java)
             .setAction(MainActivity.ACTION_OPEN_CHAT)
             .setData(Uri.parse("textctrl://bubble/$threadId"))
             .putExtra(MainActivity.EXTRA_THREAD_ID, threadId)
         // Mutable as Android requires for bubbles; explicit, so it can only open TextCtrl's own screen.
         val pi = PendingIntent.getActivity(context, threadId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-        return NotificationCompat.BubbleMetadata.Builder(pi, IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+        return NotificationCompat.BubbleMetadata.Builder(pi, icon)
             .setDesiredHeight(640)
             .setAutoExpandBubble(false)
             .setSuppressNotification(false)
