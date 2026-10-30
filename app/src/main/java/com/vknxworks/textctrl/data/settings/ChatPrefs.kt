@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.asStateFlow
 class ChatPrefs(context: Context, private val vault: LockVault) {
     private val prefs = context.applicationContext.getSharedPreferences("chats", Context.MODE_PRIVATE)
 
+    init {
+        // Bubbles were removed in 0.6.3; forget which chats had them.
+        if (prefs.contains("bubbled")) prefs.edit().remove("bubbled").apply()
+    }
+
     private val _pinned = MutableStateFlow(readSet(K_PINNED))
     val pinned: StateFlow<Set<Long>> = _pinned.asStateFlow()
 
@@ -40,12 +45,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     /** Chats with their own auto-delete choice, instead of the one in Settings. */
     val autoDelete: StateFlow<Map<Long, AutoDelete>> = _autoDelete.asStateFlow()
 
-    private val _bubbled = MutableStateFlow(readSet(K_BUBBLED))
-    /** Chats chosen to show as bubbles (with "Bubbles: Chosen chats"). */
-    val bubbled: StateFlow<Set<Long>> = _bubbled.asStateFlow()
 
-    fun setBubbled(threadId: Long, on: Boolean) = toggle(K_BUBBLED, _bubbled, threadId, on)
-    fun isBubbled(threadId: Long) = threadId in _bubbled.value
 
     private val _spam = MutableStateFlow(readSet(K_SPAM))
     /** Chats in the Spam folder: kept out of Chats, Archived, Search and the widget, and never notified. */
@@ -115,7 +115,6 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setMuted(threadId, false)
         setHidden(threadId, false)
         setAutoDelete(threadId, null)
-        setBubbled(threadId, false)
         toggle(K_SPAM, _spam, threadId, false)
         toggle(K_NOT_SPAM, _notSpam, threadId, false)
         saveDraft(threadId, "")
@@ -207,7 +206,6 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val K_DRAFTS = "draft_ids"
         const val K_HIDDEN = "hidden_enc"
         const val K_AUTO_DELETE = "auto_delete"
-        const val K_BUBBLED = "bubbled"
         const val K_SPAM = "spam"
         const val K_NOT_SPAM = "not_spam"
     }

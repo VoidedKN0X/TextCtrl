@@ -491,18 +491,6 @@
     <string name="swipe_blocked">Blocked %1$s</string>
     <string name="swipe_block_group">Only chats with one person can be blocked</string>
 
-    <!-- Bubbles -->
-    <string name="group_notifications">Notifications</string>
-    <string name="bubbles">Bubbles</string>
-    <string name="bubbles_off">Off</string>
-    <string name="bubbles_chosen">Chats you choose</string>
-    <string name="bubbles_all">All chats</string>
-    <string name="bubbles_footer">New messages can float as a bubble over other apps; tap it to read and reply without leaving what you\'re doing. With Chats you choose, turn it on in a chat\'s menu. Hidden chats never bubble, and the app lock and Hide in screenshots apply inside bubbles too.</string>
-    <string name="bubbles_blocked">Bubbles are turned off for TextCtrl in Android\'s settings. Allow them there to see bubbles.</string>
-    <string name="bubble_chat_on">Show as bubble</string>
-    <string name="bubble_chat_off">Don\'t show as bubble</string>
-    <string name="bubble_locked_label">Chat</string>
-
     <!-- Spam folder and filters -->
     <string name="save">Save</string>
     <string name="spam_title">Spam</string>

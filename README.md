@@ -22,7 +22,6 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Reactions** (👍 ❤️ 😂 …) that work with iPhones and Google Messages over plain SMS, shown as badges on the message
 - **Copy one-time codes** straight from the message or its notification
 - **Notifications** with **Reply** and **Mark as read**, per-chat **mute** and **sound**, and a choice of what they show
-- **Bubbles**: read and reply in a floating bubble over other apps, for all chats or the ones you choose (the app lock applies there too)
 - **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
 - **Swipe actions** you choose for left and right in the chat list, with **Undo** for archive, delete and block
 - **Filters** for unread chats and **unknown senders** (numbers not in your contacts)
@@ -89,7 +88,6 @@ Settings, your SIMs, blocked numbers and About are behind the profile picture at
 - **"Not sent":** tap the message to try again. A notification tells you when a message fails while you're elsewhere.
 - **Another app became your SMS app:** TextCtrl shows a screen to make it your SMS app again. Texts received in the meantime are in the shared message store, so you'll see them.
 - **Group chats:** with **Group texts as picture messages** on (the default), a message to several people goes out as one group message and replies show up in the same chat. Turn it off to send everyone their own text.
-- **Bubbles on different phones:** where a bubble rests on the screen, how far it sits from the edge and how it opens are decided by your phone's software, not by TextCtrl, so they differ per brand. Pixel, Motorola, Nothing and other near-stock phones show Android's own bubbles at the very edge. On Samsung, pick **Bubbles** under Settings › Notifications › Advanced settings › Floating notifications (**Smart pop-up view** is Samsung's own version and doesn't use TextCtrl's bubbles). OPPO, OnePlus and realme (ColorOS, OxygenOS, realme UI) draw bubbles in their own style, a little in from the edge; you can drag a bubble, but it settles where the phone puts it. If you don't see bubbles at all, check that bubbles are allowed for TextCtrl in Android's notification settings.
 
 ## Hidden chats
 

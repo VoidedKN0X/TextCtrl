@@ -88,13 +88,6 @@ enum class SwipeAction(@StringRes val label: Int) {
     BLOCK(R.string.block),
 }
 
-/** Which chats' notifications can float as Android bubbles. */
-enum class BubbleMode(@StringRes val label: Int) {
-    OFF(R.string.bubbles_off),
-    CHOSEN(R.string.bubbles_chosen),
-    ALL(R.string.bubbles_all),
-}
-
 data class AppSettings(
     val theme: ThemeChoice = ThemeChoice.SYSTEM,
     val dynamicColor: Boolean = false,
@@ -126,7 +119,6 @@ data class AppSettings(
     val swipeRight: SwipeAction = SwipeAction.READ,
     /** Swiping a chat to the left (end to start) in the chat list. */
     val swipeLeft: SwipeAction = SwipeAction.ARCHIVE,
-    val bubbles: BubbleMode = BubbleMode.OFF,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -180,7 +172,6 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         bubbleColor = enumOr(this[K.bubbleColor], BubbleColor.ACCENT),
         swipeRight = enumOr(this[K.swipeRight], SwipeAction.READ),
         swipeLeft = enumOr(this[K.swipeLeft], SwipeAction.ARCHIVE),
-        bubbles = enumOr(this[K.bubbles], BubbleMode.OFF),
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -205,7 +196,8 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.bubbleColor] = s.bubbleColor.name
             p[K.swipeRight] = s.swipeRight.name
             p[K.swipeLeft] = s.swipeLeft.name
-            p[K.bubbles] = s.bubbles.name
+            // Bubbles were removed in 0.6.3; forget their old setting.
+            p.remove(K.bubbles)
         }
     }
 

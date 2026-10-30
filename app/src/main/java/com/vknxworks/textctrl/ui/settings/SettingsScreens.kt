@@ -112,7 +112,6 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import com.vknxworks.textctrl.data.settings.AutoDelete
 import com.vknxworks.textctrl.data.settings.BubbleColor
-import com.vknxworks.textctrl.data.settings.BubbleMode
 import com.vknxworks.textctrl.data.settings.SwipeAction
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
@@ -292,24 +291,6 @@ private fun SettingsContent() {
                     s.swipeLeft,
                     icon = Icons.AutoMirrored.Outlined.ArrowBack,
                 ) { v -> update { it.copy(swipeLeft = v) } }
-            }
-
-            Group(stringResource(R.string.group_notifications), footer = stringResource(R.string.bubbles_footer)) {
-                GroupChoice(
-                    stringResource(R.string.bubbles),
-                    BubbleMode.entries.map { it to stringResource(it.label) },
-                    s.bubbles,
-                    icon = Icons.Outlined.ChatBubbleOutline,
-                ) { v ->
-                    update { it.copy(bubbles = v) }
-                    if (v != BubbleMode.OFF && !c.notifier.bubblesAllowed()) {
-                        Toast.makeText(context, context.getString(R.string.bubbles_blocked), Toast.LENGTH_LONG).show()
-                        AppLock.expectReturn()
-                        runCatching {
-                            context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
-                        }
-                    }
-                }
             }
 
             Group(stringResource(R.string.group_privacy), footer = stringResource(R.string.privacy_footer)) {

@@ -29,7 +29,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Forward
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContactPage
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -101,7 +100,6 @@ import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.data.schedule.Scheduled
 import com.vknxworks.textctrl.data.settings.AutoDelete
-import com.vknxworks.textctrl.data.settings.BubbleMode
 import com.vknxworks.textctrl.sms.Attachment
 import com.vknxworks.textctrl.sms.Contact
 import com.vknxworks.textctrl.sms.Contacts
@@ -189,7 +187,6 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     val muted by c.chats.muted.collectAsStateWithLifecycle()
     val archived by c.chats.archived.collectAsStateWithLifecycle()
     val pinned by c.chats.pinned.collectAsStateWithLifecycle()
-    val bubbled by c.chats.bubbled.collectAsStateWithLifecycle()
     val spamSet by c.chats.spam.collectAsStateWithLifecycle()
     val autoDeleteOverrides by c.chats.autoDelete.collectAsStateWithLifecycle()
     val scheduledAll by c.scheduler.items.collectAsStateWithLifecycle()
@@ -557,15 +554,6 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                     )
                 }
             })
-            if (settings.bubbles == BubbleMode.CHOSEN && threadId !in hidden) {
-                add(
-                    if (threadId in bubbled) SheetAction(stringResource(R.string.bubble_chat_off), Icons.Outlined.ChatBubbleOutline) { c.chats.setBubbled(threadId, false) }
-                    else SheetAction(stringResource(R.string.bubble_chat_on), Icons.Outlined.ChatBubbleOutline) {
-                        c.chats.setBubbled(threadId, true)
-                        if (!c.notifier.bubblesAllowed()) Toast.makeText(context, context.getString(R.string.bubbles_blocked), Toast.LENGTH_LONG).show()
-                    },
-                )
-            }
             add(SheetAction(stringResource(R.string.auto_delete_chat), Icons.Outlined.AutoDelete) { autoDeleteMenu = true })
             add(
                 if (threadId in archived) SheetAction(stringResource(R.string.unarchive), Icons.Outlined.Unarchive) { c.chats.setArchived(threadId, false) }

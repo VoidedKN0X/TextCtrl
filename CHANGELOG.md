@@ -4,6 +4,14 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.3 (2026-10-30)
+
+### Changed
+
+- **Bubbles are gone.** New messages no longer float as a bubble over other apps. The **Bubbles** setting (and the Notifications section it was in), **Show as bubble** in a chat's menu and the bubble window itself are removed, along with the saved setting and the list of chats that had bubbles. Notifications work as before, with **Reply**, **Mark as read** and **Copy code**; tap one to open the chat in TextCtrl.
+- Chats keep their full-size picture in Android's conversation list (contact photo, initial or group picture) from 0.6.2.
+- **README:** the bubble feature and the note on bubbles per phone brand are removed.
+
 ## v0.6.2 (2026-10-29)
 
 Bubbles look right on more phones.

@@ -19,13 +19,12 @@ import com.vknxworks.textctrl.sms.Contacts
 import com.vknxworks.textctrl.ui.components.avatarColor
 
 /**
- * Pictures for conversation shortcuts and bubbles, as adaptive icons.
+ * Pictures for conversation shortcuts (the chat's icon in Android's conversation list), as adaptive icons.
  *
- * Android (and every brand's skin on top of it) masks a shortcut or bubble icon to its own shape. A plain
- * square bitmap is first shrunk to fit inside that shape, so a contact photo ended up as a smaller disc
- * inside the bubble, which made the bubble look smaller and further from the screen edge than it is,
- * more so on skins that add padding of their own (ColorOS, OxygenOS, realme UI). An adaptive icon is what
- * they expect: the picture fills the visible area exactly, whatever the shape.
+ * Android (and every brand's skin on top of it) masks a shortcut icon to its own shape. A plain square
+ * bitmap is first shrunk to fit inside that shape, so a contact photo ended up as a smaller disc, more so
+ * on skins that add padding of their own (ColorOS, OxygenOS, realme UI). An adaptive icon is what they
+ * expect: the picture fills the visible area exactly, whatever the shape.
  *
  * Layout of an adaptive icon: a 108-unit canvas of which only the middle 72 units are ever visible.
  */
