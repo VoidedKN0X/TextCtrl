@@ -73,6 +73,18 @@ Coming soon.
 
 If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/TextCtrl` in Obtainium by hand.
 
+### Check a download
+
+- **Checksum:** the APK's SHA-256 is listed in each release's notes. Compare it with `sha256sum TextCtrl-v*.apk`.
+- **Built by this repo:** every release APK has a signed build provenance attestation. With the [GitHub CLI](https://cli.github.com), `gh attestation verify TextCtrl-v0.6.6.apk -R VoidedKN0X/TextCtrl` proves it was built by this repo's workflow from the tagged commit.
+- **Signing key:** every release is signed with the same release key. Its SHA-256 certificate fingerprint is:
+
+  ```
+  CF:93:CF:96:08:49:56:90:F2:FC:82:58:86:6D:A0:89:1C:8C:CA:63:D7:5A:DC:AD:86:7B:20:92:57:F3:94:B3
+  ```
+
+  Android refuses to install an update signed with a different key. Advanced users can compare it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+
 ## Getting started
 
 1. Open TextCtrl and tap **Make it my SMS app**. Android asks you to confirm; choose TextCtrl. Only your SMS app receives texts, so this is needed.
@@ -141,6 +153,7 @@ The lock and PIN screens are always kept out of screenshots and recordings, what
 | Exact alarms (`USE_EXACT_ALARM`) | Sending scheduled messages and undo-send messages at the exact time you picked. |
 | Run at startup (`RECEIVE_BOOT_COMPLETED`) | Setting the alarms for scheduled messages and auto-delete again after the phone restarts. |
 | Fingerprint (`USE_BIOMETRIC`) | Unlocking the app lock with your fingerprint, if you turn that on. |
+| Hide other apps' floating windows (`HIDE_OVERLAY_WINDOWS`) | Hide other apps' floating windows over the PIN screen: while the lock, PIN, backup password or a "can't be undone" question shows, no chat head or overlay can sit on top of it. Granted at install, no prompt; overlays work as usual everywhere else. |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | An internal permission only TextCtrl itself holds (added by AndroidX), so other apps can't send to its private receivers. |
 
 That's the full list. TextCtrl has **no internet or network permission** (the build checks this on every release), and no access to your location, camera, microphone or files beyond the ones you pick.
@@ -180,6 +193,8 @@ You need [Android Studio](https://developer.android.com/studio), or JDK 17 and t
 3. The APK is in `app/build/outputs/apk/debug/`. Copy it to your phone and install it.
 
 Or open the folder in Android Studio and press **Run** with your phone connected.
+
+**Dependency verification:** Gradle checks every library and plugin it downloads against the SHA-256 checksums in `gradle/verification-metadata.xml` and refuses anything that doesn't match. When you add or update a dependency or plugin, run the **Dependency verification metadata** workflow (Actions tab, *Run workflow*), copy the file from its log (between the BEGIN/END markers, gzipped and base64-encoded), check the diff and commit it in the same push.
 
 ## Support the project
 

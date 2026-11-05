@@ -90,6 +90,7 @@ import com.vknxworks.textctrl.ui.components.GroupRow
 import com.vknxworks.textctrl.ui.components.MessageView
 import com.vknxworks.textctrl.ui.components.ScreenTopBar
 import com.vknxworks.textctrl.ui.components.SecureScreen
+import com.vknxworks.textctrl.ui.components.ShieldScreen
 import com.vknxworks.textctrl.ui.components.SheetAction
 import com.vknxworks.textctrl.ui.components.clockTime
 import com.vknxworks.textctrl.ui.components.runTask
@@ -513,6 +514,8 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
         properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn),
         title = { Text(stringResource(if (confirmTwice) R.string.backup_password_title else R.string.backup_password_enter)) },
         text = {
+            // Inside the dialog, so its own window is shielded too.
+            ShieldScreen()
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (confirmTwice) Text(stringResource(R.string.backup_password_body), style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(

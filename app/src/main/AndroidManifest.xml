@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- App lock: fingerprint. -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Hides other apps' floating windows while the PIN, password or a confirm screen shows. No prompt. -->
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS" />
 
     <!-- No internet access at all. Picture messages are sent and fetched by Android's own MMS service
          over the mobile network; TextCtrl itself can't reach any server. Removed even if a library asks. -->
@@ -36,13 +38,15 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TextCtrl">
+        android:theme="@style/Theme.TextCtrl"
+        android:intentMatchingFlags="enforceIntentFilter">
 
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|density|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
+            android:requireContentUriPermissionFromCaller="read"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,6 +62,12 @@
                 <data android:scheme="smsto" />
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
+            </intent-filter>
+            <!-- The "New chat" launcher shortcut, conversation shortcuts and the widget. -->
+            <intent-filter>
+                <action android:name="com.vknxworks.textctrl.NEW_CHAT" />
+                <action android:name="com.vknxworks.textctrl.OPEN_CHAT" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -131,6 +141,12 @@
             android:label="@string/widget_title">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- The rest of what Android's widget host sends, so strict intent matching lets it through. -->
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE_OPTIONS" />
+                <action android:name="android.appwidget.action.APPWIDGET_RESTORED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

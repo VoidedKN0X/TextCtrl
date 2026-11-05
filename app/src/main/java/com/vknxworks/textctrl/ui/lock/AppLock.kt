@@ -71,6 +71,7 @@ import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.ui.components.ConfirmDialog
 import com.vknxworks.textctrl.ui.components.LoadingView
 import com.vknxworks.textctrl.ui.components.PillButton
+import com.vknxworks.textctrl.ui.components.ShieldScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -368,6 +369,7 @@ fun AppLockGate(content: @Composable () -> Unit) {
 
 @Composable
 private fun LockFrame(title: String, message: String, error: String?, actions: @Composable () -> Unit) {
+    ShieldScreen()
     val activity = LocalContext.current.findActivity()
     BackHandler { activity?.moveTaskToBack(true) }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -647,6 +649,8 @@ internal fun PinPadScreen(
     onBiometric: (() -> Unit)? = null,
     bottom: @Composable () -> Unit,
 ) {
+    // No floating windows over the PIN pad, and hidden from apps that misuse accessibility.
+    ShieldScreen()
     val haptics = LocalHapticFeedback.current
     Surface(Modifier.fillMaxSize(), color = CtrlColors.Background) {
         BoxWithConstraints(Modifier.fillMaxSize().systemBarsPadding()) {

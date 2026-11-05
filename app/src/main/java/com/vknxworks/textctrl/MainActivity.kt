@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.textctrl.sms.recipientsOf
+import com.vknxworks.textctrl.ui.components.OverlayShield
 import com.vknxworks.textctrl.ui.components.ScreenPrivacy
 import com.vknxworks.textctrl.ui.components.WindowPrivacy
 import com.vknxworks.textctrl.ui.lock.AppLock
@@ -45,6 +46,8 @@ class MainActivity : ComponentActivity() {
             // "Hide in recent apps" (off by default). With the app lock on, Recents always shows a blank
             // card: a preview there would show your texts without the PIN.
             WindowPrivacy(this, secure, hideRecents = settings.hideRecents || c.vault.enabled)
+            // No other app's floating window over the lock, PIN, password and confirm screens.
+            OverlayShield(this, covered || ScreenPrivacy.shielded > 0)
             TextCtrlTheme(dark) {
                 AppLockGate { AppRoot() }
             }

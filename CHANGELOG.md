@@ -4,6 +4,22 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.6 (2026-11-05)
+
+A security update. Nothing changes in how you text.
+
+### Security
+
+- **No other app's floating window over the PIN and confirmation screens.** While the lock screen, PIN entry or change, the hidden chats PIN, the backup password or a "can't be undone" question (like deleting a chat) is showing, Android hides other apps' floating windows (chat heads, screen filters, overlays), so none can cover the screen or trick you into tapping the wrong button. They come back as soon as that screen closes and work as usual everywhere else. This uses Android's "hide other apps' floating windows" permission, which is granted at install without a prompt.
+- **PIN and password screens are hidden from apps that misuse accessibility** (Android 14 and newer). Real accessibility tools such as TalkBack still read them; other apps with accessibility access can't see the PIN pad or the backup password.
+- **Shares must really come from the sending app** (Android 15 and newer). When another app shares pictures to TextCtrl, Android now checks that the sending app can open them itself and refuses the share if it can't. This blocks tricks where an app passes on something it isn't allowed to read. Sharing from your gallery, camera or file manager works as before.
+- **Stricter intent matching** (Android 16 and newer). Other apps can only start TextCtrl through the actions it declares. The launcher, the "New chat" shortcut, conversation shortcuts, the widget, "Text this number" links, shares, quick replies to declined calls and incoming texts work as before.
+
+### Project
+
+- **Verified dependencies:** every library and plugin the build downloads is now checked against SHA-256 checksums in the repo, and the build stops if anything doesn't match.
+- **Provable releases:** from this release on, the release notes list the APK's SHA-256, and each APK has a signed build provenance attestation from GitHub. The README's new "Check a download" section shows how to check both.
+
 ## Project updates (2026-11-05)
 
 Changes to how the app is built and released. Nothing changes in the app.
