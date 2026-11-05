@@ -4,6 +4,12 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.7 (2026-11-05)
+
+### Fixed
+
+- **Password managers can fill the backup password again.** Since 0.6.6 the backup password dialog had been hidden from every accessibility service that isn't a screen reader, which also kept password managers that fill through accessibility from filling them. Only the lock and PIN screens are hidden from those apps now. Other apps' floating windows stay hidden over all of these screens, as in 0.6.6.
+
 ## v0.6.6 (2026-11-05)
 
 A security update. Nothing changes in how you text.

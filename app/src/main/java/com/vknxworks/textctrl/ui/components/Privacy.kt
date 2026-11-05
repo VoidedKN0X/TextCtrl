@@ -65,14 +65,16 @@ object ScreenPrivacy {
     }
 }
 
-/** Keeps FLAG_SECURE on for as long as the calling screen is shown, and shields it ([ShieldScreen]). */
+/** Keeps FLAG_SECURE on for as long as the calling screen is shown, with no floating windows over it. */
 @Composable
 fun SecureScreen() {
     DisposableEffect(Unit) {
         ScreenPrivacy.acquire()
         onDispose { ScreenPrivacy.release() }
     }
-    ShieldScreen()
+    // No floating windows over it. Not marked sensitive for accessibility (password managers fill the
+    // backup password through it); the PIN pad marks itself.
+    ShieldScreen(sensitive = false)
 }
 
 /**

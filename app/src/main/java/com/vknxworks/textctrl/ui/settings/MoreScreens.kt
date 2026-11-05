@@ -515,7 +515,8 @@ private fun PasswordDialog(confirmTwice: Boolean, onDismiss: () -> Unit, onDone:
         title = { Text(stringResource(if (confirmTwice) R.string.backup_password_title else R.string.backup_password_enter)) },
         text = {
             // Inside the dialog, so its own window is shielded too.
-            ShieldScreen()
+            // Not marked sensitive for accessibility: password managers fill these fields through it.
+            ShieldScreen(sensitive = false)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (confirmTwice) Text(stringResource(R.string.backup_password_body), style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(
