@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
-import android.os.Build
 import android.os.PersistableBundle
 import android.view.View
 import android.view.WindowManager
@@ -44,17 +43,15 @@ object ScreenPrivacy {
 
     /**
      * Only accessibility services that are real screen readers or switch tools (isAccessibilityTool)
-     * can read [view] and everything in it while it's marked. Android 14+.
+     * can read [view] and everything in it while it's marked.
      */
     internal fun markSensitive(view: View) {
-        if (Build.VERSION.SDK_INT < 34) return
         val n = sensitive[view] ?: 0
         sensitive[view] = n + 1
         if (n == 0) runCatching { view.setAccessibilityDataSensitive(View.ACCESSIBILITY_DATA_SENSITIVE_YES) }
     }
 
     internal fun unmarkSensitive(view: View) {
-        if (Build.VERSION.SDK_INT < 34) return
         val n = sensitive[view] ?: return
         if (n > 1) {
             sensitive[view] = n - 1
