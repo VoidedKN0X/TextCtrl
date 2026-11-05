@@ -258,14 +258,15 @@ object AppLock {
 
     fun screenLockAvailable(context: Context): Boolean = runCatching {
         context.getSystemService(BiometricManager::class.java)?.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL,
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL,
         ) == BiometricManager.BIOMETRIC_SUCCESS
     }.getOrDefault(false)
 
     /**
      * The phone's own screen lock (or fingerprint). Only used for "Forgot PIN?", to prove it's the phone's
      * owner before the app lock is reset: texts aren't encrypted with the PIN, so resetting it must not be
-     * open to anyone who picks the phone up.
+     * open to anyone who picks the phone up. Only strong (class 3) biometrics count: a camera face unlock
+     * can be fooled with a photo, so it falls back to the screen lock's PIN, pattern or password.
      */
     fun screenLockAuthenticate(activity: Activity, onResult: (String?) -> Unit) {
         // Replaces a prompt that is still marked as open; its late answer (if any) is ignored.
@@ -275,7 +276,7 @@ object AppLock {
                 .setTitle(activity.getString(R.string.lock_reset_prompt_title))
                 .setSubtitle(activity.getString(R.string.lock_reset_prompt_subtitle))
                 .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL,
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL,
                 )
                 .build()
             prompt.authenticate(signal, activity.mainExecutor, object : BiometricPrompt.AuthenticationCallback() {

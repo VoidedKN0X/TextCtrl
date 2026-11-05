@@ -4,6 +4,20 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.5 (2026-11-05)
+
+A security update: resetting a forgotten PIN needs a stronger check, and shares from other apps can no longer pull in your texts or contacts.
+
+### Security
+
+- **"Forgot PIN?" no longer accepts camera face unlock.** Resetting the app lock (or the hidden chats PIN) asks you to confirm it's you with your phone's own screen lock. It used to accept any face unlock, including the camera-only kind many phones have, which a photo can fool. It now only accepts strong biometrics (like fingerprint, or secure face unlock on phones that have it) or your screen lock's PIN, pattern or password. If your phone only has camera face unlock, you'll be asked for the PIN, pattern or password instead.
+- **Shares can no longer attach your texts or contacts.** When another app shares something to TextCtrl, TextCtrl opens it with its own permissions. A rogue app could share a link to Android's message or contact store, which it can't read itself, and get TextCtrl to attach your SMS, MMS pictures or contact cards to a new message. TextCtrl now refuses attachments from those stores. Sharing photos, files and text from other apps works as before.
+- **Other apps can no longer poke TextCtrl's start-up profile.** An AndroidX library added a receiver that lets other apps ask TextCtrl to write or skip its start-up performance profile. TextCtrl doesn't need it, so it's removed. Nothing changes in how the app works.
+
+### Project
+
+- **README:** the "Forgot your PIN?" note says which screen-lock checks count.
+
 ## v0.6.4 (2026-11-05)
 
 A privacy and security tidy-up. Nothing changes in how you text.

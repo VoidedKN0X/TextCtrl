@@ -103,13 +103,16 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Only content another app actually shares: never a file path, and never a link back to TextCtrl's
-     * own files (another app could otherwise make TextCtrl send its own private files).
+     * Only content another app actually shares: never a file path, never a link back to TextCtrl's
+     * own files (another app could otherwise make TextCtrl send its own private files), and never
+     * Android's message or contact stores, which TextCtrl can read but the sharing app may not
+     * (it could otherwise make TextCtrl attach someone's texts, MMS pictures or contacts).
      */
     private fun isShareable(uri: Uri): Boolean {
         if (uri.scheme != "content") return false
         // "content://0@<authority>" still reaches <authority> (the number is a user id), so look past it.
         val authority = uri.authority?.substringAfterLast('@')?.takeIf { it.isNotBlank() } ?: return false
+        if (authority.lowercase() in PRIVATE_AUTHORITIES) return false
         return !authority.startsWith(packageName)
     }
 
@@ -118,5 +121,8 @@ class MainActivity : ComponentActivity() {
         const val ACTION_NEW_CHAT = "com.vknxworks.textctrl.NEW_CHAT"
         const val EXTRA_THREAD_ID = "thread_id"
         private val SMS_SCHEMES = setOf("sms", "smsto", "mms", "mmsto")
+
+        /** Android's SMS/MMS and contacts providers: TextCtrl holds their read permissions, other apps may not. */
+        private val PRIVATE_AUTHORITIES = setOf("mms", "sms", "mms-sms", "com.android.contacts", "com.android.contacts.files")
     }
 }

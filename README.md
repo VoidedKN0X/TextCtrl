@@ -117,7 +117,7 @@ Turn it on under your profile picture › **Settings > Privacy and security > Ap
 - **Wrong PINs:** after 5 tries you wait 30 seconds, doubling up to 15 minutes. Restarting the app or the phone, or changing the clock, doesn't skip the wait.
 - **Lock again:** as soon as you leave the app (the default), after 1, 5 or 15 minutes or 1 hour away, or only when the app restarts. Picking pictures or files, sharing and opening an attachment don't count as leaving, unless you stay away for more than 5 minutes.
 - **Change app PIN** asks for your current PIN first, and turning the app lock off asks for the PIN too.
-- **Forgot your PIN?** It can't be recovered. The lock screen lets you reset the app lock after confirming it's you with your phone's own screen lock; drafts encrypted with the old PIN are deleted, your messages stay.
+- **Forgot your PIN?** It can't be recovered. The lock screen lets you reset the app lock after confirming it's you with your phone's own screen lock (its PIN, pattern or password, or a strong biometric like fingerprint; camera face unlock doesn't count); drafts encrypted with the old PIN are deleted, your messages stay.
 - **With the app lock on**, the recent-apps screen always shows a blank card, and chats aren't added to Android's conversation shortcuts, so names don't show in the launcher or share sheet.
 - **What it protects:** TextCtrl's own screens and drafts. Your texts live in Android's message store, like with every SMS app, so the lock doesn't encrypt them; your phone's own encryption and screen lock do.
 
