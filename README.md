@@ -128,6 +128,23 @@ Two more switches in the same section work with or without the app lock, and are
 
 The lock and PIN screens are always kept out of screenshots and recordings, whatever these switches say.
 
+## Permissions
+
+| Permission | What TextCtrl uses it for |
+| --- | --- |
+| Send texts (`SEND_SMS`) | Sending your texts. Granted by Android when you make TextCtrl your SMS app. |
+| Receive texts (`RECEIVE_SMS`), read texts (`READ_SMS`) | Receiving new texts and showing your conversations from Android's message store. Granted with the SMS app role. |
+| Receive picture messages (`RECEIVE_MMS`, `RECEIVE_WAP_PUSH`) | The notice from your carrier that a picture message is waiting, so Android's MMS service can fetch it. Granted with the SMS app role. |
+| Contacts (`READ_CONTACTS`) | Names and pictures of your contacts, read on the phone only. Optional. |
+| Phone (`READ_PHONE_STATE`, `READ_PHONE_NUMBERS`) | Which SIMs you have, so you can pick one per chat, and your own numbers, so a group picture message doesn't list you twice. Optional. |
+| Notifications (`POST_NOTIFICATIONS`) | Notifications for new messages and messages that failed to send. |
+| Exact alarms (`USE_EXACT_ALARM`) | Sending scheduled messages and undo-send messages at the exact time you picked. |
+| Run at startup (`RECEIVE_BOOT_COMPLETED`) | Setting the alarms for scheduled messages and auto-delete again after the phone restarts. |
+| Fingerprint (`USE_BIOMETRIC`) | Unlocking the app lock with your fingerprint, if you turn that on. |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | An internal permission only TextCtrl itself holds (added by AndroidX), so other apps can't send to its private receivers. |
+
+That's the full list. TextCtrl has **no internet or network permission** (the build checks this on every release), and no access to your location, camera, microphone or files beyond the ones you pick.
+
 ## Privacy
 
 **Telemetry-free.** TextCtrl has no analytics, crash reporting, usage stats or tracking of any kind.
@@ -142,6 +159,8 @@ The lock and PIN screens are always kept out of screenshots and recordings, what
 - **Scheduled messages** are stored encrypted with a key in the phone's secure hardware until they go out, and are sent with Android's own alarms.
 - **Unknown senders** and your **spam filters** are worked out on the phone from your contacts and your own rules; there's no spam database or service. The rules are stored encrypted with a key in the phone's secure hardware.
 - **Reactions** are ordinary texts, the same format iPhones and Google Messages use with SMS phones; no RCS or Google services.
+- **Links:** **Support TextCtrl**, **Report a bug** and the source and licence rows in About open github.com or gnu.org in your browser when you tap them. TextCtrl itself can't contact them.
+- **Google-free:** no Google Play services, Firebase or other Google code, and nothing is sent to Google.
 - **No automatic backups:** Android doesn't back up TextCtrl's own data or move it to a new phone. Make an encrypted backup yourself under **Backup and restore**.
 
 ## Build from source
@@ -166,29 +185,42 @@ Or open the folder in Android Studio and press **Run** with your phone connected
 
 TextCtrl is free and open source. If it's useful to you, tap **Support TextCtrl** under **About** on the You page (tap your profile picture) to sponsor development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). Found a problem or have an idea? Tap **Report a bug** in the same section, or [open an issue](https://github.com/VoidedKN0X/TextCtrl/issues). Starring the repo helps too.
 
+Found a security problem? Please don't open a public issue; see [SECURITY.md](SECURITY.md).
+
 ## The Ctrl series
 
-Native Android apps for self-hosted services and everyday tools, all with the same Material You design.
+Native Android apps for self-hosted services and everyday tools, all with the same design.
 
 | App | What it's for |
 | --- | --- |
 | [AdCtrl](https://github.com/VoidedKN0X/AdCtrl) | Control your AdGuard Home DNS server |
 | [ArrCtrl](https://github.com/VoidedKN0X/ArrCtrl) | Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent, autobrr and Cleanuparr in one app |
 | [BeamCtrl](https://github.com/VoidedKN0X/BeamCtrl) | TV remote for phones with an IR blaster |
+| [CallCtrl](https://github.com/VoidedKN0X/CallCtrl) | Phone app: dialer, call history and in-call screen |
+| [ChatCtrl](https://github.com/VoidedKN0X/ChatCtrl) | Matrix chat client for matrix.org and self-hosted Synapse |
+| [ClockCtrl](https://github.com/VoidedKN0X/ClockCtrl) | Alarms, timers, stopwatch and world clock |
+| [ContactCtrl](https://github.com/VoidedKN0X/ContactCtrl) | Contacts: browse, edit, import and export |
 | [CraftyCtrl](https://github.com/VoidedKN0X/CraftyCtrl) | Manage Minecraft servers on Crafty Controller |
-| [ElementCtrl](https://github.com/VoidedKN0X/ElementCtrl) | Matrix chat client for matrix.org and self-hosted Synapse |
+| [DateCtrl](https://github.com/VoidedKN0X/DateCtrl) | Calendar for the calendars on your phone and your accounts |
 | [FilesCtrl](https://github.com/VoidedKN0X/FilesCtrl) | File manager with NFS, SMB, SFTP, FTP and WebDAV |
 | [FrigateCtrl](https://github.com/VoidedKN0X/FrigateCtrl) | Watch and review your Frigate NVR cameras |
 | [ImmichCtrl](https://github.com/VoidedKN0X/ImmichCtrl) | Photos and backup for your Immich server |
 | [JellyCtrl](https://github.com/VoidedKN0X/JellyCtrl) | Movies, shows, music and Live TV from Jellyfin |
+| [LijnCtrl](https://github.com/VoidedKN0X/LijnCtrl) | Live De Lijn bus and tram departures |
+| [MailCtrl](https://github.com/VoidedKN0X/MailCtrl) | Email for Gmail and Proton Mail |
 | [MemoCtrl](https://github.com/VoidedKN0X/MemoCtrl) | Notes on your Memos server |
 | [NaviCtrl](https://github.com/VoidedKN0X/NaviCtrl) | Music player for Navidrome servers |
 | [PaperCtrl](https://github.com/VoidedKN0X/PaperCtrl) | Scan and browse documents on Paperless-ngx |
 | [PrintCtrl](https://github.com/VoidedKN0X/PrintCtrl) | Bambu Lab printers through Bambuddy, and Spoolman spools |
 | [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) | Manage your Proxmox VE server |
+| [RecorderCtrl](https://github.com/VoidedKN0X/RecorderCtrl) | Private, offline voice recorder |
+| [RideCtrl](https://github.com/VoidedKN0X/RideCtrl) | Offline maintenance, fuel and mod log for your vehicles |
 | [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
-| **TextCtrl** (this app) | Texts and picture messages, private and Google-free |
+| [SumCtrl](https://github.com/VoidedKN0X/SumCtrl) | Offline calculator, unit converter and work tools |
+| [SynapseCtrl](https://github.com/VoidedKN0X/SynapseCtrl) | Administer your Matrix Synapse server |
+| **TextCtrl** (this app) | Private SMS and MMS messaging |
 | [TrueCtrl](https://github.com/VoidedKN0X/TrueCtrl) | Monitor and manage your TrueNAS server |
+| [WrtCtrl](https://github.com/VoidedKN0X/WrtCtrl) | Manage your OpenWrt router |
 
 ## License
 

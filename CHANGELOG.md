@@ -4,6 +4,21 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.4 (2026-11-05)
+
+A privacy and security tidy-up. Nothing changes in how you text.
+
+### Privacy
+
+- **Less logging in release builds.** Verbose, debug and info log lines, from TextCtrl and from the libraries it uses, are now stripped from the app when it's built, so no message details can end up in the phone's system log through them.
+
+### Project
+
+- **Every build now proves TextCtrl stays offline:** the build fails if the app ever gets the internet or a network permission, or if anything from Google Play services, Firebase, ML Kit, Play Core or Tink ends up in it. It also checks that the Gradle wrapper in the repo is the official one before running it.
+- **The repo ignores signing files and `google-services.json`**, so they can never be committed by accident.
+- **New SECURITY.md:** how to report a security problem privately, what counts, and the fingerprint of TextCtrl's release signing key.
+- **README:** a new **Permissions** section lists every permission the app has with the reason for each; the privacy section lists the links in About and says TextCtrl is Google-free; the Ctrl series list now has all 28 apps, with ChatCtrl instead of its old name ElementCtrl.
+
 ## v0.6.3 (2026-10-30)
 
 ### Changed

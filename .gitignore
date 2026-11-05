@@ -10,3 +10,8 @@ captures/
 *.jks
 *.keystore
 !debug.keystore
+*.p12
+keystore.properties
+
+# Never Google services config
+google-services.json

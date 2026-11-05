@@ -8,3 +8,10 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
+
+# Release builds drop verbose, debug and info logging, from TextCtrl and from its libraries.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}
