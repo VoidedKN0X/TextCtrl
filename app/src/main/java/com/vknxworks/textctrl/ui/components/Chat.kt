@@ -41,6 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
+import com.vknxworks.textctrl.container
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.sms.MmsPart
 import com.vknxworks.textctrl.str
@@ -156,30 +160,29 @@ fun linkify(text: String, linkColor: Color): AnnotatedString {
  * Opens an attachment in another app: it's copied out of the message store into TextCtrl's cache and
  * shared for that one view only.
  */
-fun openAttachment(context: Context, part: MmsPart) {
-    runCatching {
-        val file = copyOut(context, part)
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
-        val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(uri, part.contentType)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        AppLock.expectReturn()
-        context.startActivity(Intent.createChooser(intent, null))
-    }.onFailure { Toast.makeText(context, str(R.string.attachment_open_failed), Toast.LENGTH_SHORT).show() }
+fun openAttachment(context: Context, part: MmsPart) = sendOut(context, part) { uri ->
+    Intent(Intent.ACTION_VIEW).setDataAndType(uri, part.contentType)
 }
 
 /** Shares an attachment with another app. */
-fun shareAttachment(context: Context, part: MmsPart) {
-    runCatching {
-        val file = copyOut(context, part)
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
-        val intent = Intent(Intent.ACTION_SEND)
-            .setType(part.contentType)
-            .putExtra(Intent.EXTRA_STREAM, uri)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        AppLock.expectReturn()
-        context.startActivity(Intent.createChooser(intent, null))
-    }.onFailure { Toast.makeText(context, str(R.string.attachment_open_failed), Toast.LENGTH_SHORT).show() }
+fun shareAttachment(context: Context, part: MmsPart) = sendOut(context, part) { uri ->
+    Intent(Intent.ACTION_SEND).setType(part.contentType).putExtra(Intent.EXTRA_STREAM, uri)
+}
+
+/**
+ * Copies [part] out off the main thread (a picture or video can be a few megabytes, and the copy used to hold up
+ * the screen for a moment), then hands it to the other app.
+ */
+private fun sendOut(context: Context, part: MmsPart, intent: (Uri) -> Intent) {
+    val app = context.applicationContext
+    app.container.appScope.launch(Dispatchers.Main) {
+        runCatching {
+            val file = withContext(Dispatchers.IO) { copyOut(app, part) }
+            val uri = FileProvider.getUriForFile(app, "${app.packageName}.files", file)
+            AppLock.expectReturn()
+            context.startActivity(Intent.createChooser(intent(uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION), null))
+        }.onFailure { Toast.makeText(app, str(R.string.attachment_open_failed), Toast.LENGTH_SHORT).show() }
+    }
 }
 
 private fun copyOut(context: Context, part: MmsPart): File {

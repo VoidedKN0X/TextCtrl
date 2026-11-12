@@ -4,6 +4,16 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.9 (2026-11-12)
+
+### Fixed
+
+- **Opening or sharing an attachment no longer holds up the screen.** The picture, video or file was copied out of the message store on the same thread that draws the screen, so the app could freeze for a moment on a big attachment. The copy now runs in the background and the other app opens when it's done.
+
+### Changed
+
+- **Slightly smaller download.** The bundled JetBrains Mono font (numbers, readouts and labels) no longer carries the Cyrillic, Vietnamese and maths-alphabet letters TextCtrl never shows itself, which takes about 0.1 MB off the download and 0.2 MB off the installed app. Everything looks the same; if a name or a log line shown in that font uses one of those scripts, those letters are now drawn with your phone's own font.
+
 ## v0.6.8 (2026-11-05)
 
 ### Changed
