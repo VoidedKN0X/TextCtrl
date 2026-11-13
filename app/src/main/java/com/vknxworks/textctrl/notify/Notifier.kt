@@ -309,6 +309,8 @@ class Notifier(
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .setShowsUserInterface(false)
             .setAllowGeneratedReplies(false)
+            // Sending a text as you from the phone's lock screen needs the phone unlocked first.
+            .setAuthenticationRequired(true)
             .build()
     }
 
@@ -334,6 +336,8 @@ class Notifier(
         val label = if (showCode) str(R.string.copy_code_value, code) else str(R.string.copy_code)
         return NotificationCompat.Action.Builder(R.drawable.ic_notification, label, pi)
             .setShowsUserInterface(false)
+            // A one-time code only goes to the clipboard once the phone is unlocked.
+            .setAuthenticationRequired(true)
             .build()
     }
 

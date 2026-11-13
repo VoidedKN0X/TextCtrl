@@ -196,6 +196,7 @@
              ART profile; it isn't needed, so leave it out. -->
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            tools:ignore="MissingClass"
             tools:node="remove" />
     </application>
 </manifest>

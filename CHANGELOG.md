@@ -4,6 +4,20 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.6.10 (2026-11-13)
+
+### Security
+
+- **Replying from the lock screen needs the phone unlocked.** When your lock screen shows full notifications, anyone holding the phone could type a reply under a text and send it as you. Android now asks you to unlock first (fingerprint, face or PIN), then the reply goes out as before. Replying with the phone unlocked works exactly as it did.
+- **"Copy code" from the lock screen needs the phone unlocked too**, so nobody can put a one-time code from your texts on the clipboard without unlocking it.
+- **Your scheduled messages and hidden-chat list can use the phone's security chip.** On a new install, the key that encrypts them is made in the phone's separate security chip (StrongBox) when it has one, and in its regular secure hardware otherwise. If you already use TextCtrl, your existing key stays where it is and nothing changes for you.
+- **The build tool download is checked.** The exact Gradle version used to build TextCtrl is now verified against its published checksum before it's used.
+
+### Fixed
+
+- **A contact card sent to you can't freeze the app.** A card built with thousands of tiny folded lines took a very long time to read when its message was shown. Cards are now read in one quick pass, however they're laid out.
+- **No lost key on a first start that does two things at once.** If a text arrived at the very moment TextCtrl first set up its encryption key, two keys could be made and what was saved with the first one lost. Making the key now happens one at a time.
+
 ## v0.6.9 (2026-11-12)
 
 ### Fixed

@@ -21,7 +21,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Undo send**: a few seconds to take a message back before it goes out
 - **Reactions** (👍 ❤️ 😂 …) that work with iPhones and Google Messages over plain SMS, shown as badges on the message
 - **Copy one-time codes** straight from the message or its notification
-- **Notifications** with **Reply** and **Mark as read**, per-chat **mute** and **sound**, and a choice of what they show
+- **Notifications** with **Reply** and **Mark as read**, per-chat **mute** and **sound**, and a choice of what they show (on the lock screen, Reply and Copy code ask you to unlock the phone first)
 - **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
 - **Swipe actions** you choose for left and right in the chat list, with **Undo** for archive, delete and block
 - **Filters** for unread chats and **unknown senders** (numbers not in your contacts)

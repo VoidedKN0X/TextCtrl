@@ -263,29 +263,54 @@ object VCard {
         }
     }
 
-    /** Joins folded lines: a line starting with a space or tab continues the one before. */
+    /**
+     * Joins folded lines: a line starting with a space or tab continues the one before. Built up in place, so a card
+     * someone sends with thousands of tiny continuation lines takes no longer to read than a normal one.
+     */
     private fun unfold(text: String): List<String> {
         val lines = text.replace("\r\n", "\n").replace('\r', '\n').split('\n')
         val out = ArrayList<String>()
+        var cur: StringBuilder? = null
+        // Whether the current line's name and parameters (before the first unquoted ':') say quoted-printable;
+        // null until that ':' has been seen.
+        var qp: Boolean? = null
+        fun flush() {
+            cur?.let { out += it.toString() }
+            cur = null
+        }
         for (line in lines) {
-            val last = out.lastOrNull()
+            val c = cur
             when {
-                (line.startsWith(" ") || line.startsWith("\t")) && last != null -> out[out.size - 1] = last + line.substring(1)
+                (line.startsWith(" ") || line.startsWith("\t")) && c != null -> {
+                    c.append(line, 1, line.length)
+                    if (qp == null) qp = quotedPrintableHead(c)
+                }
                 // vCard 2.1 quoted-printable: "=" at the end of a line means it goes on.
-                last != null && last.endsWith("=") && isQuotedPrintable(last) -> out[out.size - 1] = last.dropLast(1) + line
-                line.isNotEmpty() -> out += line
+                c != null && c.endsWith("=") && qp == true -> {
+                    c.setLength(c.length - 1)
+                    c.append(line)
+                }
+                line.isNotEmpty() -> {
+                    flush()
+                    val b = StringBuilder(line)
+                    cur = b
+                    qp = quotedPrintableHead(b)
+                }
             }
         }
+        flush()
         return out
     }
 
-    private fun isQuotedPrintable(line: String): Boolean {
+    /** True or false once the line's first unquoted ':' is there (whether its head says quoted-printable), else null. */
+    private fun quotedPrintableHead(line: CharSequence): Boolean? {
         val colon = valueStart(line)
-        return colon > 0 && line.substring(0, colon).contains("QUOTED-PRINTABLE", ignoreCase = true)
+        if (colon < 0) return null
+        return colon > 0 && line.subSequence(0, colon).contains("QUOTED-PRINTABLE", ignoreCase = true)
     }
 
     /** Where the value starts: after the first ':' that isn't inside a quoted parameter. */
-    private fun valueStart(line: String): Int {
+    private fun valueStart(line: CharSequence): Int {
         var quoted = false
         for (i in line.indices) {
             when (line[i]) {
