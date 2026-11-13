@@ -298,11 +298,11 @@ class Messenger(
         val from = notification.from ?: str(R.string.unknown_sender)
         val thread = store.threadIdFor(listOf(from))
         // Rules about the sender already apply to the notice; rules about the text once it's fetched.
+        // Nothing is thrown away: Spam and Block keep the message in the Spam folder.
         val early = runCatching { filters.check(from, notification.subject.orEmpty(), thread, count = false) }.getOrNull()
-        if (early == RuleAction.BLOCK) {
-            runCatching { filters.check(from, notification.subject.orEmpty(), thread) }
-            return@withContext
-        }
+        val filtered = early == RuleAction.SPAM || early == RuleAction.BLOCK
+        // Counted (and the sender blocked, for Block) now, since the fetch may wait or never happen.
+        if (filtered) runCatching { filters.check(from, notification.subject.orEmpty(), thread) }
         val uri = MmsStore.insert(
             context,
             box = Telephony.Mms.MESSAGE_BOX_INBOX,
@@ -319,7 +319,12 @@ class Messenger(
             size = notification.size,
             expirySeconds = notification.expiry,
         ) ?: return@withContext
-        if (early == RuleAction.SPAM) chats.markSpamByFilter(thread) else chats.unarchive(thread)
+        if (filtered) {
+            chats.markSpamByFilter(thread)
+            notifier.onFiltered()
+        } else {
+            chats.unarchive(thread)
+        }
         store.touch()
         if (settings.settings.value.autoDownloadMms) download(ContentUris.parseId(uri), automatic = true)
         else if (early == null) notifier.onIncoming(thread)
@@ -378,12 +383,9 @@ class Messenger(
             val people = if (message.to.size + message.cc.size <= 1) listOf(sender) else (listOf(sender) + others).distinct()
             val thread = store.threadIdFor(people)
             val text = listOfNotNull(message.subject) + message.parts.filter { it.isText }.map { it.text() }
-            val verdict = runCatching { filters.check(sender, text.joinToString("\n"), thread) }.getOrNull()
-            if (verdict == RuleAction.BLOCK) {
-                context.contentResolver.delete(notifUri, null, null)
-                store.touch()
-                return@withContext
-            }
+            // Already filtered when the notice came: don't count (or summarise) the same message twice.
+            val counted = !chats.isSpam(thread)
+            val verdict = runCatching { filters.check(sender, text.joinToString("\n"), thread, count = counted) }.getOrNull()
             MmsStore.insert(
                 context,
                 box = Telephony.Mms.MESSAGE_BOX_INBOX,
@@ -403,7 +405,10 @@ class Messenger(
             ) ?: return@withContext
             context.contentResolver.delete(notifUri, null, null)
             when (verdict) {
-                RuleAction.SPAM -> chats.markSpamByFilter(thread)
+                RuleAction.SPAM, RuleAction.BLOCK -> {
+                    chats.markSpamByFilter(thread)
+                    if (counted) notifier.onFiltered()
+                }
                 RuleAction.MUTE -> chats.unarchive(thread)
                 else -> chats.unarchive(thread)
             }

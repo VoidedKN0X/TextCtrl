@@ -25,7 +25,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Pin, archive, mute, hide, block and delete** chats; **mark as read or unread**; select several at once
 - **Swipe actions** you choose for left and right in the chat list, with **Undo** for archive, delete and block
 - **Filters** for unread chats and **unknown senders** (numbers not in your contacts)
-- **Spam and keyword filters** of your own: block or sort out texts by words, patterns, number prefixes, short numbers or unknown senders, with a **Spam** folder to restore or delete them
+- **Spam filter with your own rules**: catch texts by words, patterns (regex, in a safe form with a time limit), number prefixes, exact numbers or sender names, short numbers, senders with a name instead of a number (alphanumeric sender IDs) or numbers not in your contacts. Each rule moves the message silently to the **Spam** folder, also **blocks the sender**, or just keeps it quiet. A rule never deletes a message; restore or delete them yourself from Spam. Optional quiet **summary notification** of what was filtered
 - **Hidden chats** behind a PIN of their own (see [Hidden chats](#hidden-chats))
 - **Search** all your messages, one person's, or inside a chat, on the phone
 - **Delete old messages** automatically, for everything or per chat
@@ -33,7 +33,8 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Import and export SMS Backup & Restore XML files**, to move messages to and from other SMS apps
 - **Dual SIM**: pick the SIM per chat, and a default for new chats
 - **Delivery reports** (optional), **retry** for messages that didn't go out, and a counter for long texts
-- **Blocked numbers** using Android's own block list, shared with your phone app
+- **Blocked numbers** using Android's own block list, shared with your phone app (CallCtrl or any other)
+- **Import and export** your filter rules and blocked numbers as a **JSON or CSV** file
 - **Drafts** kept per chat
 - **"Text this number"** from your dialer, contacts and links, **share to TextCtrl** from any app, and **reply with a message** when you decline a call
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
@@ -170,7 +171,7 @@ That's the full list. TextCtrl has **no internet or network permission** (the bu
 - **Copied text** is marked as sensitive: Android's clipboard preview and keyboards with a clipboard history don't show or keep it.
 - **Links** in messages open in your browser only when you tap them; TextCtrl doesn't load link previews.
 - **Scheduled messages** are stored encrypted with a key in the phone's secure hardware until they go out, and are sent with Android's own alarms.
-- **Unknown senders** and your **spam filters** are worked out on the phone from your contacts and your own rules; there's no spam database or service. The rules are stored encrypted with a key in the phone's secure hardware.
+- **Unknown senders** and your **spam filters** are worked out on the phone from your contacts and your own rules; there's no spam database or service. The rules are stored encrypted with a key in the phone's secure hardware. A rules export (JSON or CSV) is a plain file that holds your rules and blocked numbers, written only where you choose with the system file picker.
 - **Reactions** are ordinary texts, the same format iPhones and Google Messages use with SMS phones; no RCS or Google services.
 - **Links:** **Support TextCtrl**, **Report a bug** and the source and licence rows in About open github.com or gnu.org in your browser when you tap them. TextCtrl itself can't contact them.
 - **Google-free:** no Google Play services, Firebase or other Google code, and nothing is sent to Google.

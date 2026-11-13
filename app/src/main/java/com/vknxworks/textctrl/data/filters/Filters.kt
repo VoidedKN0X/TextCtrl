@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.data.crypto.KeystoreCrypto
 import com.vknxworks.textctrl.data.settings.ChatPrefs
+import com.vknxworks.textctrl.sms.Blocklist
 import com.vknxworks.textctrl.sms.Contacts
 import com.vknxworks.textctrl.sms.MessageStore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,8 @@ enum class RuleKind(@StringRes val label: Int, val needsPattern: Boolean) {
     REGEX(R.string.rule_regex, true),
     /** Sender numbers starting with this (e.g. +44, 0900). */
     PREFIX(R.string.rule_prefix, true),
+    /** These exact numbers or sender names. */
+    EXACT(R.string.rule_exact, true),
     /** Short numbers of 3 to 8 digits, as used by services and adverts. */
     SHORT_CODE(R.string.rule_short_code, false),
     /** Senders with a name instead of a number ("BANK", "Promo"). */
@@ -31,9 +34,12 @@ enum class RuleKind(@StringRes val label: Int, val needsPattern: Boolean) {
     UNKNOWN(R.string.rule_unknown, false),
 }
 
-/** What happens to a message a rule matches. */
+/**
+ * What happens to a message a rule matches. Messages are never deleted: both Block and Spam keep the
+ * message in the Spam folder. The order matters: the first (strictest) matching action wins.
+ */
 enum class RuleAction(@StringRes val label: Int) {
-    /** Thrown away straight away: never stored, never shown. */
+    /** Kept in the Spam folder, and the sender goes on Android's block list so nothing more arrives from it. */
     BLOCK(R.string.rule_action_block),
     /** Kept in the Spam folder, without a notification. */
     SPAM(R.string.rule_action_spam),
@@ -53,19 +59,38 @@ data class FilterRule(
 )
 
 @Serializable
-private data class FilterFile(val rules: List<FilterRule> = emptyList(), val skipContacts: Boolean = true, val blockedCount: Int = 0)
+private data class FilterFile(
+    val rules: List<FilterRule> = emptyList(),
+    val skipContacts: Boolean = true,
+    /** Senders put on the block list by Block rules (before 0.7.0: messages thrown away). */
+    val blockedCount: Int = 0,
+    /** A quiet notification that sums up what went to Spam. */
+    val notifySummary: Boolean = false,
+    /** Messages filtered since the Spam folder was last opened. */
+    val unseenFiltered: Int = 0,
+)
+
+/** Result of an import: what was added, and what was left out. */
+data class ImportResult(val rules: Int, val blocked: Int, val skipped: Int)
 
 /**
  * Your own keyword and spam filters, applied to every text and picture message when it arrives, before
  * any notification. Everything is worked out on the phone: there's no spam database or online service
  * (TextCtrl has no internet access). The rules are stored encrypted with a key in the phone's secure
- * hardware, because they must work while the app is locked.
+ * hardware, because they must work while the app is locked. The matching itself is in [RuleMatcher].
  */
-class Filters(context: Context, private val store: MessageStore, private val contacts: Contacts, private val chats: ChatPrefs) {
+class Filters(
+    context: Context,
+    private val store: MessageStore,
+    private val contacts: Contacts,
+    private val chats: ChatPrefs,
+    private val blocklist: Blocklist,
+) {
     private val file = File(context.filesDir, "filters.enc")
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val random = SecureRandom()
     private val lock = Any()
+    private val regex = SafeRegex()
 
     private val _state = MutableStateFlow(read())
 
@@ -77,30 +102,51 @@ class Filters(context: Context, private val store: MessageStore, private val con
     val skipContacts: StateFlow<Boolean> = _skipContacts.asStateFlow()
 
     private val _blockedCount = MutableStateFlow(_state.value.blockedCount)
-    /** Messages thrown away by Block rules, ever. */
+    /** Senders put on the block list by Block rules, ever. */
     val blockedCount: StateFlow<Int> = _blockedCount.asStateFlow()
 
+    private val _notifySummary = MutableStateFlow(_state.value.notifySummary)
+    /** Show a quiet notification with the number of messages that went to Spam (off by default). */
+    val notifySummary: StateFlow<Boolean> = _notifySummary.asStateFlow()
+
+    /** Messages filtered to Spam since the Spam folder was last opened. */
+    val unseenFiltered: Int get() = _state.value.unseenFiltered
+
+    /** Regular expressions that took too long and are skipped. */
+    val slowPatterns: Set<String> get() = regex.slowPatterns
+
     fun add(kind: RuleKind, pattern: String, action: RuleAction) = edit { list ->
-        list + FilterRule((random.nextLong() and Long.MAX_VALUE).coerceAtLeast(1), kind, pattern.trim(), action)
+        list + FilterRule(newId(), kind, pattern.trim(), action)
     }
 
     fun update(rule: FilterRule) = edit { list -> list.map { if (it.id == rule.id) rule.copy(pattern = rule.pattern.trim()) else it } }
 
     fun remove(id: Long) = edit { list -> list.filter { it.id != id } }
 
-    fun setSkipContacts(on: Boolean) {
-        synchronized(lock) {
-            _state.value = _state.value.copy(skipContacts = on)
-            _skipContacts.value = on
-            write()
-        }
+    fun setSkipContacts(on: Boolean) = save { it.copy(skipContacts = on) }
+
+    fun setNotifySummary(on: Boolean) = save { it.copy(notifySummary = on, unseenFiltered = 0) }
+
+    /** The Spam folder was opened: the summary starts again from zero. */
+    fun markSpamSeen() {
+        if (_state.value.unseenFiltered != 0) save { it.copy(unseenFiltered = 0) }
     }
 
+    private fun newId() = (random.nextLong() and Long.MAX_VALUE).coerceAtLeast(1)
+
     private fun edit(transform: (List<FilterRule>) -> List<FilterRule>) {
+        regex.reset()
+        save { it.copy(rules = transform(it.rules)) }
+    }
+
+    private fun save(transform: (FilterFile) -> FilterFile) {
         synchronized(lock) {
-            val next = transform(_state.value.rules)
-            _state.value = _state.value.copy(rules = next)
-            _rules.value = next
+            val next = transform(_state.value)
+            _state.value = next
+            _rules.value = next.rules
+            _skipContacts.value = next.skipContacts
+            _blockedCount.value = next.blockedCount
+            _notifySummary.value = next.notifySummary
             write()
         }
     }
@@ -108,103 +154,56 @@ class Filters(context: Context, private val store: MessageStore, private val con
     /**
      * What to do with a message from [address] saying [body], arriving in [threadId] (null when the chat
      * isn't known yet). Null: let it through as usual. The strictest matching rule wins (block, then spam,
-     * then mute).
+     * then mute). With [count], the rules' hit counters go up and a Block rule puts the sender on Android's
+     * block list; without, it's only a look (nothing changes).
      */
     suspend fun check(address: String, body: String, threadId: Long?, count: Boolean = true): RuleAction? {
-        val active = _rules.value.filter { it.enabled }
-        if (active.isEmpty() || address.isBlank()) return null
+        if (_rules.value.none { it.enabled } || address.isBlank()) return null
         // A chat you moved back out of Spam is trusted from then on.
         if (threadId != null && chats.isNotSpam(threadId)) return null
         val inContacts = contacts.granted && contacts.lookup(address).name != null
         val wrote = threadId != null && store.hasOutgoing(threadId)
-        if (_skipContacts.value && (inContacts || wrote)) return null
-        val matched = active.filter { rule -> matches(rule, address, body, known = inContacts || wrote) }
-        val winner = matched.minByOrNull { it.action.ordinal } ?: return null
-        if (count) recordHit(matched.map { it.id }.toSet(), winner.action == RuleAction.BLOCK)
-        return winner.action
-    }
-
-    private fun recordHit(ids: Set<Long>, blocked: Boolean) {
-        synchronized(lock) {
-            val next = _state.value.rules.map { if (it.id in ids) it.copy(hits = it.hits + 1) else it }
-            val count = _state.value.blockedCount + if (blocked) 1 else 0
-            _state.value = _state.value.copy(rules = next, blockedCount = count)
-            _rules.value = next
-            _blockedCount.value = count
-            write()
+        val sender = Sender(address, known = inContacts || wrote, contactsGranted = contacts.granted)
+        val verdict = RuleMatcher.evaluate(_rules.value, sender, body, _skipContacts.value, regex) ?: return null
+        if (count) {
+            val blocked = verdict.action == RuleAction.BLOCK && blockSender(address)
+            recordHit(verdict.matched.map { it.id }.toSet(), blocked, filtered = verdict.action != RuleAction.MUTE)
         }
+        return verdict.action
     }
 
-    // ---------------------------------------------------------------- matching
+    /** Puts [address] on Android's block list, when TextCtrl may (as the SMS app) and it isn't there yet. */
+    private suspend fun blockSender(address: String): Boolean = runCatching {
+        if (!blocklist.canBlock || blocklist.isBlocked(address)) return false
+        blocklist.block(address)
+        true
+    }.getOrDefault(false)
 
-    private fun matches(rule: FilterRule, address: String, body: String, known: Boolean): Boolean = when (rule.kind) {
-        RuleKind.KEYWORD -> keywords(rule.pattern).any { body.contains(it, ignoreCase = true) }
-        // With a time limit: a pattern that takes too long (catastrophic backtracking) just doesn't match,
-        // so it can never hold up an incoming message.
-        RuleKind.REGEX -> compile(rule.pattern)?.let { r -> regexMatches(rule.pattern, r, body.take(MAX_BODY)) } ?: false
-        RuleKind.PREFIX -> prefixes(rule.pattern).any { startsWithNumber(address, it) }
-        RuleKind.SHORT_CODE -> isShortCode(address)
-        RuleKind.NAMED_SENDER -> address.any { it.isLetter() } && !address.contains('@')
-        // Only when TextCtrl may read contacts: otherwise everyone would look unknown.
-        RuleKind.UNKNOWN -> contacts.granted && !known
+    private fun recordHit(ids: Set<Long>, blocked: Boolean, filtered: Boolean) = save { s ->
+        s.copy(
+            rules = s.rules.map { if (it.id in ids) it.copy(hits = it.hits + 1) else it },
+            blockedCount = s.blockedCount + if (blocked) 1 else 0,
+            unseenFiltered = s.unseenFiltered + if (filtered) 1 else 0,
+        )
     }
 
-    private val regexCache = HashMap<String, Regex?>()
+    // ---------------------------------------------------------------- import and export
 
-    private fun compile(pattern: String): Regex? = synchronized(regexCache) {
-        regexCache.getOrPut(pattern) { validRegex(pattern) }
-    }
-
-    /** Patterns that took too long once; they're skipped from then on (until the app restarts or the rule changes). */
-    private val slowPatterns = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
-
-    private val regexThreads = java.util.concurrent.Executors.newCachedThreadPool { r ->
-        Thread(r, "textctrl-filter").apply { isDaemon = true; priority = Thread.MIN_PRIORITY }
-    }
-
-    /**
-     * Runs a regular expression with a time limit: one that takes too long (catastrophic backtracking)
-     * counts as no match, so a rule can never hold up or lose an incoming message.
-     */
-    private fun regexMatches(pattern: String, regex: Regex, text: String): Boolean {
-        if (pattern in slowPatterns) return false
-        val task = runCatching { regexThreads.submit<Boolean> { regex.containsMatchIn(text) } }.getOrNull() ?: return false
-        return try {
-            task.get(REGEX_TIME_MS, java.util.concurrent.TimeUnit.MILLISECONDS)
-        } catch (_: java.util.concurrent.TimeoutException) {
-            slowPatterns += pattern
-            task.cancel(true)
-            false
-        } catch (_: Exception) {
-            false
+    /** Adds the imported rules that aren't there yet (same kind, pattern and action), with fresh counters. */
+    fun importRules(imported: List<ExportedRule>): Int {
+        var added = 0
+        edit { list ->
+            val existing = list.map { Triple(it.kind.name, it.pattern, it.action.name) }.toMutableSet()
+            val fresh = imported.mapNotNull { r ->
+                val kind = RuleKind.entries.firstOrNull { it.name == r.kind } ?: return@mapNotNull null
+                val action = RuleAction.entries.firstOrNull { it.name == r.action } ?: return@mapNotNull null
+                if (!existing.add(Triple(kind.name, r.pattern, action.name))) return@mapNotNull null
+                FilterRule(newId(), kind, r.pattern, action, r.enabled)
+            }.take((RuleTransfer.MAX_RULES - list.size).coerceAtLeast(0))
+            added = fresh.size
+            list + fresh
         }
-    }
-
-    companion object {
-        private const val MAX_BODY = 4000
-        private const val REGEX_TIME_MS = 300L
-        const val MAX_PATTERN = 300
-
-        fun keywords(pattern: String): List<String> = pattern.split(',', '\n').map { it.trim() }.filter { it.isNotEmpty() }
-
-        fun prefixes(pattern: String): List<String> = pattern.split(',', '\n', ' ').map { p -> p.filter { it.isDigit() || it == '+' } }.filter { it.isNotEmpty() }
-
-        /** A regular expression that compiles and isn't absurdly long; null otherwise. */
-        fun validRegex(pattern: String): Regex? =
-            if (pattern.isBlank() || pattern.length > MAX_PATTERN) null
-            else runCatching { Regex(pattern, setOf(RegexOption.IGNORE_CASE)) }.getOrNull()
-
-        fun isShortCode(address: String): Boolean {
-            val clean = address.filter { !it.isWhitespace() && it != '-' }
-            return clean.length in 3..8 && clean.all { it.isDigit() }
-        }
-
-        /** "+32 470 12…" starts with "+32"; "0900…" with "0900". "+" and "00" are treated alike. */
-        fun startsWithNumber(address: String, prefix: String): Boolean {
-            val a = address.filter { it.isDigit() || it == '+' }.replaceFirst(Regex("^00"), "+")
-            val p = prefix.replaceFirst(Regex("^00"), "+")
-            return a.startsWith(p)
-        }
+        return added
     }
 
     // ---------------------------------------------------------------- storage

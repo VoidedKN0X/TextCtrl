@@ -4,6 +4,19 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.7.0 (2026-11-13)
+
+### New
+
+- **Rules for exact numbers and sender names.** A new filter, "From these numbers or sender names", catches messages from the numbers or names you list (BANK, DHL-Info…). A number matches however it's written: 0470 12 34 56 and +32 470 12 34 56 count as the same.
+- **Block rules block the sender.** A rule set to "Block the sender, keep it in Spam" now puts the sender on Android's own block list (shared with your phone app, so their calls stop too) and files the message in Spam. You'll see the sender under You › Blocked numbers and can unblock them there.
+- **Summary notification for filtered messages** (off by default; Filters › Summary notification). One quiet notification, without sound, counts the messages your rules moved to Spam. It never shows who sent them or what they say. Tapping it opens the Spam folder, which also resets the count.
+- **Import and export your filters.** Filters › Import and export saves your rules and the numbers on Android's block list to a JSON or CSV file you pick, and reads them back. Importing only adds what isn't there yet; nothing is removed. The CSV opens in any spreadsheet. Blocked numbers can be imported while TextCtrl is your SMS app.
+- **Safer patterns.** Pattern (regex) rules that could take a very long time on some messages, like `(a+)+` or back-references, are refused with an explanation when you save them, and a pattern that still takes too long on a message counts as no match and is marked "Too slow, skipped".
+
+### Changed
+
+- **Rules never delete a message any more.** Until now, a Block rule threw the message away without storing it. It now keeps the message in the Spam folder and blocks the sender instead, so nothing is ever lost to a rule. Messages that arrive after that are stopped by Android itself, as for any blocked number.
 ## v0.6.10 (2026-11-13)
 
 ### Security

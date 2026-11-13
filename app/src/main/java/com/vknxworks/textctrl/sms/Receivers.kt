@@ -49,11 +49,11 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                 try {
                     val first = pieces.first()
                     val body = pieces.joinToString("") { it.displayMessageBody ?: it.messageBody.orEmpty() }
-                    // Your own filters, before anything is stored or shown. Block: the text is dropped here.
+                    // Your own filters, before anything is shown. A text is never thrown away: Spam and Block
+                    // both keep it in the Spam folder (Block also puts the sender on Android's block list).
                     // A filter that fails lets the text through: it's never lost because of a rule.
                     val known = runCatching { c.store.threadIdFor(listOf(address)) }.getOrNull()
                     val verdict = runCatching { c.filters.check(address, body, known) }.getOrNull()
-                    if (verdict == RuleAction.BLOCK) continue
                     val insert = {
                         c.store.insertIncomingSms(
                             address = address,
@@ -72,7 +72,10 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                     } ?: continue
                     val thread = c.store.threadOf(uri) ?: continue
                     when {
-                        verdict == RuleAction.SPAM -> runCatching { c.chats.markSpamByFilter(thread) }
+                        verdict == RuleAction.SPAM || verdict == RuleAction.BLOCK -> {
+                            runCatching { c.chats.markSpamByFilter(thread) }
+                            runCatching { c.notifier.onFiltered() }
+                        }
                         // Muted by a rule: in its chat as usual, without a notification.
                         verdict == RuleAction.MUTE -> runCatching { c.chats.unarchive(thread) }
                         else -> {

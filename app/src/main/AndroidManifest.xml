@@ -63,10 +63,11 @@
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
             </intent-filter>
-            <!-- The "New chat" launcher shortcut, conversation shortcuts and the widget. -->
+            <!-- The "New chat" launcher shortcut, conversation shortcuts, the widget and the spam summary notification. -->
             <intent-filter>
                 <action android:name="com.vknxworks.textctrl.NEW_CHAT" />
                 <action android:name="com.vknxworks.textctrl.OPEN_CHAT" />
+                <action android:name="com.vknxworks.textctrl.OPEN_SPAM" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>

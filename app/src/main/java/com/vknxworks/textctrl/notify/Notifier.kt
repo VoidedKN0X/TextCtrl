@@ -1,6 +1,7 @@
 package com.vknxworks.textctrl.notify
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -19,6 +20,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.vknxworks.textctrl.MainActivity
 import com.vknxworks.textctrl.R
+import com.vknxworks.textctrl.data.filters.Filters
 import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.settings.ChatPrefs
 import com.vknxworks.textctrl.data.settings.NotificationContent
@@ -43,6 +45,7 @@ class Notifier(
     private val settings: SettingsRepository,
     private val chats: ChatPrefs,
     private val vault: LockVault,
+    private val filters: Filters,
 ) {
     private val nm = NotificationManagerCompat.from(context)
 
@@ -62,7 +65,48 @@ class Notifier(
                 description = str(R.string.channel_failed_desc)
             },
         )
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL_FILTERED, str(R.string.channel_filtered), NotificationManager.IMPORTANCE_LOW).apply {
+                description = str(R.string.channel_filtered_desc)
+                setShowBadge(false)
+            },
+        )
     }
+
+    /**
+     * A message went to Spam (by a Spam or Block rule). With "Summary notification" on, one quiet
+     * notification counts them; it never shows who sent them or what they say. Tapping it opens Spam.
+     */
+    @SuppressLint("MissingPermission") // POST_NOTIFICATIONS is checked by [allowed]
+    fun onFiltered() {
+        if (!allowed || !filters.notifySummary.value) return
+        val count = filters.unseenFiltered
+        if (count <= 0) return
+        val open = PendingIntent.getActivity(
+            context, REQUEST_OPEN_SPAM,
+            Intent(context, MainActivity::class.java)
+                .setAction(MainActivity.ACTION_OPEN_SPAM)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val n = NotificationCompat.Builder(context, CHANNEL_FILTERED)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(context.getColor(R.color.notify_accent))
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentTitle(str(R.string.notify_filtered_title))
+            .setContentText(context.resources.getQuantityString(R.plurals.notify_filtered, count, count))
+            .setNumber(count)
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
+        runCatching { nm.notify(TAG_FILTERED, 0, n) }
+    }
+
+    fun cancelFiltered() = nm.cancel(TAG_FILTERED, 0)
 
     private val allowed: Boolean
         get() = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED &&
@@ -347,5 +391,9 @@ class Notifier(
         const val CHANNEL_MESSAGES = "messages"
         const val CHANNEL_FAILED = "failed"
         private const val TAG_FAILED = "failed"
+        const val CHANNEL_FILTERED = "filtered"
+        private const val TAG_FILTERED = "filtered"
+        /** PendingIntent request code of the summary; chat notifications use thread ids (never negative). */
+        private const val REQUEST_OPEN_SPAM = -2
     }
 }

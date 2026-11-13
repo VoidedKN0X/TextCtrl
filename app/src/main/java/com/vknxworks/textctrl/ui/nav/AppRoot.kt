@@ -124,6 +124,7 @@ private fun MainScaffold() {
         when (action) {
             is PendingAction.OpenChat -> navigator.openChatFresh(action.threadId)
             PendingAction.NewChat -> navigator.navigateNow(NewChatRoute())
+            PendingAction.OpenSpam -> navigator.navigateNow(SpamRoute)
             is PendingAction.Compose -> {
                 c.composeDraft.value = action
                 if (action.recipients.isEmpty()) {

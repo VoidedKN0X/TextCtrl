@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import com.vknxworks.textctrl.data.backup.Backup
 import com.vknxworks.textctrl.data.backup.XmlTransfer
 import com.vknxworks.textctrl.data.filters.Filters
+import com.vknxworks.textctrl.data.filters.RuleFiles
 import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.schedule.Cleaner
 import com.vknxworks.textctrl.data.schedule.Scheduler
@@ -33,6 +34,8 @@ import kotlinx.coroutines.withContext
 sealed interface PendingAction {
     data class OpenChat(val threadId: Long) : PendingAction
     data object NewChat : PendingAction
+    /** The Spam folder, from the summary notification of filtered messages. */
+    data object OpenSpam : PendingAction
     /** Write to [recipients] (or pick them first, when empty), with some text and files ready. */
     data class Compose(val recipients: List<String>, val text: String, val attachments: List<Uri>) : PendingAction
 }
@@ -54,8 +57,9 @@ class AppContainer(val context: Context) {
     val contacts = Contacts(context)
     val sims = Sims(context)
     val blocklist = Blocklist(context)
-    val filters = Filters(context, store, contacts, chats)
-    val notifier = Notifier(context, store, contacts, settings, chats, vault)
+    val filters = Filters(context, store, contacts, chats, blocklist)
+    val ruleFiles = RuleFiles(context, filters, blocklist)
+    val notifier = Notifier(context, store, contacts, settings, chats, vault, filters)
     val messenger = Messenger(context, store, sims, settings, chats, notifier, filters)
     val scheduler = Scheduler(context, appScope, messenger, notifier)
     val cleaner = Cleaner(context, store, settings, chats)

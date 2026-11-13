@@ -258,7 +258,7 @@
     <string name="blocked_number">Phone number</string>
     <string name="blocked_empty">No blocked numbers</string>
     <string name="blocked_empty_body">Block a number from its chat, or with the + button.</string>
-    <string name="blocked_footer">This is Android\'s own block list, shared with your phone app. Tap a number to unblock it.</string>
+    <string name="blocked_footer">This is Android\'s own block list, shared with your phone app. Tap a number to unblock it. You can import and export it with your filters, under Filters.</string>
     <string name="unblock">Unblock</string>
     <string name="unblock_title">Unblock %1$s?</string>
     <string name="unblock_body">Texts and calls from this number will reach you again.</string>
@@ -507,7 +507,7 @@
     <string name="filters_skip_contacts_subtitle">Messages from people in your contacts, or chats you wrote in, always come through</string>
     <string name="filters_rules">Rules</string>
     <string name="filters_empty">No filters yet</string>
-    <string name="filters_empty_body">Add a rule to block or sort out texts with certain words, from short numbers, from numbers starting with a code, or from senders you don\'t know.</string>
+    <string name="filters_empty_body">Add a rule to block or sort out texts with certain words, from certain numbers or sender names, from short numbers, from numbers starting with a code, or from senders you don\'t know.</string>
     <string name="filter_add">Add filter</string>
     <string name="filter_edit">Edit filter</string>
     <plurals name="filter_hits">
@@ -515,8 +515,8 @@
         <item quantity="other">%1$d messages</item>
     </plurals>
     <plurals name="filters_blocked_count">
-        <item quantity="one">%1$d message blocked so far.</item>
-        <item quantity="other">%1$d messages blocked so far.</item>
+        <item quantity="one">%1$d sender put on the block list by your rules so far.</item>
+        <item quantity="other">%1$d senders put on the block list by your rules so far.</item>
     </plurals>
     <string name="rule_kind">Catch messages</string>
     <string name="rule_action">Then</string>
@@ -526,10 +526,45 @@
     <string name="rule_short_code">From short numbers (3 to 8 digits)</string>
     <string name="rule_named_sender">From senders with a name instead of a number</string>
     <string name="rule_unknown">From numbers not in your contacts</string>
-    <string name="rule_action_block">Block (delete straight away)</string>
+    <string name="rule_exact">From these numbers or sender names</string>
+    <string name="rule_summary_exact">From %1$s</string>
+    <string name="rule_pattern_exact">Numbers or sender names</string>
+    <string name="rule_pattern_hint_exact">Separate several with commas. 0470 12 34 56 and +32 470 12 34 56 count as the same number; names like BANK must match in full.</string>
+    <string name="rule_pattern_hint_regex">Upper and lower case don\'t matter. Patterns that could get very slow aren\'t accepted, and one that takes too long on a message counts as no match.</string>
+    <string name="rule_regex_slow">Too slow, skipped</string>
+    <string name="rule_regex_unsafe">That pattern could get very slow. Repeated groups can\'t contain repeats or | (use (ab)+, not (a+)+ or (a|b)+), back-references aren\'t allowed, and at most 6 open-ended repeats (* + {n,})</string>
+    <string name="filters_summary">Summary notification</string>
+    <string name="filters_summary_subtitle">A quiet notification counts the messages that went to Spam, without saying who sent them or what they say</string>
+    <string name="filters_transfer">Import and export</string>
+    <string name="filters_transfer_footer">Your rules and the numbers on Android\'s block list, as a JSON or CSV file you keep where you like. Importing adds what isn\'t there yet and never removes anything.</string>
+    <string name="filters_import">Import rules and blocked numbers</string>
+    <string name="filters_import_subtitle">From a JSON or CSV file exported by TextCtrl</string>
+    <string name="filters_import_rules_only">Blocked numbers can only be added while TextCtrl is your SMS app</string>
+    <string name="filters_export">Export rules and blocked numbers</string>
+    <string name="filters_export_subtitle">To a JSON or CSV file</string>
+    <string name="filters_export_json">JSON file</string>
+    <string name="filters_export_csv">CSV file (for spreadsheets)</string>
+    <string name="filters_exported">Exported</string>
+    <string name="filters_export_failed">Couldn\'t write the file</string>
+    <string name="filters_imported">Rules added: %1$d. Numbers blocked: %2$d.</string>
+    <plurals name="filters_import_skipped">
+        <item quantity="one">%1$d entry was already there or wasn\'t valid.</item>
+        <item quantity="other">%1$d entries were already there or weren\'t valid.</item>
+    </plurals>
+    <string name="filters_import_failed">Couldn\'t read the file</string>
+    <string name="filters_import_too_big">That file is too big for a filter export</string>
+    <string name="filters_import_invalid">That isn\'t a TextCtrl filter export (JSON or CSV)</string>
+    <string name="channel_filtered">Filtered messages</string>
+    <string name="channel_filtered_desc">A quiet summary of messages your filters moved to Spam</string>
+    <string name="notify_filtered_title">Spam filter</string>
+    <plurals name="notify_filtered">
+        <item quantity="one">%1$d message moved to Spam</item>
+        <item quantity="other">%1$d messages moved to Spam</item>
+    </plurals>
+    <string name="rule_action_block">Block the sender, keep it in Spam</string>
     <string name="rule_action_spam">Move to Spam</string>
     <string name="rule_action_mute">Keep, but don\'t notify</string>
-    <string name="rule_action_help">Block throws the message away, it\'s never shown or stored. Spam keeps it in the Spam folder. Neither notifies you.</string>
+    <string name="rule_action_help">Spam keeps the message in the Spam folder without notifying you. Block does the same and also puts the sender on Android\'s block list, so nothing more from them reaches you (in your phone app too). Messages are never deleted by a rule.</string>
     <string name="rule_summary_keyword">Words: %1$s</string>
     <string name="rule_summary_regex">Pattern: %1$s</string>
     <string name="rule_summary_prefix">Numbers starting with %1$s</string>

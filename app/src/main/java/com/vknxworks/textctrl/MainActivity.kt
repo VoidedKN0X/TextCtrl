@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
         return when (intent.action) {
             ACTION_OPEN_CHAT -> intent.getLongExtra(EXTRA_THREAD_ID, -1L).takeIf { it >= 0 }?.let { PendingAction.OpenChat(it) }
             ACTION_NEW_CHAT -> PendingAction.NewChat
+            ACTION_OPEN_SPAM -> PendingAction.OpenSpam
             Intent.ACTION_SENDTO, Intent.ACTION_VIEW -> {
                 val uri = intent.data?.takeIf { it.scheme in SMS_SCHEMES }
                 if (uri == null) {
@@ -122,6 +123,8 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_OPEN_CHAT = "com.vknxworks.textctrl.OPEN_CHAT"
         const val ACTION_NEW_CHAT = "com.vknxworks.textctrl.NEW_CHAT"
+        /** From TextCtrl's own summary notification only (explicit intent); opens the Spam folder. */
+        const val ACTION_OPEN_SPAM = "com.vknxworks.textctrl.OPEN_SPAM"
         const val EXTRA_THREAD_ID = "thread_id"
         private val SMS_SCHEMES = setOf("sms", "smsto", "mms", "mmsto")
 
