@@ -12,6 +12,14 @@ Changes on `main` that aren't in a release yet. They ship with the next version.
 
 - **The Recent chats home screen widget is gone.** TextCtrl no longer offers a widget: its code, layouts, colours and texts were removed, and the app no longer refreshes a widget in the background after every message, contact or setting change. A Recent chats widget already on your home screen stops working after the update and can be removed. The "New chat" launcher shortcut, conversation shortcuts and notifications are unchanged.
 
+### Changed
+
+- **The chat list reloads faster on phones with a long history.** Every time a message arrived or changed, TextCtrl went through every message you ever sent to work out which chats you have written in (that decides which chats count as "unknown senders"). It now remembers the answer while the app is running and only looks at messages sent since the last check. It still reads everything again after TextCtrl deletes a message or chat, when a chat has fewer messages than before, and for as long as another app is your SMS app, so the result is the same as before.
+- **Chats with many picture messages open and refresh faster.** Who a picture message is from or to was asked from Android's message store once per message on every refresh. Answers for messages older than five minutes are now remembered while the app is running, and forgotten whenever TextCtrl writes, restores or deletes messages.
+- **Less work for the phone's secure hardware.** The key that protects scheduled messages and the list of hidden chats is looked up once per app start instead of on every read and write. The key itself still never leaves the secure hardware; if the remembered handle stops working, TextCtrl looks the key up again and retries.
+- **A slightly lighter app start.** The backup, XML import/export and filter import/export helpers are only created when their settings screens open, instead of on every start (TextCtrl also starts in the background for each incoming message).
+- **Smoother scrolling in a chat.** The message list now tells Android which rows are day headings, messages and scheduled messages, so rows are reused for the same kind of row.
+
 ## v0.7.1 (2026-11-20)
 
 ### Changed

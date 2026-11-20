@@ -57,13 +57,14 @@ class AppContainer(val context: Context) {
     val sims = Sims(context)
     val blocklist = Blocklist(context)
     val filters = Filters(context, store, contacts, chats, blocklist)
-    val ruleFiles = RuleFiles(context, filters, blocklist)
+    val ruleFiles by lazy { RuleFiles(context, filters, blocklist) }
     val notifier = Notifier(context, store, contacts, settings, chats, vault, filters)
     val messenger = Messenger(context, store, sims, settings, chats, notifier, filters)
     val scheduler = Scheduler(context, appScope, messenger, notifier)
     val cleaner = Cleaner(context, store, settings, chats)
-    val backup = Backup(context, store, sims)
-    val xmlTransfer = XmlTransfer(context, store, sims, contacts)
+    // Only needed on their own settings screens, so they are made the first time one opens.
+    val backup by lazy { Backup(context, store, sims) }
+    val xmlTransfer by lazy { XmlTransfer(context, store, sims, contacts) }
 
     /** The hidden chats' own PIN, separate from the app lock. */
     val hiddenVault = LockVault(context, "textctrl_hidden", "hidden_chats_vault")

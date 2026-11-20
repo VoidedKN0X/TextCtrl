@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import android.util.LruCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,37 +38,53 @@ class MessageStore(private val context: Context) {
     }
 
     /** Pokes everything that shows messages, after a change the provider may not announce. */
-    fun touch() { _changes.value++ }
+    fun touch() {
+        // Messages were just written or restored: read their addresses again instead of trusting what was kept.
+        mmsAddresses.evictAll()
+        _changes.value++
+    }
 
     // ---------------------------------------------------------------- chats
 
     suspend fun conversations(): List<Conversation> = withContext(Dispatchers.IO) {
         val addresses = canonicalAddresses()
         val unread = unreadCounts()
-        val outgoing = threadsWithOutgoing()
-        val out = ArrayList<Conversation>()
+        class Row(val id: Long, val date: Long, val recipients: List<String>, val snippet: String, val hasAttachment: Boolean, val hasError: Boolean)
+        val rows = ArrayList<Row>()
+        val counts = HashMap<Long, Long>()
         cr.query(
             THREADS_URI,
             arrayOf("_id", "date", "recipient_ids", "snippet", "snippet_cs", "error", "has_attachment", "message_count"),
             null, null, "date DESC",
         )?.use { c ->
             while (c.moveToNext()) {
-                if (c.long("message_count") <= 0L) continue
+                val count = c.long("message_count")
+                if (count <= 0L) continue
                 val id = c.long("_id")
-                val recipients = c.str("recipient_ids").split(' ').mapNotNull { it.toLongOrNull()?.let(addresses::get) }
-                out += Conversation(
-                    threadId = id,
-                    addresses = recipients,
-                    snippet = decodeSnippet(c.str("snippet"), c.int("snippet_cs")),
+                counts[id] = count
+                rows += Row(
+                    id = id,
                     date = c.long("date"),
-                    unread = unread[id] ?: 0,
+                    recipients = c.str("recipient_ids").split(' ').mapNotNull { it.toLongOrNull()?.let(addresses::get) },
+                    snippet = decodeSnippet(c.str("snippet"), c.int("snippet_cs")),
                     hasAttachment = c.int("has_attachment") != 0,
                     hasError = c.int("error") != 0,
-                    hasOutgoing = id in outgoing,
                 )
             }
         }
-        out
+        val outgoing = threadsWithOutgoing(counts)
+        rows.map { r ->
+            Conversation(
+                threadId = r.id,
+                addresses = r.recipients,
+                snippet = r.snippet,
+                date = r.date,
+                unread = unread[r.id] ?: 0,
+                hasAttachment = r.hasAttachment,
+                hasError = r.hasError,
+                hasOutgoing = r.id in outgoing,
+            )
+        }
     }
 
     /** The people in a chat. */
@@ -90,15 +107,82 @@ class MessageStore(private val context: Context) {
         return map
     }
 
-    private fun threadsWithOutgoing(): Set<Long> {
+    // The chats you've sent something in. Reading this from scratch means going through every message
+    // you ever sent, so the answer is kept and only messages newer than the last one seen are added.
+    // It is read from scratch again whenever something may have been removed or changed underneath:
+    // after TextCtrl deletes anything, when a chat has fewer messages than last time (or is gone), and
+    // always while another app is the SMS app (only the SMS app can change stored messages).
+    private val outgoingLock = Any()
+    private var outgoingThreads: HashSet<Long>? = null
+    private var outgoingSmsMax = 0L
+    private var outgoingMmsMax = 0L
+    private var lastCounts: Map<Long, Long> = emptyMap()
+
+    /** Forget which chats have sent messages; the next chat list reads it from scratch. */
+    private fun forgetOutgoing() {
+        synchronized(outgoingLock) { outgoingThreads = null }
+        mmsAddresses.evictAll()
+    }
+
+    private fun isDefaultSmsApp(): Boolean = runCatching {
+        Telephony.Sms.getDefaultSmsPackage(context) == context.packageName
+    }.getOrDefault(false)
+
+    /** [counts] is the number of messages per chat right now, to notice messages that went away. */
+    private fun threadsWithOutgoing(counts: Map<Long, Long>): Set<Long> = synchronized(outgoingLock) {
+        val shrunk = lastCounts.any { (id, n) -> (counts[id] ?: 0L) < n }
+        lastCounts = counts
+        val kept = outgoingThreads
+        if (kept != null && !shrunk && isDefaultSmsApp()) {
+            // Anything sent since last time has a higher id than every message seen before: an id is only
+            // used again after a delete, and a delete starts this from scratch.
+            cr.query(SMS_URI, arrayOf("thread_id", "_id"), "type IN (2, 4, 5, 6) AND _id > $outgoingSmsMax", null, null)?.use { c ->
+                while (c.moveToNext()) {
+                    kept += c.getLong(0)
+                    val id = c.getLong(1)
+                    if (id > outgoingSmsMax) outgoingSmsMax = id
+                }
+            }
+            cr.query(MMS_URI, arrayOf("thread_id", "_id"), "msg_box IN (2, 4, 5) AND _id > $outgoingMmsMax", null, null)?.use { c ->
+                while (c.moveToNext()) {
+                    kept += c.getLong(0)
+                    val id = c.getLong(1)
+                    if (id > outgoingMmsMax) outgoingMmsMax = id
+                }
+            }
+            return@synchronized HashSet(kept)
+        }
+        // From scratch, exactly as before.
+        outgoingThreads = null
         val ids = HashSet<Long>()
-        cr.query(SMS_URI, arrayOf("thread_id"), "type IN (2, 4, 5, 6)", null, null)?.use { c ->
-            while (c.moveToNext()) ids += c.getLong(0)
+        var smsMax = 0L
+        var mmsMax = 0L
+        var complete = true
+        val sms = cr.query(SMS_URI, arrayOf("thread_id", "_id"), "type IN (2, 4, 5, 6)", null, null)
+        if (sms == null) complete = false
+        sms?.use { c ->
+            while (c.moveToNext()) {
+                ids += c.getLong(0)
+                val id = c.getLong(1)
+                if (id > smsMax) smsMax = id
+            }
         }
-        cr.query(MMS_URI, arrayOf("thread_id"), "msg_box IN (2, 4, 5)", null, null)?.use { c ->
-            while (c.moveToNext()) ids += c.getLong(0)
+        val mms = cr.query(MMS_URI, arrayOf("thread_id", "_id"), "msg_box IN (2, 4, 5)", null, null)
+        if (mms == null) complete = false
+        mms?.use { c ->
+            while (c.moveToNext()) {
+                ids += c.getLong(0)
+                val id = c.getLong(1)
+                if (id > mmsMax) mmsMax = id
+            }
         }
-        return ids
+        // Only kept when both lists were read in full and TextCtrl is the SMS app.
+        if (complete && isDefaultSmsApp()) {
+            outgoingThreads = HashSet(ids)
+            outgoingSmsMax = smsMax
+            outgoingMmsMax = mmsMax
+        }
+        ids
     }
 
     /** Whether you've ever sent something in [threadId]. */
@@ -212,7 +296,7 @@ class MessageStore(private val context: Context) {
                 id = r.id,
                 isMms = true,
                 threadId = r.thread,
-                address = mmsAddress(r.id, incoming),
+                address = mmsAddress(r.id, incoming, r.dateSec * 1000),
                 body = p.filter { it.isText }.mapNotNull { it.text }.joinToString("\n").trim(),
                 date = r.dateSec * 1000,
                 incoming = incoming,
@@ -255,12 +339,23 @@ class MessageStore(private val context: Context) {
         return out
     }
 
-    /** The sender of an incoming picture message; for a sent one, its recipients. */
-    private fun mmsAddress(id: Long, incoming: Boolean): String {
+    // Who a stored picture message is from or to doesn't change, and asking costs one query per message,
+    // so answers are kept. Not for messages of the last few minutes (their addresses may still be being
+    // written) and never an empty answer; forgotten whenever TextCtrl writes, restores or deletes messages.
+    private val mmsAddresses = LruCache<Long, String>(1000)
+
+    /** The sender of an incoming picture message; for a sent one, its recipients. [date] is the message's, in ms. */
+    private fun mmsAddress(id: Long, incoming: Boolean, date: Long): String {
+        // Sent and received messages have ids of their own, but keep the two kinds apart anyway.
+        val key = if (incoming) id else -id
+        mmsAddresses.get(key)?.let { return it }
         val type = if (incoming) ADDR_FROM else ADDR_TO
-        return cr.query(Uri.parse("content://mms/$id/addr"), arrayOf("address"), "type = $type", null, null)?.use { c ->
+        val address = cr.query(Uri.parse("content://mms/$id/addr"), arrayOf("address"), "type = $type", null, null)?.use { c ->
             buildList { while (c.moveToNext()) c.getString(0)?.let { if (it != INSERT_ADDRESS_TOKEN) add(it) } }
         }.orEmpty().joinToString(", ")
+        val settled = date > 0 && System.currentTimeMillis() - date > MMS_ADDRESS_SETTLE_MS
+        if (settled && address.isNotEmpty()) mmsAddresses.put(key, address)
+        return address
     }
 
     // ---------------------------------------------------------------- search
@@ -292,7 +387,8 @@ class MessageStore(private val context: Context) {
                 while (c.moveToNext()) {
                     val id = c.long("_id")
                     val incoming = c.int("msg_box") == Telephony.Mms.MESSAGE_BOX_INBOX
-                    hits += SearchHit(c.long("thread_id"), "m$id", mmsAddress(id, incoming), mids[id].orEmpty(), c.long("date") * 1000, incoming)
+                    val date = c.long("date") * 1000
+                    hits += SearchHit(c.long("thread_id"), "m$id", mmsAddress(id, incoming, date), mids[id].orEmpty(), date, incoming)
                 }
             }
         }
@@ -326,7 +422,11 @@ class MessageStore(private val context: Context) {
     }
 
     suspend fun deleteThread(threadId: Long) = withContext(Dispatchers.IO) {
-        cr.delete(ContentUris.withAppendedId(THREADS_DELETE_URI, threadId), null, null)
+        try {
+            cr.delete(ContentUris.withAppendedId(THREADS_DELETE_URI, threadId), null, null)
+        } finally {
+            forgetOutgoing()
+        }
         Unit
     }
 
@@ -335,11 +435,16 @@ class MessageStore(private val context: Context) {
         val args = arrayOf(threadId.toString())
         var n = runCatching { cr.delete(SMS_URI, "thread_id = ? AND date < $cutoff AND locked = 0", args) }.getOrDefault(0)
         n += runCatching { cr.delete(MMS_URI, "thread_id = ? AND date < ${cutoff / 1000} AND locked = 0", args) }.getOrDefault(0)
+        forgetOutgoing()
         return n
     }
 
     suspend fun deleteMessage(message: Message) = withContext(Dispatchers.IO) {
-        cr.delete(message.uri, null, null)
+        try {
+            cr.delete(message.uri, null, null)
+        } finally {
+            forgetOutgoing()
+        }
         Unit
     }
 
@@ -442,6 +547,7 @@ class MessageStore(private val context: Context) {
         const val ADDR_TO = 151
         const val ADDR_CC = 130
         const val INSERT_ADDRESS_TOKEN = "insert-address-token"
+        private const val MMS_ADDRESS_SETTLE_MS = 5 * 60_000L
 
         /**
          * Picture message subjects (and the chat snippets made from them) are stored as their raw bytes

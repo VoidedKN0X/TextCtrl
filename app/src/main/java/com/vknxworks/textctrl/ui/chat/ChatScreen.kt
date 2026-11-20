@@ -467,7 +467,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                         reverseLayout = true,
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                     ) {
-                        items(rows, key = { it.key }) { row ->
+                        items(rows, key = { it.key }, contentType = { it::class }) { row ->
                             when (row) {
                                 is ChatRow.Day -> DayHeading(row.millis)
                                 is ChatRow.Pending -> PendingBubble(
