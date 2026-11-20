@@ -17,6 +17,11 @@ Built and checked by CI only: nothing in this section has been run on a phone.
   - **Older versions can't read these drafts.** If you install an older TextCtrl over this one, drafts written by this version show up as a line of unreadable characters. Send or copy drafts you care about first.
   - Receiving, sending, scheduled messages and notifications don't use this key and work as before.
 
+### Changed
+
+- **Chats and the chat list are read a little faster.** For every message, chat and picture-message part it read from Android's message store, TextCtrl looked up where each column was, field by field. It now looks that up once per read. Most noticeable in long chats and while searching in a chat (which reads up to 5,000 messages). What is read and shown is the same.
+- **Searching all messages stops reading picture messages once it has enough.** The search only ever used the first 200 picture messages whose text matched, but read every match first. It now stops at 200, with the same results.
+
 ## v0.8.0 (2026-11-20)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

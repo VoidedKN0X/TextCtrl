@@ -57,18 +57,27 @@ class MessageStore(private val context: Context) {
             arrayOf("_id", "date", "recipient_ids", "snippet", "snippet_cs", "error", "has_attachment", "message_count"),
             null, null, "date DESC",
         )?.use { c ->
+            // Where each column is, looked up once instead of for every field of every row.
+            val iCount = c.idx("message_count")
+            val iId = c.idx("_id")
+            val iDate = c.idx("date")
+            val iRecipients = c.idx("recipient_ids")
+            val iSnippet = c.idx("snippet")
+            val iSnippetCs = c.idx("snippet_cs")
+            val iAttachment = c.idx("has_attachment")
+            val iError = c.idx("error")
             while (c.moveToNext()) {
-                val count = c.long("message_count")
+                val count = c.longAt(iCount)
                 if (count <= 0L) continue
-                val id = c.long("_id")
+                val id = c.longAt(iId)
                 counts[id] = count
                 rows += Row(
                     id = id,
-                    date = c.long("date"),
-                    recipients = c.str("recipient_ids").split(' ').mapNotNull { it.toLongOrNull()?.let(addresses::get) },
-                    snippet = decodeSnippet(c.str("snippet"), c.int("snippet_cs")),
-                    hasAttachment = c.int("has_attachment") != 0,
-                    hasError = c.int("error") != 0,
+                    date = c.longAt(iDate),
+                    recipients = c.strAt(iRecipients).split(' ').mapNotNull { it.toLongOrNull()?.let(addresses::get) },
+                    snippet = decodeSnippet(c.strAt(iSnippet), c.intAt(iSnippetCs)),
+                    hasAttachment = c.intAt(iAttachment) != 0,
+                    hasError = c.intAt(iError) != 0,
                 )
             }
         }
@@ -102,7 +111,9 @@ class MessageStore(private val context: Context) {
     private fun canonicalAddresses(): Map<Long, String> {
         val map = HashMap<Long, String>()
         cr.query(CANONICAL_URI, arrayOf("_id", "address"), null, null, null)?.use { c ->
-            while (c.moveToNext()) map[c.long("_id")] = c.str("address")
+            val iId = c.idx("_id")
+            val iAddress = c.idx("address")
+            while (c.moveToNext()) map[c.longAt(iId)] = c.strAt(iAddress)
         }
         return map
     }
@@ -212,7 +223,10 @@ class MessageStore(private val context: Context) {
             SMS_URI,
             arrayOf("_id", "thread_id", "address", "body", "date", "type", "status", "read", "sub_id"),
             "thread_id = ? AND type != 3", arrayOf(threadId.toString()), "date DESC LIMIT $limit",
-        )?.use { c -> while (c.moveToNext()) out += smsFrom(c) }
+        )?.use { c ->
+            val cols = SmsColumns(c)
+            while (c.moveToNext()) out += smsFrom(c, cols)
+        }
         out += mmsMessages("thread_id = ? AND m_type IN (128, 130, 132)", arrayOf(threadId.toString()), limit)
         out.sortedBy { it.date }.takeLast(limit)
     }
@@ -224,7 +238,10 @@ class MessageStore(private val context: Context) {
             SMS_URI,
             arrayOf("_id", "thread_id", "address", "body", "date", "type", "status", "read", "sub_id"),
             "thread_id = ? AND type = 1 AND read = 0", arrayOf(threadId.toString()), "date DESC LIMIT 20",
-        )?.use { c -> while (c.moveToNext()) out += smsFrom(c) }
+        )?.use { c ->
+            val cols = SmsColumns(c)
+            while (c.moveToNext()) out += smsFrom(c, cols)
+        }
         out += mmsMessages("thread_id = ? AND msg_box = 1 AND read = 0 AND m_type IN (130, 132)", arrayOf(threadId.toString()), 20)
         out.sortedBy { it.date }
     }
@@ -238,22 +255,35 @@ class MessageStore(private val context: Context) {
                 SMS_URI,
                 arrayOf("_id", "thread_id", "address", "body", "date", "type", "status", "read", "sub_id"),
                 "_id = ?", arrayOf(id.toString()), null,
-            )?.use { c -> if (c.moveToFirst()) smsFrom(c) else null }
+            )?.use { c -> if (c.moveToFirst()) smsFrom(c, SmsColumns(c)) else null }
         }
     }
 
-    private fun smsFrom(c: Cursor): Message {
-        val type = c.int("type")
-        val status = c.int("status")
+    /** Where the columns of a text are in a cursor, looked up once per query instead of once per field of every row. */
+    private inner class SmsColumns(c: Cursor) {
+        val id = c.idx("_id")
+        val thread = c.idx("thread_id")
+        val address = c.idx("address")
+        val body = c.idx("body")
+        val date = c.idx("date")
+        val type = c.idx("type")
+        val status = c.idx("status")
+        val read = c.idx("read")
+        val subId = c.idx("sub_id")
+    }
+
+    private fun smsFrom(c: Cursor, k: SmsColumns): Message {
+        val type = c.intAt(k.type)
+        val status = c.intAt(k.status)
         return Message(
-            id = c.long("_id"),
+            id = c.longAt(k.id),
             isMms = false,
-            threadId = c.long("thread_id"),
-            address = c.str("address"),
-            body = c.str("body"),
-            date = c.long("date"),
+            threadId = c.longAt(k.thread),
+            address = c.strAt(k.address),
+            body = c.strAt(k.body),
+            date = c.longAt(k.date),
             incoming = type == Telephony.Sms.MESSAGE_TYPE_INBOX,
-            read = c.int("read") != 0,
+            read = c.intAt(k.read) != 0,
             status = when (type) {
                 Telephony.Sms.MESSAGE_TYPE_INBOX -> SendStatus.NONE
                 Telephony.Sms.MESSAGE_TYPE_OUTBOX, Telephony.Sms.MESSAGE_TYPE_QUEUED -> SendStatus.SENDING
@@ -264,7 +294,7 @@ class MessageStore(private val context: Context) {
                     else -> SendStatus.SENT
                 }
             },
-            subId = c.int("sub_id"),
+            subId = c.intAt(k.subId),
         )
     }
 
@@ -279,11 +309,22 @@ class MessageStore(private val context: Context) {
             arrayOf("_id", "thread_id", "date", "msg_box", "read", "m_type", "sub", "sub_cs", "sub_id", "m_size", "exp"),
             selection, args, "date DESC LIMIT $limit",
         )?.use { c ->
+            val iId = c.idx("_id")
+            val iThread = c.idx("thread_id")
+            val iDate = c.idx("date")
+            val iBox = c.idx("msg_box")
+            val iRead = c.idx("read")
+            val iType = c.idx("m_type")
+            val iSub = c.idx("sub")
+            val iSubCs = c.idx("sub_cs")
+            val iSubId = c.idx("sub_id")
+            val iSize = c.idx("m_size")
+            val iExp = c.idx("exp")
             while (c.moveToNext()) {
                 rows += Row(
-                    c.long("_id"), c.long("thread_id"), c.long("date"), c.int("msg_box"), c.int("read") != 0,
-                    c.int("m_type"), c.strOrNull("sub")?.let { decodeSnippet(it, c.int("sub_cs")) }?.takeIf { it.isNotBlank() },
-                    c.int("sub_id"), c.long("m_size"), c.long("exp"),
+                    c.longAt(iId), c.longAt(iThread), c.longAt(iDate), c.intAt(iBox), c.intAt(iRead) != 0,
+                    c.intAt(iType), c.strOrNullAt(iSub)?.let { decodeSnippet(it, c.intAt(iSubCs)) }?.takeIf { it.isNotBlank() },
+                    c.intAt(iSubId), c.longAt(iSize), c.longAt(iExp),
                 )
             }
         }
@@ -325,14 +366,21 @@ class MessageStore(private val context: Context) {
                 arrayOf("_id", "mid", "ct", "name", "cl", "fn", "text"),
                 "mid IN (${chunk.joinToString(",")})", null, "seq ASC, _id ASC",
             )?.use { c ->
+                val iId = c.idx("_id")
+                val iMid = c.idx("mid")
+                val iCt = c.idx("ct")
+                val iName = c.idx("name")
+                val iCl = c.idx("cl")
+                val iFn = c.idx("fn")
+                val iText = c.idx("text")
                 while (c.moveToNext()) {
                     val part = MmsPart(
-                        id = c.long("_id"),
-                        contentType = c.str("ct").lowercase(),
-                        name = c.strOrNull("name") ?: c.strOrNull("fn") ?: c.strOrNull("cl"),
-                        text = c.strOrNull("text"),
+                        id = c.longAt(iId),
+                        contentType = c.strAt(iCt).lowercase(),
+                        name = c.strOrNullAt(iName) ?: c.strOrNullAt(iFn) ?: c.strOrNullAt(iCl),
+                        text = c.strOrNullAt(iText),
                     )
-                    out.getOrPut(c.long("mid")) { ArrayList() } += part
+                    out.getOrPut(c.longAt(iMid)) { ArrayList() } += part
                 }
             }
         }
@@ -376,7 +424,8 @@ class MessageStore(private val context: Context) {
         }
         val mids = LinkedHashMap<Long, String>()
         cr.query(PART_URI, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\'", arrayOf(like), null)?.use { c ->
-            while (c.moveToNext()) mids.putIfAbsent(c.getLong(0), c.getString(1).orEmpty())
+            // Only the first 200 picture messages are used below, so reading stops once they are found.
+            while (mids.size < 200 && c.moveToNext()) mids.putIfAbsent(c.getLong(0), c.getString(1).orEmpty())
         }
         if (mids.isNotEmpty()) {
             cr.query(
@@ -525,10 +574,17 @@ class MessageStore(private val context: Context) {
     // ---------------------------------------------------------------- helpers
 
     private fun Cursor.idx(name: String) = getColumnIndex(name)
-    private fun Cursor.long(name: String): Long = idx(name).let { if (it < 0 || isNull(it)) 0L else getLong(it) }
-    private fun Cursor.int(name: String): Int = idx(name).let { if (it < 0 || isNull(it)) 0 else getInt(it) }
+    private fun Cursor.long(name: String): Long = longAt(idx(name))
+    private fun Cursor.int(name: String): Int = intAt(idx(name))
     private fun Cursor.str(name: String): String = strOrNull(name).orEmpty()
-    private fun Cursor.strOrNull(name: String): String? = idx(name).let { if (it < 0 || isNull(it)) null else getString(it) }
+    private fun Cursor.strOrNull(name: String): String? = strOrNullAt(idx(name))
+
+    // The same reads by column position ([idx]), for loops over many rows. A missing column or an empty
+    // field reads as 0, "" or null, as above.
+    private fun Cursor.longAt(i: Int): Long = if (i < 0 || isNull(i)) 0L else getLong(i)
+    private fun Cursor.intAt(i: Int): Int = if (i < 0 || isNull(i)) 0 else getInt(i)
+    private fun Cursor.strAt(i: Int): String = strOrNullAt(i).orEmpty()
+    private fun Cursor.strOrNullAt(i: Int): String? = if (i < 0 || isNull(i)) null else getString(i)
 
     companion object {
         val SMS_URI: Uri = Telephony.Sms.CONTENT_URI
