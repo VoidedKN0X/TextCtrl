@@ -4,6 +4,14 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Changes on `main` that aren't in a release yet. They ship with the next version.
+
+### Removed
+
+- **The Recent chats home screen widget is gone.** TextCtrl no longer offers a widget: its code, layouts, colours and texts were removed, and the app no longer refreshes a widget in the background after every message, contact or setting change. A Recent chats widget already on your home screen stops working after the update and can be removed. The "New chat" launcher shortcut, conversation shortcuts and notifications are unchanged.
+
 ## v0.7.1 (2026-11-20)
 
 ### Changed

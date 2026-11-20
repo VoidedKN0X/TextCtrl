@@ -40,7 +40,6 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
 - The **Ctrl / Signal** look shared by every Ctrl app: high-contrast **dark and light** modes that follow your phone's setting, with your own **bubble colour** and **text size**
-- **Recent chats widget** for the home screen
 - **Tablets and foldables**: chat list and chat side by side
 
 ## How messages arrive
@@ -106,7 +105,7 @@ Settings, your SIMs, blocked numbers and About are behind the profile picture at
 
 Open a chat's menu and tap **Hide chat**. The first time, you choose a PIN for hidden chats (separate from the app lock). Hidden chats:
 
-- stay out of Chats, Archived, Search and the widget;
+- stay out of Chats, Archived and Search;
 - still notify you, but never with a name or message text;
 - open under your profile picture › **Hidden chats**, after the PIN, and close again as soon as you leave TextCtrl.
 

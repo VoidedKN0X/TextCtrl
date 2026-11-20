@@ -63,7 +63,7 @@
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
             </intent-filter>
-            <!-- The "New chat" launcher shortcut, conversation shortcuts, the widget and the spam summary notification. -->
+            <!-- The "New chat" launcher shortcut, conversation shortcuts and the spam summary notification. -->
             <intent-filter>
                 <action android:name="com.vknxworks.textctrl.NEW_CHAT" />
                 <action android:name="com.vknxworks.textctrl.OPEN_CHAT" />
@@ -134,24 +134,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".widget.ChatsWidgetProvider"
-            android:exported="true"
-            android:label="@string/widget_title">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <!-- The rest of what Android's widget host sends, so strict intent matching lets it through. -->
-                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
-                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
-                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE_OPTIONS" />
-                <action android:name="android.appwidget.action.APPWIDGET_RESTORED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_chats_info" />
         </receiver>
 
         <!-- Quick replies when you decline a call with a message. Only the phone app can start it. -->

@@ -22,7 +22,6 @@ import com.vknxworks.textctrl.sms.MessageStore
 import com.vknxworks.textctrl.sms.Messenger
 import com.vknxworks.textctrl.sms.Sims
 import com.vknxworks.textctrl.ui.lock.AppLock
-import com.vknxworks.textctrl.widget.Widgets
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +64,6 @@ class AppContainer(val context: Context) {
     val cleaner = Cleaner(context, store, settings, chats)
     val backup = Backup(context, store, sims)
     val xmlTransfer = XmlTransfer(context, store, sims, contacts)
-    val widgets = Widgets(context, appScope, store, contacts, chats, settings, vault)
 
     /** The hidden chats' own PIN, separate from the app lock. */
     val hiddenVault = LockVault(context, "textctrl_hidden", "hidden_chats_vault")
@@ -117,14 +115,12 @@ class AppContainer(val context: Context) {
         withContext(Dispatchers.Default) { vault.setUp(pin) }
         chats.sealDrafts()
         notifier.removeAllShortcuts()
-        runCatching { widgets.update() }
     }
 
     /** Turns the app lock off (after the PIN was confirmed): drafts are stored plainly again. */
     suspend fun disableLock() {
         withContext(Dispatchers.IO) { chats.unsealDrafts() }
         vault.disable()
-        runCatching { widgets.update() }
     }
 
     /**
@@ -135,7 +131,6 @@ class AppContainer(val context: Context) {
         withContext(Dispatchers.IO) { chats.dropSealedDrafts() }
         vault.disable()
         AppLock.markUnlocked()
-        runCatching { widgets.update() }
     }
 
     /** Locked: wipe the key from memory. */

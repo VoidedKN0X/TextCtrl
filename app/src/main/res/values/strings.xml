@@ -405,7 +405,7 @@
     <string name="hidden_title">Hidden chats</string>
     <string name="hidden_subtitle">Chats kept behind a PIN of their own</string>
     <string name="hidden_setup_title">Set up hidden chats</string>
-    <string name="hidden_choose_intro">Choose a PIN for hidden chats, at least %1$d digits and different from the app lock\'s. Hidden chats stay out of Chats, Search and the widget, and their notifications never show names or text.</string>
+    <string name="hidden_choose_intro">Choose a PIN for hidden chats, at least %1$d digits and different from the app lock\'s. Hidden chats stay out of Chats and Search, and their notifications never show names or text.</string>
     <string name="hidden_enter_pin">Enter your hidden chats PIN</string>
     <string name="hidden_done">Chat hidden. Find it under You › Hidden chats.</string>
     <string name="hidden_empty">No hidden chats</string>
@@ -609,10 +609,4 @@
     <string name="xml_not_backup">That isn\'t an SMS Backup &amp; Restore XML file</string>
     <string name="xml_damaged_partial">The file is damaged or incomplete. %1$d messages up to that point were imported.</string>
 
-    <!-- Widget -->
-    <string name="widget_title">Recent chats</string>
-    <string name="widget_description">Your newest chats at a glance</string>
-    <string name="widget_empty">No chats yet</string>
-    <string name="widget_locked">TextCtrl is locked</string>
-    <string name="widget_not_default">TextCtrl isn\'t your SMS app</string>
 </resources>

@@ -113,7 +113,7 @@ import java.util.Locale
 private enum class HiddenStep { CHOOSE, REPEAT, UNLOCK, CHANGE, CHANGE_REPEAT }
 
 /**
- * Hidden chats: kept out of Chats, Archived, Search, the widget and notifications' text, behind a PIN of
+ * Hidden chats: kept out of Chats, Archived, Search and notifications' text, behind a PIN of
  * their own. They close again as soon as you leave the app.
  */
 @Composable

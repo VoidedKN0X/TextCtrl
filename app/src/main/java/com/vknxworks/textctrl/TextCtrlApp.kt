@@ -25,7 +25,6 @@ class TextCtrlApp : Application() {
         container.scheduler.restore()
         container.scheduler.setDailyCleanup(true)
         container.appScope.launch { runCatching { container.cleaner.runIfDue() } }
-        container.widgets.start()
         AppLock.onLocked = { container.onLocked() }
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {

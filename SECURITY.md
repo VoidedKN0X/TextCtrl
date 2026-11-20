@@ -20,7 +20,7 @@ Only the latest release gets security fixes. Please update before reporting, and
 TextCtrl is your phone's SMS app and has no internet permission. So these count:
 
 - Any way for TextCtrl to send your messages, contacts or other data off the phone, or to send a text or picture message you didn't ask for
-- Another app on the phone being able to read TextCtrl's data, or make it send, delete or show something (through its share and "text this number" screens, widget, notifications or receivers)
+- Another app on the phone being able to read TextCtrl's data, or make it send, delete or show something (through its share and "text this number" screens, notifications or receivers)
 - A received text or picture message that can make TextCtrl run code, write files where it shouldn't, or crash in a way that loses messages
 - Ways around the app lock or the hidden-chats PIN, or protected screens showing up in screenshots when they shouldn't
 - Weaknesses in the encryption of backups, drafts, scheduled messages, filter rules or hidden chats, or in the PINs

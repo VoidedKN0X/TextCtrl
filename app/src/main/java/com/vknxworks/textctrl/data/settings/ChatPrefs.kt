@@ -48,7 +48,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
 
 
     private val _spam = MutableStateFlow(readSet(K_SPAM))
-    /** Chats in the Spam folder: kept out of Chats, Archived, Search and the widget, and never notified. */
+    /** Chats in the Spam folder: kept out of Chats, Archived and Search, and never notified. */
     val spam: StateFlow<Set<Long>> = _spam.asStateFlow()
 
     private val _notSpam = MutableStateFlow(readSet(K_NOT_SPAM))
