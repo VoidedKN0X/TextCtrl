@@ -39,12 +39,43 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     /** Chats with an unsent draft. */
     val drafts: StateFlow<Set<Long>> = _drafts.asStateFlow()
 
-    private val _hidden = MutableStateFlow(readHidden())
+    // Reading the hidden chats asks the phone's secure hardware, which is slow, and TextCtrl also starts for
+    // every incoming message. So the list is read on a thread of its own from the moment the app starts.
+    // Nothing ever sees it half-read: every way in ([hidden], [isHidden], [setHidden]) goes through
+    // [ensureHidden], which waits for the read to finish (or does it itself when it hasn't begun), so a hidden
+    // chat can't be listed or shown in a notification before the list is known.
+    private val _hidden = MutableStateFlow<Set<Long>>(emptySet())
+    private val hiddenFlow = _hidden.asStateFlow()
+    private val hiddenLock = Any()
+    @Volatile private var hiddenLoaded = false
+
+    init {
+        if (prefs.contains(K_HIDDEN)) {
+            Thread({ runCatching { ensureHidden() } }, "hidden-chats").start()
+        } else {
+            hiddenLoaded = true
+        }
+    }
+
+    private fun ensureHidden() {
+        if (hiddenLoaded) return
+        synchronized(hiddenLock) {
+            if (!hiddenLoaded) {
+                _hidden.value = readHidden()
+                hiddenLoaded = true
+            }
+        }
+    }
+
     /**
      * Hidden chats. Which chats they are is encrypted with a key in the phone's secure hardware, so a copy
      * of TextCtrl's files doesn't tell; the hidden-chats PIN guards the screen that shows them.
      */
-    val hidden: StateFlow<Set<Long>> = _hidden.asStateFlow()
+    val hidden: StateFlow<Set<Long>>
+        get() {
+            ensureHidden()
+            return hiddenFlow
+        }
 
     private val _autoDelete = MutableStateFlow(readAutoDelete())
     /** Chats with their own auto-delete choice, instead of the one in Settings. */
@@ -81,13 +112,17 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     fun isMuted(threadId: Long) = threadId in _muted.value
 
     fun setHidden(threadId: Long, on: Boolean) {
+        ensureHidden()
         val next = if (on) _hidden.value + threadId else _hidden.value - threadId
         if (next == _hidden.value) return
         _hidden.value = next
         prefs.edit().putString(K_HIDDEN, KeystoreCrypto.encrypt(next.joinToString(","))).apply()
     }
 
-    fun isHidden(threadId: Long) = threadId in _hidden.value
+    fun isHidden(threadId: Long): Boolean {
+        ensureHidden()
+        return threadId in _hidden.value
+    }
 
     private fun readHidden(): Set<Long> {
         val raw = prefs.getString(K_HIDDEN, null) ?: return emptySet()
