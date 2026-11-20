@@ -77,7 +77,7 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 
 - **Checksum:** the APK's SHA-256 is listed in each release's notes. Compare it with `sha256sum TextCtrl-v*.apk`.
 - **Built by this repo:** every release APK has a signed build provenance attestation. With the [GitHub CLI](https://cli.github.com), `gh attestation verify TextCtrl-v0.6.7.apk -R VoidedKN0X/TextCtrl` proves it was built by this repo's workflow from the tagged commit.
-- **Signing key:** every release is signed with the same release key. Its SHA-256 certificate fingerprint is:
+- **Signing key:** every release is signed with the same release key. The key is kept away from the build: one job builds the APK without any secrets, and a separate job that runs no code from this repo signs it and checks the signature against this fingerprint. Its SHA-256 certificate fingerprint is:
 
   ```
   CF:93:CF:96:08:49:56:90:F2:FC:82:58:86:6D:A0:89:1C:8C:CA:63:D7:5A:DC:AD:86:7B:20:92:57:F3:94:B3
