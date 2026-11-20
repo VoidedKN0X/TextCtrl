@@ -1,20 +1,25 @@
 package com.vknxworks.textctrl.data.settings
 
 import android.content.Context
+import com.vknxworks.textctrl.data.crypto.DataKeyStore
 import com.vknxworks.textctrl.data.crypto.KeystoreCrypto
+import com.vknxworks.textctrl.data.crypto.KeystoreWrapper
 import com.vknxworks.textctrl.data.lock.LockVault
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 
 /**
  * What TextCtrl keeps about chats on its own: pinned, archived and muted chats, and unsent drafts.
  * Texts themselves stay in Android's message store, like with any SMS app.
  *
- * Drafts are encrypted with the app lock's key while the lock is on, so a locked TextCtrl can't read them.
+ * Drafts are encrypted with the app lock's key while the lock is on, so a locked TextCtrl can't read them,
+ * and with the app's data key while it is off, so a copy of TextCtrl's files doesn't show them ([Drafts]).
  */
 class ChatPrefs(context: Context, private val vault: LockVault) {
-    private val prefs = context.applicationContext.getSharedPreferences("chats", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences("chats", Context.MODE_PRIVATE)
 
     init {
         // Bubbles were removed in 0.6.3; forget which chats had them.
@@ -117,71 +122,93 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setAutoDelete(threadId, null)
         toggle(K_SPAM, _spam, threadId, false)
         toggle(K_NOT_SPAM, _notSpam, threadId, false)
-        saveDraft(threadId, "")
+        discardDraft(threadId)
     }
 
     // ---------------------------------------------------------------- drafts
 
-    /** The draft for [threadId], or "" (also while locked, when it can't be read). */
-    fun draft(threadId: Long): String {
-        val raw = prefs.getString(draftKey(threadId), null) ?: return ""
-        return if (LockVault.isSealed(raw)) vault.open(raw).orEmpty() else raw
+    // The data key that seals drafts while the app lock is off. It is fetched off the main thread
+    // ([prepareDrafts]); everything else only uses it once it is in memory.
+    private val draftKeys by lazy { DataKeyStore(appContext.filesDir, KeystoreWrapper(DATA_KEY_ALIAS)) }
+    @Volatile private var draftKey: ByteArray? = null
+    private val draftKeyTried = MutableStateFlow(false)
+
+    private val draftBox = Drafts(
+        object : DraftSlots {
+            override fun read(name: String): String? = prefs.getString(name, null)
+            override fun ids(): Set<Long> = _drafts.value
+            override fun write(puts: Map<String, String>, removes: Set<String>, ids: Set<Long>, now: Boolean) {
+                val edit = prefs.edit()
+                for (name in removes) edit.remove(name)
+                for ((name, value) in puts) edit.putString(name, value)
+                setIds(K_DRAFTS, _drafts, ids, edit)
+                if (now) edit.commit() else edit.apply()
+            }
+        },
+        object : PinLayer {
+            override val enabled: Boolean get() = vault.enabled
+            override fun isSealed(value: String): Boolean = LockVault.isSealed(value)
+            override fun seal(plain: String): String? = vault.seal(plain)
+            override fun open(sealed: String): String? = vault.open(sealed)
+        },
+        { draftKey },
+    )
+
+    /**
+     * Gets the data key ready (made at the first start) and seals the drafts that are still ordinary text.
+     * Slow: it asks the phone's secure hardware. Never on the main thread. Never throws.
+     */
+    fun prepareDrafts() {
+        try {
+            draftKey = draftKeys.get(create = true)
+            draftBox.sealOrdinary()
+        } catch (e: Throwable) {
+            // Without a key drafts are read and written as ordinary text, as before.
+        } finally {
+            draftKeyTried.value = true
+        }
     }
 
-    fun saveDraft(threadId: Long, text: String) {
-        val edit = prefs.edit()
-        if (text.isBlank()) {
-            edit.remove(draftKey(threadId))
-            setIds(K_DRAFTS, _drafts, _drafts.value - threadId, edit)
-        } else {
-            val stored = if (vault.enabled) vault.seal(text) ?: return else text
-            edit.putString(draftKey(threadId), stored)
-            setIds(K_DRAFTS, _drafts, _drafts.value + threadId, edit)
+    /** Asks the secure hardware for the data key again, after it couldn't be had. Slow; never on the main thread. */
+    fun retryDraftKey() {
+        try {
+            draftKeys.reset()
+            draftKey = draftKeys.get(create = true)
+            draftBox.sealOrdinary()
+        } catch (e: Throwable) {
         }
-        edit.apply()
     }
+
+    /** Returns once [prepareDrafts] has finished, with or without a key. */
+    suspend fun awaitDraftKey() {
+        draftKeyTried.first { it }
+    }
+
+    /** The draft for [threadId], or "" (also while locked, or when it can't be opened right now). */
+    fun draft(threadId: Long): String = draftBox.read(threadId)
+
+    /** Keeps [text] as the chat's draft; blank removes it. A draft that couldn't be opened is never removed here. */
+    fun saveDraft(threadId: Long, text: String) = draftBox.save(threadId, text)
+
+    /** The chat is being deleted: its draft goes too, also one that couldn't be opened. */
+    fun discardDraft(threadId: Long) = draftBox.discard(threadId)
+
+    /** The chat has a draft its text field hasn't shown: it couldn't be opened, or was set aside for a newer one. */
+    fun draftNeedsRecovery(threadId: Long): Boolean = draftBox.needsRecovery(threadId)
+
+    /** The text of such drafts that can be opened now, or "". */
+    fun recoverDraft(threadId: Long): String = draftBox.recover(threadId)
 
     /** The app lock went on: encrypt every draft with its key. */
-    fun sealDrafts() {
-        val edit = prefs.edit()
-        for (id in _drafts.value) {
-            val raw = prefs.getString(draftKey(id), null) ?: continue
-            if (!LockVault.isSealed(raw)) vault.seal(raw)?.let { edit.putString(draftKey(id), it) }
-        }
-        edit.commit()
-    }
+    fun sealDrafts() = draftBox.sealForPin()
 
-    /** The app lock went off (while unlocked): store drafts plainly again. */
-    fun unsealDrafts() {
-        val edit = prefs.edit()
-        for (id in _drafts.value) {
-            val raw = prefs.getString(draftKey(id), null) ?: continue
-            if (LockVault.isSealed(raw)) {
-                val plain = vault.open(raw)
-                if (plain != null) edit.putString(draftKey(id), plain) else edit.remove(draftKey(id))
-            }
-        }
-        edit.commit()
-    }
+    /** The app lock went off (while unlocked): drafts leave its key and are sealed with the data key instead. */
+    fun unsealDrafts() = draftBox.openFromPin()
 
     /** The PIN was reset: drafts encrypted with the old key can't be read any more. */
-    fun dropSealedDrafts() {
-        val edit = prefs.edit()
-        var ids = _drafts.value
-        for (id in _drafts.value) {
-            val raw = prefs.getString(draftKey(id), null)
-            if (raw == null || LockVault.isSealed(raw)) {
-                edit.remove(draftKey(id))
-                ids = ids - id
-            }
-        }
-        setIds(K_DRAFTS, _drafts, ids, edit)
-        edit.commit()
-    }
+    fun dropSealedDrafts() = draftBox.dropPinSealed()
 
     // ---------------------------------------------------------------- helpers
-
-    private fun draftKey(threadId: Long) = "draft_$threadId"
 
     private fun readSet(key: String): Set<Long> =
         prefs.getStringSet(key, emptySet()).orEmpty().mapNotNull { it.toLongOrNull() }.toSet()
@@ -204,6 +231,7 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val K_ARCHIVED = "archived"
         const val K_MUTED = "muted"
         const val K_DRAFTS = "draft_ids"
+        const val DATA_KEY_ALIAS = "textctrl_data_at_rest"
         const val K_HIDDEN = "hidden_enc"
         const val K_AUTO_DELETE = "auto_delete"
         const val K_SPAM = "spam"

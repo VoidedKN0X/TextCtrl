@@ -6,6 +6,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.vknxworks.textctrl.ui.lock.AppLock
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** A string from strings.xml, for code outside Compose (errors, notifications, toasts). */
@@ -25,6 +26,9 @@ class TextCtrlApp : Application() {
         container.scheduler.restore()
         container.scheduler.setDailyCleanup(true)
         container.appScope.launch { runCatching { container.cleaner.runIfDue() } }
+        // The key that encrypts drafts at rest is asked from the secure hardware here, off the main thread,
+        // so a chat that opens finds it in memory. Receiving and sending never wait for it.
+        container.appScope.launch(Dispatchers.IO) { container.chats.prepareDrafts() }
         AppLock.onLocked = { container.onLocked() }
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {

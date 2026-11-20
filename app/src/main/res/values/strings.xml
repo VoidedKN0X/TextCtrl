@@ -82,6 +82,8 @@
     <string name="delete_chat_title">Delete the chat with %1$s?</string>
     <string name="delete_chat_body">All its messages are deleted from this phone. This can\'t be undone.</string>
     <string name="draft_prefix">Draft</string>
+    <string name="draft_unreadable">A saved draft for this chat is encrypted and can\'t be opened right now. It is kept.</string>
+    <string name="try_again">Try again</string>
     <string name="not_sent">Not sent</string>
     <plurals name="people">
         <item quantity="one">%1$d person</item>

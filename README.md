@@ -163,7 +163,7 @@ That's the full list. TextCtrl has **no internet or network permission** (the bu
 **Telemetry-free.** TextCtrl has no analytics, crash reporting, usage stats or tracking of any kind.
 
 - **No internet access at all.** TextCtrl doesn't have Android's internet permission, so it can't contact any server, not even by mistake. Texts go out over the mobile network to the people you write to. Picture messages are sent and fetched by Android's own MMS service, with your carrier.
-- **Your messages** stay in Android's message store on your phone, the same place every SMS app uses. TextCtrl keeps only your settings, drafts and which chats are pinned, archived or muted.
+- **Your messages** stay in Android's message store on your phone, the same place every SMS app uses. TextCtrl keeps only your settings, drafts and which chats are pinned, archived or muted. Drafts are stored encrypted: with the app lock's PIN while the lock is on, and otherwise with a key kept in the phone's secure hardware, so a copy of TextCtrl's files doesn't show them (this doesn't protect against someone using the unlocked app).
 - **Contacts** are only read on the phone, to show names and pictures. Nothing about them is stored by TextCtrl or sent anywhere.
 - **Pictures you send** are shrunk and re-saved before sending, which also removes their location and camera details.
 - **Notifications** show what you choose under **Notification content**: name and message, name only, or just "New message". The lock screen shows "New message" unless Android is set to show everything there. Android's suggested replies are turned off, so the system doesn't read your messages to make them.

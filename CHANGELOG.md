@@ -4,6 +4,19 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing in this section has been run on a phone.
+
+### Security
+
+- **Drafts are encrypted on the phone when the app lock is off too.** Until now an unsent draft was only encrypted while the app lock was on (with your PIN); with the lock off it sat as readable text in TextCtrl's own settings file. Drafts are now also encrypted with the lock off (AES-256-GCM), with a key that is itself protected by a key in the phone's secure hardware, so a copy of TextCtrl's files doesn't show what you were typing. With the app lock on nothing changes: drafts keep being encrypted with your PIN exactly as before. This protects the files, not a phone someone is using unlocked.
+  - **What is and isn't encrypted.** Encrypted: the text of your drafts. Already encrypted before, unchanged: scheduled messages and the list of hidden chats. Not encrypted: which chats have a draft, are pinned, archived, muted or in Spam (TextCtrl needs those before any key is loaded), and your settings. Your messages themselves are in Android's message store, like with every SMS app, and aren't TextCtrl's to encrypt.
+  - **Moving over.** Drafts you already have are encrypted in the background shortly after TextCtrl starts; each one is checked by decrypting it again before it replaces the readable text. If the key can't be made or loaded, drafts are simply read and saved as readable text as before, and encrypted on a later start.
+  - **If the key is ever lost** (for example after restoring the phone from another one), a draft encrypted with it can't be opened. TextCtrl never deletes such a draft on its own: the chat shows a small line above the text field with **Try again**, the draft stays stored, and if you type a new draft the old one is kept aside. It only goes when you delete the chat.
+  - **Older versions can't read these drafts.** If you install an older TextCtrl over this one, drafts written by this version show up as a line of unreadable characters. Send or copy drafts you care about first.
+  - Receiving, sending, scheduled messages and notifications don't use this key and work as before.
+
 ## v0.8.0 (2026-11-20)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

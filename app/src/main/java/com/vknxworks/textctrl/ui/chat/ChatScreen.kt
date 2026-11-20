@@ -78,6 +78,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -136,6 +137,7 @@ import com.vknxworks.textctrl.ui.nav.LocalNavigator
 import com.vknxworks.textctrl.ui.nav.NewChatRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val MAX_ATTACHMENTS = 5
@@ -229,6 +231,20 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
 
     // ---------------------------------------------------------------- composer state
     var text by remember { mutableStateOf(c.chats.draft(threadId)) }
+    // A draft that is stored encrypted and couldn't be opened (yet): it is kept, and put back in the field
+    // as soon as it can be opened. The banner only shows after that was tried and something is still closed.
+    var draftUnreadable by remember { mutableStateOf(false) }
+    val draftScope = rememberCoroutineScope()
+    fun takeBackDraft() {
+        val back = c.chats.recoverDraft(threadId)
+        if (back.isNotEmpty()) text = if (text.isBlank()) back else back + "\n" + text
+        draftUnreadable = c.chats.draftNeedsRecovery(threadId)
+    }
+    LaunchedEffect(threadId) {
+        if (!c.chats.draftNeedsRecovery(threadId)) return@LaunchedEffect
+        c.chats.awaitDraftKey()
+        takeBackDraft()
+    }
     val attachments = remember { mutableStateListOf<Attachment>() }
     val sims = remember { c.sims.active() }
     var simId by remember { mutableIntStateOf(-1) }
@@ -516,6 +532,15 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
             }
         }
 
+        if (draftUnreadable) {
+            DraftUnreadableBanner(onRetry = {
+                draftScope.launch {
+                    withContext(Dispatchers.IO) { c.chats.retryDraftKey() }
+                    takeBackDraft()
+                }
+            })
+        }
+
         Composer(
             text = text,
             onText = { text = it },
@@ -727,7 +752,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
         ) {
             deletingChat = false
             deleted[0] = true
-            c.chats.saveDraft(threadId, "")
+            c.chats.discardDraft(threadId)
             text = ""
             pending.forEach { c.scheduler.cancel(it.id) }
             c.runTask {

@@ -517,6 +517,23 @@ fun PendingBubble(item: Scheduled, now: Long, textStyle: TextStyle, onClick: () 
 
 // ======================================================================== composer
 
+/** Above the text field: this chat has a saved draft that is encrypted and can't be opened right now. */
+@Composable
+fun DraftUnreadableBanner(onRetry: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().background(CtrlColors.Background).topDivider(0.dp).padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.draft_unreadable),
+            style = MaterialTheme.typography.bodySmall,
+            color = CtrlColors.Muted,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onRetry) { Text(stringResource(R.string.try_again)) }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Composer(
