@@ -14,6 +14,7 @@ import com.vknxworks.textctrl.data.lock.LockVault
 import com.vknxworks.textctrl.data.schedule.Cleaner
 import com.vknxworks.textctrl.data.schedule.Scheduler
 import com.vknxworks.textctrl.data.settings.ChatPrefs
+import com.vknxworks.textctrl.data.settings.SnippetStore
 import com.vknxworks.textctrl.data.settings.SettingsRepository
 import com.vknxworks.textctrl.notify.Notifier
 import com.vknxworks.textctrl.sms.Blocklist
@@ -52,6 +53,8 @@ class AppContainer(val context: Context) {
     /** The app lock's PIN, fingerprint key and the key that encrypts drafts while locked. */
     val vault = LockVault(context, "textctrl")
     val chats = ChatPrefs(context, vault)
+    /** Your signature and quick-reply templates. */
+    val snippets = SnippetStore(context)
     val store = MessageStore(context)
     val contacts = Contacts(context)
     val sims = Sims(context)

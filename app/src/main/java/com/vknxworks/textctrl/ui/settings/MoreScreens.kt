@@ -446,6 +446,7 @@ fun BackupScreen() {
                 )
             }
             XmlSection(running)
+            SettingsFileSection()
             when (val s = state) {
                 is BackupState.Running -> Column(Modifier.fillMaxWidth().padding(horizontal = Gutter + 4.dp, vertical = 12.dp)) {
                     Text(

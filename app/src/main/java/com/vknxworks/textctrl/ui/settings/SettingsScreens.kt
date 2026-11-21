@@ -120,6 +120,13 @@ import com.vknxworks.textctrl.data.settings.UndoSend
 import com.vknxworks.textctrl.ui.nav.BackupRoute
 import com.vknxworks.textctrl.ui.nav.HiddenRoute
 import com.vknxworks.textctrl.ui.nav.ScheduledRoute
+import com.vknxworks.textctrl.ui.nav.SnippetsRoute
+import com.vknxworks.textctrl.ui.nav.StarredRoute
+import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.DeleteSweep
+import androidx.compose.material.icons.outlined.TextFormat
+import androidx.compose.material.icons.outlined.StarBorder
 
 private const val SPONSOR_URL = "https://github.com/sponsors/VoidedKN0X"
 private const val REPO_URL = "https://github.com/VoidedKN0X/TextCtrl"
@@ -187,6 +194,8 @@ fun YouScreen() {
 
             Group {
                 GroupRow(stringResource(R.string.settings), icon = Icons.Outlined.SettingsIcon, showChevron = true, onClick = { nav.navigate(SettingsRoute) })
+                GroupRow(stringResource(R.string.starred_title), stringResource(R.string.starred_subtitle), icon = Icons.Outlined.StarBorder, showChevron = true, onClick = { nav.navigate(StarredRoute) })
+                GroupRow(stringResource(R.string.snippets_title), stringResource(R.string.snippets_subtitle), icon = Icons.Outlined.Create, showChevron = true, onClick = { nav.navigate(SnippetsRoute) })
                 GroupRow(stringResource(R.string.scheduled_list_title), stringResource(R.string.scheduled_list_subtitle), icon = Icons.Outlined.Schedule, showChevron = true, onClick = { nav.navigate(ScheduledRoute) })
                 GroupRow(stringResource(R.string.hidden_title), stringResource(R.string.hidden_subtitle), icon = Icons.Outlined.VisibilityOff, showChevron = true, onClick = { nav.navigate(HiddenRoute) })
                 GroupRow(stringResource(R.string.blocked_title), stringResource(R.string.blocked_subtitle), icon = Icons.Outlined.Block, showChevron = true, onClick = { nav.navigate(BlockedRoute) })
@@ -259,6 +268,7 @@ private fun SettingsContent() {
     val bioAvailable = remember { AppLock.biometricAvailable(context) }
     val sims = remember { c.sims.active() }
     var pendingAutoDelete by remember { mutableStateOf<AutoDelete?>(null) }
+    var confirmDeleteCodes by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.settings))
@@ -378,6 +388,12 @@ private fun SettingsContent() {
                         icon = Icons.Outlined.NotificationsPaused,
                     ) { v -> update { it.copy(notifyUnknown = v) } }
                 }
+                GroupSwitch(
+                    stringResource(R.string.warn_links),
+                    stringResource(if (c.contacts.granted) R.string.warn_links_subtitle else R.string.warn_links_no_contacts),
+                    s.warnLinks,
+                    icon = Icons.Outlined.Link,
+                ) { v -> update { it.copy(warnLinks = v) } }
                 GroupChoice(
                     stringResource(R.string.auto_delete),
                     AutoDelete.entries.map { it to stringResource(it.label) },
@@ -385,6 +401,15 @@ private fun SettingsContent() {
                     icon = Icons.Outlined.AutoDelete,
                 ) { v ->
                     if (v == AutoDelete.NEVER) update { it.copy(autoDelete = v) } else pendingAutoDelete = v
+                }
+                GroupSwitch(
+                    stringResource(R.string.delete_codes),
+                    stringResource(R.string.delete_codes_subtitle),
+                    s.deleteCodes,
+                    icon = Icons.Outlined.DeleteSweep,
+                ) { v ->
+                    // Turning it on deletes old codes straight away, so ask first.
+                    if (v) confirmDeleteCodes = true else update { it.copy(deleteCodes = false) }
                 }
             }
 
@@ -401,6 +426,12 @@ private fun SettingsContent() {
                     s.copyCodes,
                     icon = Icons.Outlined.Password,
                 ) { v -> update { it.copy(copyCodes = v) } }
+                GroupSwitch(
+                    stringResource(R.string.plain_sms),
+                    stringResource(R.string.plain_sms_subtitle),
+                    s.plainSms,
+                    icon = Icons.Outlined.TextFormat,
+                ) { v -> update { it.copy(plainSms = v) } }
                 GroupSwitch(
                     stringResource(R.string.delivery_reports),
                     stringResource(R.string.delivery_reports_subtitle),
@@ -444,6 +475,16 @@ private fun SettingsContent() {
         }
     }
 
+    if (confirmDeleteCodes) {
+        DeleteCodesConfirm(onDismiss = { confirmDeleteCodes = false }) {
+            confirmDeleteCodes = false
+            scope.launch {
+                c.settings.update { it.copy(deleteCodes = true) }
+                c.runTask { c.cleaner.run() }
+            }
+        }
+    }
+
     // Turning auto-delete on deletes old messages straight away, so ask first.
     pendingAutoDelete?.let { choice ->
         AutoDeleteConfirm(choice, onDismiss = { pendingAutoDelete = null }) {
@@ -454,6 +495,17 @@ private fun SettingsContent() {
             }
         }
     }
+}
+
+@Composable
+private fun DeleteCodesConfirm(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    ConfirmDialog(
+        stringResource(R.string.delete_codes_confirm_title),
+        stringResource(R.string.delete_codes_confirm_body),
+        stringResource(R.string.delete_codes_confirm),
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+    )
 }
 
 @Composable

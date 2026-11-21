@@ -119,6 +119,12 @@ data class AppSettings(
     val swipeRight: SwipeAction = SwipeAction.READ,
     /** Swiping a chat to the left (end to start) in the chat list. */
     val swipeLeft: SwipeAction = SwipeAction.ARCHIVE,
+    /** Delete received texts with a one-time code once they are a day old. Off unless you turn it on. */
+    val deleteCodes: Boolean = false,
+    /** Ask before opening a link in a text from a number that isn't in your contacts. */
+    val warnLinks: Boolean = true,
+    /** "Send without accents": swap accents and curly quotes for basic characters in texts you send. */
+    val plainSms: Boolean = false,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -143,6 +149,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val swipeRight = stringPreferencesKey("swipe_right")
         val swipeLeft = stringPreferencesKey("swipe_left")
         val bubbles = stringPreferencesKey("bubbles")
+        val deleteCodes = booleanPreferencesKey("delete_codes")
+        val warnLinks = booleanPreferencesKey("warn_links")
+        val plainSms = booleanPreferencesKey("plain_sms")
     }
 
     val settings: StateFlow<AppSettings> = context.appDataStore.data
@@ -172,6 +181,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         bubbleColor = enumOr(this[K.bubbleColor], BubbleColor.ACCENT),
         swipeRight = enumOr(this[K.swipeRight], SwipeAction.READ),
         swipeLeft = enumOr(this[K.swipeLeft], SwipeAction.ARCHIVE),
+        deleteCodes = this[K.deleteCodes] ?: false,
+        warnLinks = this[K.warnLinks] ?: true,
+        plainSms = this[K.plainSms] ?: false,
     )
 
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -196,6 +208,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
             p[K.bubbleColor] = s.bubbleColor.name
             p[K.swipeRight] = s.swipeRight.name
             p[K.swipeLeft] = s.swipeLeft.name
+            p[K.deleteCodes] = s.deleteCodes
+            p[K.warnLinks] = s.warnLinks
+            p[K.plainSms] = s.plainSms
             // Bubbles were removed in 0.6.3; forget their old setting.
             p.remove(K.bubbles)
         }

@@ -611,4 +611,106 @@
     <string name="xml_not_backup">That isn\'t an SMS Backup &amp; Restore XML file</string>
     <string name="xml_damaged_partial">The file is damaged or incomplete. %1$d messages up to that point were imported.</string>
 
+    <!-- Starred messages -->
+    <string name="star">Star</string>
+    <string name="unstar">Remove star</string>
+    <string name="starred_mark">Starred</string>
+    <string name="starred_title">Starred messages</string>
+    <string name="starred_subtitle">Messages you marked with a star, from every chat</string>
+    <string name="starred_empty">No starred messages</string>
+    <string name="starred_empty_body">Hold a message in a chat and tap the star to keep it here. Starred messages are never deleted automatically.</string>
+    <string name="starred_yours">You: %1$s</string>
+
+    <!-- A colour per chat -->
+    <string name="chat_colour">Bubble colour for this chat</string>
+    <string name="chat_colour_follow">Same as Settings (%1$s)</string>
+
+    <!-- Export one chat -->
+    <string name="export_chat">Export chat</string>
+    <string name="export_chat_heading">TextCtrl chat export</string>
+    <string name="export_chat_with">Chat with</string>
+    <string name="export_chat_exported">Exported</string>
+    <string name="export_chat_messages">Messages</string>
+    <string name="export_chat_me">Me</string>
+    <string name="export_chat_attachment">Attachment</string>
+    <string name="export_chat_not_downloaded">Picture message that wasn\'t fetched</string>
+    <plurals name="export_chat_done">
+        <item quantity="one">%1$d message exported. The file isn\'t encrypted</item>
+        <item quantity="other">%1$d messages exported. The file isn\'t encrypted</item>
+    </plurals>
+
+    <!-- Link warning -->
+    <string name="warn_links">Ask before opening links from unknown senders</string>
+    <string name="warn_links_subtitle">For texts from numbers that aren\'t in your contacts: shows where a link really goes first</string>
+    <string name="warn_links_no_contacts">TextCtrl can\'t read your contacts, so it asks for every link you receive</string>
+    <string name="link_warning_title">Open this link?</string>
+    <string name="link_warning_body">This text is from a number that isn\'t in your contacts. The link goes to:\n%1$s</string>
+    <string name="link_warning_disguised">Careful: the link has another name in front of an @ to look like it goes somewhere else.</string>
+    <string name="link_warning_lookalike">Careful: the address uses letters from another alphabet, which can look exactly like a site you know.</string>
+    <string name="link_warning_numeric">Careful: the address is a number instead of a name.</string>
+    <string name="link_warning_http">The link isn\'t encrypted (http): don\'t type passwords or card numbers on the page.</string>
+    <string name="link_warning_open">Open link</string>
+    <string name="link_warning_no_app">No app can open this link</string>
+
+    <!-- One-time codes -->
+    <string name="delete_codes">Delete one-time codes after a day</string>
+    <string name="delete_codes_subtitle">Received texts with a login or verification code are deleted once they are a day old. Starred messages are kept</string>
+    <string name="delete_codes_confirm_title">Delete one-time codes after a day?</string>
+    <string name="delete_codes_confirm_body">Texts you received with a one-time code that are older than a day are deleted now, and new ones from then on (checked once a day, so a code can stay up to two days). They are deleted for good. TextCtrl recognises codes by the wording, so now and then another short text with a code-like number can be taken for one: star a message to keep it.</string>
+    <string name="delete_codes_confirm">Delete codes</string>
+
+    <!-- Send without accents -->
+    <string name="plain_sms">Send without accents</string>
+    <string name="plain_sms_subtitle">Swaps accents and curly quotes for plain characters (ë → e) in texts you send, so 160 characters fit in one SMS instead of 70. Not for picture messages</string>
+
+    <!-- Signature and templates -->
+    <string name="snippets_title">Signature and templates</string>
+    <string name="snippets_subtitle">A line under your texts, and ready-made replies</string>
+    <string name="snippets_save_failed">Couldn\'t save that. Try again</string>
+    <string name="snippets_unreadable">Can\'t open your signature and templates</string>
+    <string name="snippets_unreadable_body">They are stored encrypted and the key in this phone can\'t open them (this happens after moving to another phone). They are left as they are. You can start again with an empty list, which deletes them.</string>
+    <string name="snippets_start_over">Start again</string>
+    <string name="snippets_start_over_title">Delete the stored signature and templates?</string>
+    <string name="snippets_start_over_body">They can\'t be opened on this phone. Starting again deletes them for good.</string>
+    <string name="signature_title">Signature</string>
+    <string name="signature_footer">Your signature is added on a new line under every text you send from a chat, also scheduled ones. It isn\'t added to replies from a notification or to reactions, and it counts towards the length of the text.</string>
+    <string name="signature_none">No signature</string>
+    <string name="signature_add">Tap to add one</string>
+    <string name="signature_change">Tap to change it</string>
+    <string name="signature_remove">Remove signature</string>
+    <string name="signature_label">Signature</string>
+    <string name="templates_title">Templates</string>
+    <string name="templates_footer">Ready-made texts. In a chat, tap + and then Templates to put one in the text field; you can still change it before sending.</string>
+    <string name="templates_add">Add template</string>
+    <string name="templates_edit">Edit template</string>
+    <string name="templates_label">Text</string>
+    <string name="templates_manage">Add or change templates</string>
+    <string name="templates_none">You have no templates yet</string>
+    <string name="templates_pick">Tap one to put it in the text field</string>
+    <plurals name="templates_count">
+        <item quantity="one">%1$d template</item>
+        <item quantity="other">%1$d templates</item>
+    </plurals>
+
+    <!-- Settings file -->
+    <string name="value_on">On</string>
+    <string name="value_off">Off</string>
+    <string name="settings_file_title">Settings file</string>
+    <string name="settings_file_footer">A settings file holds how TextCtrl looks and behaves, your signature and your templates, as readable text (not encrypted). It never holds messages, the app lock or its PIN, the hidden chats, the auto-delete choices, the SIM for new chats or anything set per chat.</string>
+    <string name="settings_file_export">Export settings</string>
+    <string name="settings_file_export_subtitle">Save your settings, signature and templates to a file</string>
+    <string name="settings_file_import">Import settings</string>
+    <string name="settings_file_import_subtitle">Bring settings back from a file. You see what changes first</string>
+    <string name="settings_file_exported">Settings exported.</string>
+    <string name="settings_file_export_failed">Couldn\'t write the file.</string>
+    <string name="settings_file_not_ours">This isn\'t a TextCtrl settings file, or it can\'t be read.</string>
+    <string name="settings_file_same">The file has the same settings as you have now. Nothing to change.</string>
+    <string name="settings_file_will_change">These settings will change:</string>
+    <string name="settings_file_snippets_replace">Your signature and templates will be replaced by the ones in the file (%1$s).</string>
+    <string name="settings_file_snippets_skipped">The signature and templates in the file are skipped: the ones stored on this phone can\'t be opened right now.</string>
+    <string name="settings_file_refused">Left as they are, because an import never makes TextCtrl less private:</string>
+    <string name="settings_file_confirm_title">Import these settings?</string>
+    <string name="settings_file_confirm">Import</string>
+    <string name="settings_file_imported">Settings imported.</string>
+    <string name="settings_file_imported_partly">Settings imported, but the signature and templates couldn\'t be saved.</string>
 </resources>

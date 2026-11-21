@@ -76,10 +76,13 @@ class Messenger(
         val sub = sims.resolve(subId)
         val group = to.size > 1
         if (attachments.isEmpty() && (!group || !s.groupAsMms)) {
+            // "Send without accents" is for texts only (a picture message has room). Reactions keep their
+            // exact wording, which is what other phones recognise.
+            val body = if (s.plainSms && Reactions.parse(text) == null) PlainSms.plain(text) else text
             var thread = -1L
             for (a in to) {
                 thread = store.threadIdFor(listOf(a))
-                sendSms(a, text, sub, thread, s.deliveryReports)
+                sendSms(a, body, sub, thread, s.deliveryReports)
                 chats.unarchive(thread)
             }
             return@withContext if (group) store.threadIdFor(to) else thread

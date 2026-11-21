@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
@@ -134,10 +135,14 @@ fun Avatar(name: String, key: String, photo: Uri?, group: Boolean = false, size:
 
 // ---------- Links ----------
 
-/** Message text with tappable web links. Only http(s) links; other schemes stay plain text. */
+/**
+ * Message text with tappable web links. Only http(s) links; other schemes stay plain text.
+ * With [onLink] a tap doesn't open the link but hands it over (to ask first).
+ */
 @Composable
-fun linkify(text: String, linkColor: Color): AnnotatedString {
+fun linkify(text: String, linkColor: Color, onLink: ((String) -> Unit)? = null): AnnotatedString {
     val style = TextLinkStyles(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline))
+    val listener = if (onLink == null) null else LinkInteractionListener { link -> (link as? LinkAnnotation.Url)?.let { onLink(it.url) } }
     return buildAnnotatedString {
         val m = Patterns.WEB_URL.matcher(text)
         var last = 0
@@ -147,7 +152,7 @@ fun linkify(text: String, linkColor: Color): AnnotatedString {
             if (!raw.contains('.')) continue
             append(text.substring(last, m.start()))
             val url = if (raw.startsWith("http://", true) || raw.startsWith("https://", true)) raw else "https://$raw"
-            withLink(LinkAnnotation.Url(url, style)) { append(raw) }
+            withLink(LinkAnnotation.Url(url, style, listener)) { append(raw) }
             last = m.end()
         }
         append(text.substring(last))

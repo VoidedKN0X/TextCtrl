@@ -28,8 +28,14 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Spam filter with your own rules**: catch texts by words, patterns (regex, in a safe form with a time limit), number prefixes, exact numbers or sender names, short numbers, senders with a name instead of a number (alphanumeric sender IDs) or numbers not in your contacts. Each rule moves the message silently to the **Spam** folder, also **blocks the sender**, or just keeps it quiet. A rule never deletes a message; restore or delete them yourself from Spam. Optional quiet **summary notification** of what was filtered
 - **Hidden chats** behind a PIN of their own (see [Hidden chats](#hidden-chats))
 - **Search** all your messages, one person's, or inside a chat, on the phone
-- **Delete old messages** automatically, for everything or per chat
+- **Delete old messages** automatically, for everything or per chat, and (only if you turn it on) **one-time codes after a day**
+- **Starred messages**: star a message to find it back under your profile picture; starred messages are never deleted automatically
+- **A warning before opening links** in texts from numbers that aren't in your contacts, showing where the link really goes
+- **Send without accents** (optional), so a long text fits 160 characters per SMS instead of 70
+- **Signature** under your texts and **templates** for replies you write often
+- **Export one chat** as a readable text file
 - **Encrypted backup and restore** to a file you keep (see [Backup and restore](#backup-and-restore))
+- **Export and import your settings** as a file, with your signature and templates
 - **Import and export SMS Backup & Restore XML files**, to move messages to and from other SMS apps
 - **Dual SIM**: pick the SIM per chat, and a default for new chats
 - **Delivery reports** (optional), **retry** for messages that didn't go out, and a counter for long texts
@@ -39,7 +45,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **"Text this number"** from your dialer, contacts and links, **share to TextCtrl** from any app, and **reply with a message** when you decline a call
 - **App lock** with its own PIN and optional fingerprint unlock; drafts stay encrypted while the app is locked (see [App lock](#app-lock))
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
-- The **Ctrl / Signal** look shared by every Ctrl app: high-contrast **dark and light** modes that follow your phone's setting, with your own **bubble colour** and **text size**
+- The **Ctrl / Signal** look shared by every Ctrl app: high-contrast **dark and light** modes that follow your phone's setting, with your own **bubble colour** (also one **per chat**) and **text size**
 - **Tablets and foldables**: chat list and chat side by side
 
 ## How messages arrive
@@ -99,6 +105,7 @@ Settings, your SIMs, blocked numbers and About are behind the profile picture at
 - **"Picture message, tap to fetch it":** fetching failed or **Fetch picture messages automatically** is off. Tap it to fetch it now.
 - **"Not sent":** tap the message to try again. A notification tells you when a message fails while you're elsewhere.
 - **Another app became your SMS app:** TextCtrl shows a screen to make it your SMS app again. Texts received in the meantime are in the shared message store, so you'll see them.
+- **A long text costs several SMS:** one accent that isn't in the mobile network's basic alphabet (ë, ê, ç, a curly quote) makes a text go out 70 characters at a time instead of 160. Turn on **Send without accents** in Settings and TextCtrl swaps them for plain characters when sending. Emoji can't be swapped, so a text with an emoji still goes out the long way.
 - **Group chats:** with **Group texts as picture messages** on (the default), a message to several people goes out as one group message and replies show up in the same chat. Turn it off to send everyone their own text.
 
 ## Hidden chats
@@ -158,6 +165,10 @@ The lock and PIN screens are always kept out of screenshots and recordings, what
 
 That's the full list. TextCtrl has **no internet or network permission** (the build checks this on every release), and no access to your location, camera, microphone or files beyond the ones you pick.
 
+**One chat as text.** In a chat, the menu (⋮) › **Export chat** writes that chat to a `.txt` file: every message with its time and who wrote it. Pictures and files are named, not included. The file isn't encrypted.
+
+**Settings file.** The same Backup screen exports TextCtrl's settings, your signature and your templates to a readable `.json` file and imports them again. Before anything changes you see the list of what the file would change. It never holds messages, the app lock or its PIN, the hidden chats, the auto-delete choices, the SIM for new chats or anything set per chat. An import can't turn off **Hide in screenshots**, **Hide in recent apps** or the link warning, and can't make notifications show more.
+
 ## Privacy
 
 **Telemetry-free.** TextCtrl has no analytics, crash reporting, usage stats or tracking of any kind.
@@ -168,7 +179,9 @@ That's the full list. TextCtrl has **no internet or network permission** (the bu
 - **Pictures you send** are shrunk and re-saved before sending, which also removes their location and camera details.
 - **Notifications** show what you choose under **Notification content**: name and message, name only, or just "New message". The lock screen shows "New message" unless Android is set to show everything there. Android's suggested replies are turned off, so the system doesn't read your messages to make them.
 - **Copied text** is marked as sensitive: Android's clipboard preview and keyboards with a clipboard history don't show or keep it.
-- **Links** in messages open in your browser only when you tap them; TextCtrl doesn't load link previews.
+- **Links** in messages open in your browser only when you tap them; TextCtrl doesn't load link previews. For a text from a number that isn't in your contacts it first shows where the link goes and warns about look-alike addresses (worked out on the phone; nothing is looked up). You can turn that off under **Ask before opening links from unknown senders**.
+- **One-time codes** are only deleted automatically if you turn on **Delete one-time codes after a day** (it is off unless you do). Codes are recognised on the phone by their wording.
+- **Signature and templates** are stored encrypted with a key in the phone's secure hardware. **Starred messages** and a chat's own bubble colour are kept as a list of which messages and chats, not their text.
 - **Scheduled messages** are stored encrypted with a key in the phone's secure hardware until they go out, and are sent with Android's own alarms.
 - **Unknown senders** and your **spam filters** are worked out on the phone from your contacts and your own rules; there's no spam database or service. The rules are stored encrypted with a key in the phone's secure hardware. A rules export (JSON or CSV) is a plain file that holds your rules and blocked numbers, written only where you choose with the system file picker.
 - **Reactions** are ordinary texts, the same format iPhones and Google Messages use with SMS phones; no RCS or Google services.

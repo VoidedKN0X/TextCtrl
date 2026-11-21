@@ -11,6 +11,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 
 /**
+ * A starred message: its chat, its key in Android's message store ("s12" for a text, "m7" for a picture
+ * message) and when it was sent or received. The time is checked when the star is shown, because the
+ * message store can give a deleted message's number to a new one.
+ */
+data class Star(val threadId: Long, val key: String, val date: Long) {
+    fun encode(): String = "$threadId/$key/$date"
+
+    companion object {
+        fun of(m: com.vknxworks.textctrl.sms.Message) = Star(m.threadId, m.key, m.date)
+
+        fun decode(raw: String): Star? {
+            val parts = raw.split('/')
+            if (parts.size != 3) return null
+            val thread = parts[0].toLongOrNull() ?: return null
+            val date = parts[2].toLongOrNull() ?: return null
+            val key = parts[1]
+            if (key.length < 2 || (key[0] != 's' && key[0] != 'm') || key.drop(1).toLongOrNull() == null) return null
+            return Star(thread, key, date)
+        }
+    }
+}
+
+/**
  * What TextCtrl keeps about chats on its own: pinned, archived and muted chats, and unsent drafts.
  * Texts themselves stay in Android's message store, like with any SMS app.
  *
@@ -82,6 +105,50 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
     val autoDelete: StateFlow<Map<Long, AutoDelete>> = _autoDelete.asStateFlow()
 
 
+
+    private val _bubbleColors = MutableStateFlow(readBubbleColors())
+    /** Chats with a bubble colour of their own, instead of the one in Settings. */
+    val bubbleColors: StateFlow<Map<Long, BubbleColor>> = _bubbleColors.asStateFlow()
+
+    /** [color] null: follow Settings. */
+    fun setBubbleColor(threadId: Long, color: BubbleColor?) {
+        val next = if (color == null) _bubbleColors.value - threadId else _bubbleColors.value + (threadId to color)
+        if (next == _bubbleColors.value) return
+        _bubbleColors.value = next
+        prefs.edit().putString(K_BUBBLE_COLORS, next.entries.joinToString(",") { "${it.key}:${it.value.name}" }).apply()
+    }
+
+    private fun readBubbleColors(): Map<Long, BubbleColor> =
+        prefs.getString(K_BUBBLE_COLORS, null).orEmpty().split(',').mapNotNull { entry ->
+            val id = entry.substringBefore(':').toLongOrNull() ?: return@mapNotNull null
+            val color = BubbleColor.entries.firstOrNull { it.name == entry.substringAfter(':') } ?: return@mapNotNull null
+            id to color
+        }.toMap()
+
+    private val _starred = MutableStateFlow(readStars())
+    /** Starred messages. Only which messages they are is kept here; the messages stay in Android's message store. */
+    val starred: StateFlow<Set<Star>> = _starred.asStateFlow()
+
+    fun isStarred(message: com.vknxworks.textctrl.sms.Message): Boolean = Star.of(message) in _starred.value
+
+    fun setStarred(messages: Collection<com.vknxworks.textctrl.sms.Message>, on: Boolean) {
+        val stars = messages.map { Star.of(it) }.toSet()
+        writeStars(if (on) _starred.value + stars else _starred.value - stars)
+    }
+
+    /** A message is gone (deleted): so is its star. */
+    fun dropStars(stars: Collection<Star>) {
+        if (stars.isNotEmpty()) writeStars(_starred.value - stars.toSet())
+    }
+
+    private fun writeStars(next: Set<Star>) {
+        if (next == _starred.value) return
+        _starred.value = next
+        prefs.edit().putStringSet(K_STARRED, next.map { it.encode() }.toSet()).apply()
+    }
+
+    private fun readStars(): Set<Star> =
+        prefs.getStringSet(K_STARRED, emptySet()).orEmpty().mapNotNull { Star.decode(it) }.toSet()
 
     private val _spam = MutableStateFlow(readSet(K_SPAM))
     /** Chats in the Spam folder: kept out of Chats, Archived and Search, and never notified. */
@@ -155,6 +222,8 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         setMuted(threadId, false)
         setHidden(threadId, false)
         setAutoDelete(threadId, null)
+        setBubbleColor(threadId, null)
+        writeStars(_starred.value.filterNot { it.threadId == threadId }.toSet())
         toggle(K_SPAM, _spam, threadId, false)
         toggle(K_NOT_SPAM, _notSpam, threadId, false)
         discardDraft(threadId)
@@ -269,6 +338,8 @@ class ChatPrefs(context: Context, private val vault: LockVault) {
         const val DATA_KEY_ALIAS = "textctrl_data_at_rest"
         const val K_HIDDEN = "hidden_enc"
         const val K_AUTO_DELETE = "auto_delete"
+        const val K_BUBBLE_COLORS = "bubble_colors"
+        const val K_STARRED = "starred"
         const val K_SPAM = "spam"
         const val K_NOT_SPAM = "not_spam"
     }

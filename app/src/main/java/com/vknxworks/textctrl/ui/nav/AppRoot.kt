@@ -75,6 +75,8 @@ import com.vknxworks.textctrl.ui.settings.HiddenChatsScreen
 import com.vknxworks.textctrl.ui.settings.ScheduledScreen
 import com.vknxworks.textctrl.ui.settings.SettingsScreen
 import com.vknxworks.textctrl.ui.settings.YouScreen
+import com.vknxworks.textctrl.ui.settings.SnippetsScreen
+import com.vknxworks.textctrl.ui.settings.StarredScreen
 import com.vknxworks.textctrl.ui.setup.SetupScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -239,5 +241,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<BackupRoute> { BackupScreen() }
         composable<SpamRoute> { SpamScreen() }
         composable<FiltersRoute> { FiltersScreen() }
+        composable<StarredRoute> { StarredScreen() }
+        composable<SnippetsRoute> { SnippetsScreen() }
     }
 }

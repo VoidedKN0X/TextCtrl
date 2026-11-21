@@ -479,12 +479,47 @@ class MessageStore(private val context: Context) {
         Unit
     }
 
-    /** Auto-delete: messages in [threadId] older than [cutoff] (ms), except ones marked as kept. */
-    fun deleteOlderThan(threadId: Long, cutoff: Long): Int {
+    /**
+     * Auto-delete: messages in [threadId] older than [cutoff] (ms), except ones marked as kept and the
+     * starred ones ([keepKeys]: message keys, "s12" for a text and "m7" for a picture message).
+     */
+    fun deleteOlderThan(threadId: Long, cutoff: Long, keepKeys: Collection<String> = emptyList()): Int {
         val args = arrayOf(threadId.toString())
-        var n = runCatching { cr.delete(SMS_URI, "thread_id = ? AND date < $cutoff AND locked = 0", args) }.getOrDefault(0)
-        n += runCatching { cr.delete(MMS_URI, "thread_id = ? AND date < ${cutoff / 1000} AND locked = 0", args) }.getOrDefault(0)
+        val keepSms = keepKeys.filter { it.startsWith("s") }.mapNotNull { it.drop(1).toLongOrNull() }
+        val keepMms = keepKeys.filter { it.startsWith("m") }.mapNotNull { it.drop(1).toLongOrNull() }
+        fun except(ids: List<Long>) = if (ids.isEmpty()) "" else " AND _id NOT IN (" + ids.joinToString(",") + ")"
+        var n = runCatching { cr.delete(SMS_URI, "thread_id = ? AND date < $cutoff AND locked = 0" + except(keepSms), args) }.getOrDefault(0)
+        n += runCatching { cr.delete(MMS_URI, "thread_id = ? AND date < ${cutoff / 1000} AND locked = 0" + except(keepMms), args) }.getOrDefault(0)
         forgetOutgoing()
+        return n
+    }
+
+    /**
+     * Deletes received texts older than [cutoff] (ms) that hold a one-time code ([isCode] decides), except
+     * ones marked as kept and the starred ones ([keepKeys]). Only texts: picture messages are never codes.
+     * Returns how many were deleted.
+     */
+    fun deleteCodesOlderThan(cutoff: Long, keepKeys: Collection<String>, isCode: (String) -> Boolean): Int {
+        val keep = keepKeys.filter { it.startsWith("s") }.mapNotNull { it.drop(1).toLongOrNull() }.toSet()
+        val ids = ArrayList<Long>()
+        runCatching {
+            cr.query(SMS_URI, arrayOf("_id", "body"), "type = 1 AND date < $cutoff AND locked = 0", null, null)?.use { c ->
+                val idAt = c.idx("_id")
+                val bodyAt = c.idx("body")
+                while (c.moveToNext()) {
+                    val id = c.longAt(idAt)
+                    if (id in keep) continue
+                    val body = c.strAt(bodyAt)
+                    // One-time code texts are short; skip the long ones without looking closer.
+                    if (body.isEmpty() || body.length > 400) continue
+                    if (runCatching { isCode(body) }.getOrDefault(false)) ids += id
+                }
+            }
+        }
+        var n = 0
+        for (chunk in ids.chunked(200)) {
+            n += runCatching { cr.delete(SMS_URI, "type = 1 AND locked = 0 AND _id IN (" + chunk.joinToString(",") + ")", null) }.getOrDefault(0)
+        }
         return n
     }
 

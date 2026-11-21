@@ -100,7 +100,19 @@ import com.vknxworks.textctrl.PendingAction
 import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.data.schedule.Scheduled
+import com.vknxworks.textctrl.data.backup.ChatExport
 import com.vknxworks.textctrl.data.settings.AutoDelete
+import com.vknxworks.textctrl.data.settings.BubbleColor
+import com.vknxworks.textctrl.data.settings.Snippets
+import com.vknxworks.textctrl.data.settings.Star
+import com.vknxworks.textctrl.sms.LinkCheck
+import com.vknxworks.textctrl.sms.PlainSms
+import com.vknxworks.textctrl.ui.nav.SnippetsRoute
+import androidx.compose.material.icons.automirrored.outlined.ShortText
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.StarBorder
 import com.vknxworks.textctrl.sms.Attachment
 import com.vknxworks.textctrl.sms.Contact
 import com.vknxworks.textctrl.sms.Contacts
@@ -191,6 +203,9 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     val pinned by c.chats.pinned.collectAsStateWithLifecycle()
     val spamSet by c.chats.spam.collectAsStateWithLifecycle()
     val autoDeleteOverrides by c.chats.autoDelete.collectAsStateWithLifecycle()
+    val bubbleOverrides by c.chats.bubbleColors.collectAsStateWithLifecycle()
+    val starredSet by c.chats.starred.collectAsStateWithLifecycle()
+    val snippets by c.snippets.state.collectAsStateWithLifecycle()
     val scheduledAll by c.scheduler.items.collectAsStateWithLifecycle()
     val pending = remember(scheduledAll, threadId) { scheduledAll.filter { it.threadId == threadId } }
 
@@ -217,6 +232,9 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     fun nameOf(address: String): String =
         people[address]?.name ?: people.entries.firstOrNull { Contacts.same(it.key, address) }?.value?.name ?: Contacts.formatNumber(address)
     val title = to.joinToString(", ") { nameOf(it) }
+    /** The number is in your contacts. Until the contacts are read, nobody counts as known. */
+    fun known(address: String): Boolean =
+        people[address]?.name != null || people.entries.any { it.value.name != null && Contacts.same(it.key, address) }
 
     // While this chat is on screen, new messages in it are read rather than notified.
     LifecycleResumeEffect(threadId) {
@@ -306,7 +324,8 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
 
     /** Sends now, after the undo window, or at [at] when scheduled. */
     fun send(at: Long? = null) {
-        val body = text.trim()
+        // Your signature goes under the text here, so it is also there for a scheduled message.
+        val body = Snippets.sign(text.trim(), snippets?.signature.orEmpty())
         val files = attachments.toList()
         if ((body.isEmpty() && files.isEmpty()) || to.isEmpty()) return
         text = ""
@@ -331,7 +350,9 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     /** Puts a waiting message back into the text field. */
     fun edit(item: Scheduled) {
         val back = c.scheduler.cancel(item.id, keepFiles = true) ?: return
-        text = if (text.isBlank()) back.text else back.text + "\n" + text
+        // Without the signature: it is added again when the message is sent.
+        val backText = Snippets.unsign(back.text, snippets?.signature.orEmpty())
+        text = if (text.isBlank()) backText else backText + "\n" + text
         addAttachments(c.scheduler.attachmentsOf(back))
     }
 
@@ -350,6 +371,10 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     var simMenu by remember { mutableStateOf(false) }
     var scheduleMenu by remember { mutableStateOf(false) }
     var autoDeleteMenu by remember { mutableStateOf(false) }
+    var colorMenu by remember { mutableStateOf(false) }
+    var templateMenu by remember { mutableStateOf(false) }
+    // A link in a text from a number that isn't in your contacts, waiting for you to say it may open.
+    var linkWarning by remember { mutableStateOf<String?>(null) }
     var pendingMenu by remember { mutableStateOf<Scheduled?>(null) }
     var reacting by remember { mutableStateOf<Message?>(null) }
     var details by remember { mutableStateOf<Message?>(null) }
@@ -382,7 +407,40 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
             lineHeight = if (base.lineHeight.isSpecified) base.lineHeight * scale else base.lineHeight,
         )
     }
-    val ownColors = ownBubbleColors(settings.bubbleColor)
+    val ownColors = ownBubbleColors(bubbleOverrides[threadId] ?: settings.bubbleColor)
+    // The text as it will go out, for the counter under the text field.
+    val signature = snippets?.signature.orEmpty()
+    val countText = remember(text, signature, settings.plainSms) {
+        val signed = Snippets.sign(text, signature)
+        if (settings.plainSms) PlainSms.plain(signed) else signed
+    }
+
+    val exportWords = ChatExport.Words(
+        heading = stringResource(R.string.export_chat_heading),
+        with = stringResource(R.string.export_chat_with),
+        exported = stringResource(R.string.export_chat_exported),
+        messages = stringResource(R.string.export_chat_messages),
+        me = stringResource(R.string.export_chat_me),
+        attachment = stringResource(R.string.export_chat_attachment),
+        notDownloaded = stringResource(R.string.export_chat_not_downloaded),
+    )
+    val exportChat = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val numbers = to
+        val names = numbers.associateWith { nameOf(it) }
+        c.runTask {
+            val count = withContext(Dispatchers.IO) {
+                val all = c.store.messages(threadId, Int.MAX_VALUE)
+                val file = ChatExport.text(numbers, all, System.currentTimeMillis(), exportWords) { number ->
+                    names[number] ?: names.entries.firstOrNull { Contacts.same(it.key, number) }?.value ?: Contacts.formatNumber(number)
+                }
+                val stream = context.contentResolver.openOutputStream(uri, "wt") ?: throw java.io.IOException("no stream")
+                stream.use { it.write(file.toByteArray(Charsets.UTF_8)) }
+                all.size
+            }
+            Toast.makeText(context, context.resources.getQuantityString(R.plurals.export_chat_done, count, count), Toast.LENGTH_LONG).show()
+        }
+    }
 
     Column(Modifier.fillMaxSize()) {
         when {
@@ -413,6 +471,11 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                 },
                 onRetry = { val m = selectedMessages.first(); selected.clear(); c.runTask { c.messenger.retry(m) } },
                 onDetails = { details = selectedMessages.first(); selected.clear() },
+                starred = selectedMessages.isNotEmpty() && selectedMessages.all { Star.of(it) in starredSet },
+                onStar = { on ->
+                    c.chats.setStarred(selectedMessages, on)
+                    selected.clear()
+                },
                 onDelete = { deletingMessages = selectedMessages },
             )
             searching -> SearchBar(
@@ -506,6 +569,8 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                                         textStyle = textStyle,
                                         ownColors = ownColors,
                                         showCodes = settings.copyCodes,
+                                        starred = Star.of(m) in starredSet,
+                                        onLink = if (settings.warnLinks && m.incoming && !known(m.address)) ({ url -> linkWarning = url }) else null,
                                         onClick = { if (selected.isNotEmpty()) toggle(m) },
                                         onLongClick = { toggle(m) },
                                         onRetry = { c.runTask { c.messenger.retry(m) } },
@@ -553,6 +618,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
             onSend = { send() },
             onSchedule = { scheduleMenu = true },
             enabled = to.isNotEmpty(),
+            countText = countText,
         )
     }
 
@@ -580,6 +646,13 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                 }
             })
             add(SheetAction(stringResource(R.string.auto_delete_chat), Icons.Outlined.AutoDelete) { autoDeleteMenu = true })
+            add(SheetAction(stringResource(R.string.chat_colour), Icons.Outlined.Palette) { colorMenu = true })
+            if (to.isNotEmpty() && !messages.isNullOrEmpty()) {
+                add(SheetAction(stringResource(R.string.export_chat), Icons.Outlined.Description) {
+                    AppLock.expectReturn()
+                    runCatching { exportChat.launch(ChatExport.fileName(title, System.currentTimeMillis())) }
+                })
+            }
             add(
                 if (threadId in archived) SheetAction(stringResource(R.string.unarchive), Icons.Outlined.Unarchive) { c.chats.setArchived(threadId, false) }
                 else SheetAction(stringResource(R.string.archive), Icons.Outlined.Archive) { c.chats.setArchived(threadId, true); close() },
@@ -642,6 +715,58 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
         }
     }
 
+    if (colorMenu) {
+        val follow = stringResource(R.string.chat_colour_follow, stringResource(settings.bubbleColor.label))
+        val options: List<Pair<BubbleColor?, String>> = listOf<Pair<BubbleColor?, String>>(null to follow) + BubbleColor.entries.map { it to stringResource(it.label) }
+        ChoiceSheet(
+            stringResource(R.string.chat_colour),
+            options,
+            bubbleOverrides[threadId],
+            onDismiss = { colorMenu = false },
+        ) { choice ->
+            colorMenu = false
+            c.chats.setBubbleColor(threadId, choice)
+        }
+    }
+
+    if (templateMenu) {
+        val templates = snippets?.templates.orEmpty()
+        val actions = templates.map { t ->
+            SheetAction(t.replace('\n', ' ').let { if (it.length > 60) it.take(60).trimEnd() + "…" else it }, Icons.AutoMirrored.Outlined.ShortText) {
+                text = if (text.isBlank()) t else text.trimEnd() + " " + t
+            }
+        } + SheetAction(stringResource(R.string.templates_manage), Icons.Outlined.Edit) { nav.navigate(SnippetsRoute) }
+        ActionSheet(
+            stringResource(R.string.templates_title),
+            stringResource(if (templates.isEmpty()) R.string.templates_none else R.string.templates_pick),
+            actions,
+            onDismiss = { templateMenu = false },
+        )
+    }
+
+    linkWarning?.let { url ->
+        val info = remember(url) { LinkCheck.inspect(url) }
+        val notes = listOfNotNull(
+            stringResource(R.string.link_warning_body, info.host.ifEmpty { url }),
+            if (info.disguised) stringResource(R.string.link_warning_disguised) else null,
+            if (info.lookalike) stringResource(R.string.link_warning_lookalike) else null,
+            if (info.numeric) stringResource(R.string.link_warning_numeric) else null,
+            if (info.unencrypted) stringResource(R.string.link_warning_http) else null,
+            url,
+        )
+        ConfirmDialog(
+            stringResource(R.string.link_warning_title),
+            notes.joinToString("\n\n"),
+            stringResource(R.string.link_warning_open),
+            onDismiss = { linkWarning = null },
+        ) {
+            linkWarning = null
+            AppLock.expectReturn()
+            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                .onFailure { Toast.makeText(context, context.getString(R.string.link_warning_no_app), Toast.LENGTH_SHORT).show() }
+        }
+    }
+
     if (attachMenu) {
         ActionSheet(
             stringResource(R.string.attach),
@@ -659,6 +784,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                     AppLock.expectReturn()
                     pickContact.launch(wholeContact)
                 },
+                SheetAction(stringResource(R.string.templates_title), Icons.AutoMirrored.Outlined.ShortText) { templateMenu = true },
                 SheetAction(stringResource(R.string.schedule_title), Icons.Outlined.Schedule) { scheduleMenu = true },
             ),
             onDismiss = { attachMenu = false },
@@ -739,6 +865,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
         ) {
             deletingMessages = null
             selected.clear()
+            c.chats.dropStars(msgs.map { Star.of(it) })
             c.runTask { msgs.forEach { c.store.deleteMessage(it) } }
         }
     }
@@ -797,6 +924,8 @@ private fun SelectionBar(
     onSave: () -> Unit,
     onRetry: () -> Unit,
     onDetails: () -> Unit,
+    starred: Boolean,
+    onStar: (Boolean) -> Unit,
     onDelete: () -> Unit,
 ) {
     val single = messages.size == 1
@@ -811,6 +940,11 @@ private fun SelectionBar(
             if (single) IconButton(onClick = onForward) { Icon(Icons.AutoMirrored.Outlined.Forward, stringResource(R.string.forward)) }
             if (messages.any { m -> m.attachments.any { it.isImage || it.isVideo } }) IconButton(onClick = onSave) { Icon(Icons.Outlined.SaveAlt, stringResource(R.string.save_to_phone)) }
             if (single && one?.status == SendStatus.FAILED) IconButton(onClick = onRetry) { Icon(Icons.Outlined.Refresh, stringResource(R.string.retry)) }
+            if (messages.none { it.notDownloaded }) {
+                IconButton(onClick = { onStar(!starred) }) {
+                    Icon(if (starred) Icons.Filled.Star else Icons.Outlined.StarBorder, stringResource(if (starred) R.string.unstar else R.string.star))
+                }
+            }
             if (single) IconButton(onClick = onDetails) { Icon(Icons.Outlined.Info, stringResource(R.string.details)) }
             IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, stringResource(R.string.delete)) }
         }

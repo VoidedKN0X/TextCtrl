@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.filled.CheckCircle
@@ -238,6 +239,9 @@ fun Bubble(
     textStyle: TextStyle,
     ownColors: Pair<Color, Color>,
     showCodes: Boolean,
+    starred: Boolean,
+    /** Set for a text from a number that isn't in your contacts: a tapped link is handed over instead of opened. */
+    onLink: ((String) -> Unit)?,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onRetry: () -> Unit,
@@ -390,7 +394,7 @@ fun Bubble(
                             ),
                         ) {
                             Text(
-                                linkify(body.trim(), if (incoming || highlighted) CtrlColors.AccentText else textColor),
+                                linkify(body.trim(), if (incoming || highlighted) CtrlColors.AccentText else textColor, onLink),
                                 style = textStyle,
                                 color = textColor,
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
@@ -442,7 +446,7 @@ fun Bubble(
                 Icon(Icons.Filled.CheckCircle, null, Modifier.size(20.dp), tint = cs.primary)
             }
         }
-        if (showTime) {
+        if (showTime || starred) {
             val status = if (incoming) null else statusLabel(m.status).takeIf { m.status != SendStatus.SENT && m.status != SendStatus.NONE }
             Row(
                 Modifier
@@ -452,6 +456,10 @@ fun Bubble(
             ) {
                 if (failed) {
                     Icon(Icons.Outlined.ErrorOutline, null, Modifier.size(14.dp), tint = cs.error)
+                    Spacer(Modifier.width(4.dp))
+                }
+                if (starred) {
+                    Icon(Icons.Filled.Star, stringResource(R.string.starred_mark), Modifier.size(14.dp), tint = CtrlColors.AccentText)
                     Spacer(Modifier.width(4.dp))
                 }
                 Text(
@@ -548,6 +556,8 @@ fun Composer(
     onSend: () -> Unit,
     onSchedule: () -> Unit,
     enabled: Boolean,
+    /** The text as it will go out (with your signature, without accents), for the counter. */
+    countText: String = text,
 ) {
     val cs = MaterialTheme.colorScheme
     val canSend = enabled && (text.isNotBlank() || attachments.isNotEmpty())
@@ -619,8 +629,8 @@ fun Composer(
             }
         }
         // Long texts are sent in parts; show how many and what's left in this one.
-        if (!isMms && text.length > 120) {
-            val info = remember(text) { runCatching { SmsMessage.calculateLength(text, false) }.getOrNull() }
+        if (!isMms && countText.length > 120) {
+            val info = remember(countText) { runCatching { SmsMessage.calculateLength(countText, false) }.getOrNull() }
             if (info != null && info.size >= 3) {
                 Text(
                     stringResource(R.string.sms_counter, info[2], info[0]),
