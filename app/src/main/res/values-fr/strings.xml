@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- French ("vous"). Android picks it when the phone is set to French. -->
+<resources>
+    <!-- About -->
+    <string name="group_about">À propos</string>
+    <string name="support_title">Soutenir TextCtrl</string>
+    <string name="support_subtitle">TextCtrl est libre et gratuit. Soutenez son développement sur GitHub</string>
+    <string name="bugs_title">Signaler un bug</string>
+    <string name="bugs_subtitle">Un problème ou une idée ? Ouvrez un ticket sur GitHub</string>
+    <string name="source_title">Code source</string>
+    <string name="source_subtitle">github.com/VoidedKN0X/TextCtrl</string>
+    <string name="licence_title">Licence</string>
+    <string name="licence_subtitle">GNU General Public License v3.0</string>
+    <string name="about_footer">TextCtrl %1$s · VKNXWorks</string>
+
+    <!-- General -->
+    <string name="error_generic">Un problème est survenu</string>
+    <string name="error_load_title">Impossible de charger ceci</string>
+    <string name="error_not_default">TextCtrl n\'est pas votre appli SMS, Android ne l\'autorise donc pas à faire cela. Refaites-en votre appli SMS.</string>
+    <string name="retry">Réessayer</string>
+    <string name="cancel">Annuler</string>
+    <string name="close">Fermer</string>
+    <string name="back">Retour</string>
+    <string name="clear">Effacer</string>
+    <string name="more">Plus</string>
+    <string name="remove">Retirer</string>
+    <string name="share">Partager</string>
+    <string name="delete">Supprimer</string>
+    <string name="details">Détails</string>
+    <string name="you_title">Vous</string>
+    <string name="you">Vous</string>
+    <string name="selected">Sélectionné</string>
+    <string name="today">Aujourd\'hui</string>
+    <string name="yesterday">Hier</string>
+    <string name="unknown_sender">Inconnu</string>
+
+    <!-- First start -->
+    <string name="setup_title">Faire de TextCtrl votre appli SMS</string>
+    <string name="setup_body">Android ne transmet les SMS qu\'à une seule appli, votre appli SMS. Une fois que TextCtrl est cette appli, il reçoit chaque SMS et MMS directement du réseau mobile.</string>
+    <string name="setup_again_title">TextCtrl n\'est plus votre appli SMS</string>
+    <string name="setup_again_body">Une autre appli est devenue votre appli SMS, les nouveaux SMS y arrivent donc. Refaites de TextCtrl votre appli SMS pour continuer à l\'utiliser.</string>
+    <string name="setup_point_instant">Les SMS arrivent dès que votre téléphone les reçoit, sans service push intermédiaire.</string>
+    <string name="setup_point_offline">Pas de Google, pas de serveurs, aucun accès à Internet. Vos SMS ne quittent votre téléphone que pour aller aux personnes à qui vous les envoyez.</string>
+    <string name="setup_make_default">En faire mon appli SMS</string>
+    <string name="setup_no_sms">Cet appareil ne peut pas envoyer ni recevoir de SMS.</string>
+    <string name="setup_declined">TextCtrl n\'est pas devenu votre appli SMS. Appuyez sur le bouton et choisissez TextCtrl pour continuer.</string>
+    <string name="setup_permissions_title">Encore quelques réglages</string>
+    <string name="setup_permissions_body">Tous facultatifs, tous uniquement sur votre téléphone. Vous pourrez les modifier plus tard dans les paramètres Android.</string>
+    <string name="setup_point_contacts">Contacts, pour afficher des noms et des photos au lieu de numéros.</string>
+    <string name="setup_point_notifications">Notifications, pour vous signaler les nouveaux messages.</string>
+    <string name="setup_point_sim">Téléphone, pour choisir une SIM par discussion et connaître votre propre numéro.</string>
+    <string name="setup_allow">Continuer</string>
+    <string name="setup_skip">Pas maintenant</string>
+
+    <!-- Tabs -->
+    <string name="tab_chats">Discussions</string>
+    <string name="tab_archived">Archivées</string>
+    <string name="tab_search">Rechercher</string>
+
+    <!-- Chats -->
+    <string name="new_chat">Nouvelle discussion</string>
+    <string name="chats_empty">Aucune discussion pour l\'instant</string>
+    <string name="chats_empty_body">Les SMS que vous envoyez et recevez apparaissent ici. Appuyez sur Nouvelle discussion pour écrire à quelqu\'un.</string>
+    <string name="archived_empty">Rien d\'archivé</string>
+    <string name="archived_empty_body">Archivez une discussion pour la ranger. Un nouveau message la ramène dans Discussions.</string>
+    <string name="mark_all_read">Tout marquer comme lu</string>
+    <string name="mark_read">Marquer comme lu</string>
+    <string name="mark_unread">Marquer comme non lu</string>
+    <string name="pin">Épingler en haut</string>
+    <string name="unpin">Désépingler</string>
+    <string name="pinned">Épinglée</string>
+    <string name="mute">Désactiver les notifications</string>
+    <string name="unmute">Réactiver les notifications</string>
+    <string name="muted">Muette</string>
+    <string name="archive">Archiver</string>
+    <string name="unarchive">Remettre dans Discussions</string>
+    <string name="block">Bloquer</string>
+    <string name="block_title">Bloquer %1$s ?</string>
+    <string name="block_body">Les SMS et appels de ce numéro ne vous parviendront plus, dans TextCtrl et dans votre appli Téléphone. La discussion est archivée. Vous pouvez la débloquer sous Vous › Numéros bloqués.</string>
+    <string name="delete_chat">Supprimer la discussion</string>
+    <string name="delete_chat_title">Supprimer la discussion avec %1$s ?</string>
+    <string name="delete_chat_body">Tous ses messages sont supprimés de ce téléphone. Cette action est irréversible.</string>
+    <string name="draft_prefix">Brouillon</string>
+    <string name="draft_unreadable">Un brouillon enregistré pour cette discussion est chiffré et ne peut pas être ouvert pour le moment. Il est conservé.</string>
+    <string name="try_again">Réessayer</string>
+    <string name="not_sent">Non envoyé</string>
+    <plurals name="people">
+        <item quantity="one">%1$d personne</item>
+        <item quantity="other">%1$d personnes</item>
+    </plurals>
+
+    <!-- A chat -->
+    <string name="call">Appeler</string>
+    <string name="add_contact">Ajouter aux contacts</string>
+    <string name="chat_empty">Dites bonjour</string>
+    <string name="chat_empty_body">Vos messages dans cette discussion apparaîtront ici.</string>
+    <string name="chat_empty_group">Les messages à ce groupe partent en un seul MMS de groupe, pour que chacun voie les réponses.</string>
+    <string name="chat_gone">Cette discussion n\'existe plus</string>
+    <string name="chat_gone_body">Elle a peut-être été supprimée dans une autre appli.</string>
+    <string name="load_earlier">Charger les messages précédents</string>
+    <string name="compose_hint">SMS</string>
+    <string name="compose_mms_hint">MMS</string>
+    <string name="send">Envoyer</string>
+    <string name="send_with">Envoyer avec</string>
+    <string name="sim_slot">SIM %1$d</string>
+    <string name="sms_counter">%1$d restants · %2$d SMS</string>
+    <string name="attach">Joindre</string>
+    <string name="attach_subtitle">Envoyé en MMS. Les images sont réduites pour tenir, ce qui retire aussi leur position et les infos de l\'appareil photo.</string>
+    <string name="attach_media">Photos et vidéos</string>
+    <string name="attach_file">Fichier</string>
+    <string name="tap_to_retry">Appuyez pour réessayer</string>
+    <string name="copy_text">Copier le texte</string>
+    <string name="copied">Copié</string>
+    <string name="forward">Transférer</string>
+    <string name="forward_title">Transférer à</string>
+    <string name="save_to_phone">Enregistrer sur le téléphone</string>
+    <string name="saved_to_phone">Enregistré dans Pictures › TextCtrl</string>
+    <string name="save_failed">Impossible de l\'enregistrer</string>
+    <string name="delete_message_title">Supprimer ce message ?</string>
+    <string name="delete_message_body">Il n\'est supprimé que de ce téléphone.</string>
+    <string name="status_sending">Envoi…</string>
+    <string name="status_sent">Envoyé</string>
+    <string name="status_delivered">Distribué</string>
+    <string name="status_not_delivered">Non distribué</string>
+    <string name="status_failed">Non envoyé</string>
+    <string name="details_type_sms">Message texte (SMS)</string>
+    <string name="details_type_mms">Message multimédia (MMS)</string>
+    <string name="details_from">De : %1$s</string>
+    <string name="details_to">À : %1$s</string>
+    <string name="details_received">Reçu : %1$s</string>
+    <string name="details_sent">Envoyé : %1$s</string>
+    <string name="details_sim">SIM : %1$s</string>
+    <string name="details_subject">Objet : %1$s</string>
+    <string name="details_status">État : %1$s</string>
+    <string name="details_attachments">Pièces jointes : %1$s</string>
+
+    <!-- Picture messages -->
+    <string name="mms_waiting">MMS</string>
+    <string name="mms_tap_to_fetch">Appuyez pour le récupérer</string>
+    <string name="mms_fetch">Récupérer</string>
+    <string name="mms_expires">Jusqu\'au %1$s</string>
+    <string name="mms_fetch_failed">Impossible de récupérer le MMS. Vérifiez que les données mobiles sont activées, puis réessayez.</string>
+    <string name="attachment_picture">Image</string>
+    <string name="attachment_picture_message">MMS</string>
+    <string name="attachment_video">Vidéo</string>
+    <string name="attachment_audio">Audio</string>
+    <string name="attachment_contact">Fiche contact</string>
+    <string name="attachment_file">Fichier</string>
+    <string name="attachment_open_failed">Aucune appli de ce téléphone ne peut ouvrir cela</string>
+
+    <!-- Sending -->
+    <string name="send_no_recipient">À qui l\'envoyer ? Ajoutez d\'abord un numéro.</string>
+    <string name="send_empty">Il n\'y a rien à envoyer</string>
+    <string name="send_store_failed">Impossible d\'enregistrer le message. TextCtrl est-il toujours votre appli SMS ?</string>
+    <string name="send_failed">Impossible d\'envoyer le message</string>
+    <string name="send_attachment_unreadable">Impossible de lire cette pièce jointe</string>
+    <string name="send_attachment_too_big">%1$s est trop volumineux pour un MMS</string>
+    <string name="send_picture_too_big">Cette image ne peut pas être assez réduite pour un MMS</string>
+
+    <!-- New chat -->
+    <string name="new_chat_hint">Nom ou numéro</string>
+    <string name="new_chat_send_to">Envoyer à %1$s</string>
+    <string name="new_chat_add_to_group">Ajouter au groupe</string>
+    <string name="new_chat_remove_from_group">Retirer du groupe</string>
+    <string name="new_chat_start_one">Discuter avec %1$s</string>
+    <plurals name="new_chat_start_group">
+        <item quantity="one">Discuter avec %1$d personne</item>
+        <item quantity="other">Discussion de groupe avec %1$d personnes</item>
+    </plurals>
+    <string name="contacts_allow">Afficher vos contacts</string>
+    <string name="contacts_allow_body">Pour trouver des personnes par leur nom. Les contacts ne sont lus que sur ce téléphone.</string>
+
+    <!-- Search -->
+    <string name="search_hint">Rechercher des messages</string>
+    <string name="search_start">Recherchez dans vos messages</string>
+    <string name="search_start_body">Trouvez des SMS et MMS par leurs mots. La recherche se fait uniquement sur ce téléphone.</string>
+    <string name="search_none">Aucun résultat</string>
+    <string name="search_none_body">Aucun message ne contient ces mots. Essayez-en moins ou d\'autres.</string>
+    <string name="search_you_to">Vous à %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_messages">Messages</string>
+    <string name="channel_messages_desc">Nouveaux SMS et MMS</string>
+    <string name="channel_failed">Messages non envoyés</string>
+    <string name="channel_failed_desc">Quand un message que vous avez envoyé n\'a pas pu partir</string>
+    <string name="notify_new_message">Nouveau message</string>
+    <plurals name="notify_new_messages">
+        <item quantity="one">%1$d nouveau message</item>
+        <item quantity="other">%1$d nouveaux messages</item>
+    </plurals>
+    <string name="notify_reply">Répondre</string>
+    <string name="notify_reply_hint">Message</string>
+    <string name="notify_mark_read">Marquer comme lu</string>
+    <string name="notify_failed_title">Message non envoyé</string>
+    <string name="notify_failed_body">À %1$s. Ouvrez la discussion pour réessayer.</string>
+    <string name="notify_failed_body_private">Ouvrez TextCtrl pour réessayer.</string>
+
+    <!-- You -->
+    <string name="you_is_default">Votre appli SMS · Sans Google · aucun accès à Internet</string>
+    <string name="you_not_default">Pas votre appli SMS pour le moment</string>
+    <string name="group_sims">Vos SIM</string>
+    <string name="blocked_title">Numéros bloqués</string>
+    <string name="blocked_subtitle">Les SMS et appels de ces numéros ne vous parviennent jamais</string>
+    <string name="notification_settings">Sons de notification</string>
+    <string name="notification_settings_subtitle">Son, vibration et pop-ups, dans les paramètres Android</string>
+
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="group_appearance">Apparence</string>
+    <string name="theme">Thème</string>
+    <string name="theme_system">Suivre le système</string>
+    <string name="theme_dark">Sombre</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_black">Noir pur</string>
+    <string name="dynamic_colour">Couleurs du fond d\'écran</string>
+    <string name="dynamic_colour_subtitle">Remplace les couleurs par défaut par celles de votre fond d\'écran</string>
+    <string name="group_privacy">Confidentialité et sécurité</string>
+    <string name="privacy_footer">TextCtrl n\'a pas d\'accès à Internet, pas d\'analyse, pas de pistage. Vos SMS ne vont qu\'aux personnes à qui vous les envoyez, via le réseau mobile.</string>
+    <string name="lock_app">Verrouillage de l\'appli</string>
+    <string name="lock_app_subtitle">Demander un code (et éventuellement votre empreinte) à l\'ouverture de TextCtrl. Pendant le verrouillage, vos brouillons restent chiffrés avec le code et l\'écran des applis récentes masque vos discussions.</string>
+    <string name="lock_change_pin">Changer le code de l\'appli</string>
+    <string name="lock_change_pin_subtitle">Au moins %1$d chiffres, distinct du code de votre téléphone</string>
+    <string name="lock_fingerprint">Déverrouiller par empreinte</string>
+    <string name="lock_fingerprint_settings_subtitle">Uniquement la biométrie forte, comme votre empreinte, vérifiée par le matériel sécurisé du téléphone. Le code reste demandé après un redémarrage et toutes les 72 heures.</string>
+    <string name="lock_fingerprint_unavailable">Configurez d\'abord une empreinte sur ce téléphone</string>
+    <string name="lock_fingerprint_setup_failed">Impossible de configurer le déverrouillage par empreinte</string>
+    <string name="lock_fingerprint_enable_title">Activer le déverrouillage par empreinte</string>
+    <string name="lock_fingerprint_enable_subtitle">Confirmez votre empreinte</string>
+    <string name="lock_again">Reverrouiller</string>
+    <string name="lock_again_immediately">Dès que vous quittez l\'appli</string>
+    <string name="lock_again_1m">Après 1 minute d\'absence</string>
+    <string name="lock_again_5m">Après 5 minutes d\'absence</string>
+    <string name="lock_again_15m">Après 15 minutes d\'absence</string>
+    <string name="lock_again_1h">Après 1 heure d\'absence</string>
+    <string name="lock_again_restart">Uniquement au redémarrage de l\'appli</string>
+    <string name="hide_screenshots">Masquer dans les captures d\'écran</string>
+    <string name="hide_screenshots_subtitle">Les captures et enregistrements d\'écran affichent un écran vide</string>
+    <string name="hide_recents">Masquer dans les applis récentes</string>
+    <string name="hide_recents_subtitle">L\'écran des applis récentes affiche une carte vide au lieu de l\'appli</string>
+    <string name="notify_content">Contenu des notifications</string>
+    <string name="notify_content_all">Nom et message</string>
+    <string name="notify_content_name">Nom uniquement</string>
+    <string name="notify_content_nothing">Rien (juste \"nouveau message\")</string>
+    <string name="group_messages">Messages</string>
+    <string name="delivery_reports">Accusés de réception</string>
+    <string name="delivery_reports_subtitle">Demander au réseau de vous prévenir quand un SMS arrive sur l\'autre téléphone. Certains opérateurs les facturent.</string>
+    <string name="auto_download">Récupérer les MMS automatiquement</string>
+    <string name="auto_download_subtitle">Utilise les données mobiles. Si désactivé, appuyez sur un MMS pour le récupérer.</string>
+    <string name="group_mms">SMS de groupe en MMS</string>
+    <string name="group_mms_subtitle">Un SMS à plusieurs personnes part en un seul message de groupe, pour que chacun voie les réponses. Si désactivé, chacun reçoit son propre SMS.</string>
+    <string name="sim_for_new">SIM pour les nouvelles discussions</string>
+    <string name="sim_default">Celle par défaut du téléphone</string>
+    <string name="sms_app">Appli SMS</string>
+    <string name="sms_app_yes">TextCtrl est votre appli SMS</string>
+    <string name="sms_app_no">TextCtrl n\'est pas votre appli SMS. Appuyez pour changer.</string>
+
+    <!-- Blocked numbers -->
+    <string name="blocked_add">Bloquer un numéro</string>
+    <string name="blocked_number">Numéro de téléphone</string>
+    <string name="blocked_empty">Aucun numéro bloqué</string>
+    <string name="blocked_empty_body">Bloquez un numéro depuis sa discussion, ou avec le bouton +.</string>
+    <string name="blocked_footer">C\'est la liste de blocage d\'Android, partagée avec votre appli Téléphone. Appuyez sur un numéro pour le débloquer. Vous pouvez l\'importer et l\'exporter avec vos filtres, sous Filtres.</string>
+    <string name="unblock">Débloquer</string>
+    <string name="unblock_title">Débloquer %1$s ?</string>
+    <string name="unblock_body">Les SMS et appels de ce numéro vous parviendront à nouveau.</string>
+
+    <!-- App lock -->
+    <string name="lock_title">TextCtrl est verrouillé</string>
+    <string name="lock_locked">Verrouillé</string>
+    <string name="lock_enter_pin">Saisissez votre code</string>
+    <string name="lock_pin_due">Saisissez votre code. Il est demandé après un redémarrage et toutes les 72 heures.</string>
+    <string name="lock_wrong_pin">Code incorrect</string>
+    <string name="lock_too_many">Trop d\'essais. Réessayez dans %1$d s</string>
+    <string name="lock_use_fingerprint">Utiliser l\'empreinte</string>
+    <string name="lock_use_pin">Utiliser le code</string>
+    <string name="lock_fingerprint_title">Déverrouiller TextCtrl</string>
+    <string name="lock_fingerprint_subtitle">Confirmez votre identité pour voir vos messages</string>
+    <string name="lock_fingerprint_changed">Une empreinte a été ajoutée ou supprimée. Déverrouillez avec votre code, puis réactivez le déverrouillage par empreinte.</string>
+    <string name="lock_fingerprint_failed">Impossible de déverrouiller avec votre empreinte. Utilisez votre code.</string>
+    <string name="lock_fingerprint_key_failed">L\'empreinte n\'a pas déverrouillé la clé</string>
+    <string name="lock_fingerprint_prompt_failed">Impossible d\'afficher la demande d\'empreinte</string>
+    <string name="lock_prompt_failed">Impossible d\'afficher la demande de déverrouillage</string>
+    <string name="lock_forgot">Code oublié ?</string>
+    <string name="lock_forgot_title">Vous avez oublié votre code ?</string>
+    <string name="lock_forgot_body">Le code ne peut pas être récupéré. Confirmez votre identité avec le verrouillage d\'écran de votre téléphone pour désactiver le verrouillage de l\'appli. Les brouillons chiffrés avec l\'ancien code sont supprimés ; vos messages restent.</string>
+    <string name="lock_forgot_no_screen_lock">Le code ne peut pas être récupéré, et ce téléphone n\'a pas de verrouillage d\'écran pour confirmer votre identité. Pour repartir de zéro, effacez le stockage de TextCtrl dans les paramètres Android (vos messages restent).</string>
+    <string name="lock_forgot_confirm">Confirmer et réinitialiser</string>
+    <string name="lock_reset_prompt_title">Réinitialiser le verrouillage de TextCtrl</string>
+    <string name="lock_reset_prompt_subtitle">Utilisez le verrouillage d\'écran de votre téléphone pour confirmer votre identité</string>
+    <string name="lock_choose_title">Choisissez un code pour l\'appli</string>
+    <string name="lock_choose_intro">Au moins %1$d chiffres, différent du code de votre téléphone.</string>
+    <string name="lock_change_title">Changer le code de l\'appli</string>
+    <string name="lock_change_intro">Au moins %1$d chiffres, différent du code de votre téléphone.</string>
+    <string name="lock_disable_title">Désactiver le verrouillage</string>
+    <string name="lock_disable_intro">Saisissez le code de l\'appli pour désactiver le verrouillage.</string>
+    <string name="lock_current_pin">Saisissez votre code actuel</string>
+    <string name="lock_repeat_pin">Saisissez à nouveau le même code</string>
+    <string name="lock_too_easy">Trop facile à deviner. Choisissez un code moins évident.</string>
+    <string name="lock_mismatch">Les codes ne correspondent pas. Recommencez.</string>
+    <string name="lock_save_failed">Impossible d\'enregistrer le code. Réessayez.</string>
+    <string name="lock_next">Suivant</string>
+    <string name="lock_done">Terminé</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_delete">Supprimer</string>
+    <string name="lock_cancel">Annuler</string>
+    <!-- 0.2.0: scheduling and undo send -->
+    <string name="schedule_title">Programmer le message</string>
+    <string name="schedule_body">Il part à cette heure-là, même si TextCtrl est fermé ou si le téléphone a redémarré. Astuce : maintenez le bouton d\'envoi.</string>
+    <string name="schedule_pick">Choisir la date et l\'heure</string>
+    <string name="schedule_time">Heure</string>
+    <string name="schedule_confirm">Programmer</string>
+    <string name="schedule_past">Choisissez une heure à venir</string>
+    <string name="schedule_write_first">Écrivez d\'abord un message</string>
+    <string name="scheduled_for">Programmé · %1$s</string>
+    <string name="scheduled_title">Message programmé</string>
+    <string name="scheduled_list_title">Messages programmés</string>
+    <string name="scheduled_list_subtitle">Messages qui attendent de partir plus tard</string>
+    <string name="scheduled_empty">Rien de programmé</string>
+    <string name="scheduled_empty_body">Maintenez le bouton d\'envoi dans une discussion pour envoyer un message plus tard.</string>
+    <string name="has_scheduled">Message programmé</string>
+    <string name="send_now">Envoyer maintenant</string>
+    <string name="edit">Modifier</string>
+    <string name="open_chat">Ouvrir la discussion</string>
+    <string name="undo">Annuler</string>
+    <string name="undo_title">Envoi imminent</string>
+    <string name="undo_sending_in">Envoi dans %1$d s</string>
+    <string name="undo_send">Annuler l\'envoi</string>
+    <string name="undo_off">Désactivé : envoyer tout de suite</string>
+    <string name="undo_5s">5 secondes pour annuler</string>
+    <string name="undo_10s">10 secondes pour annuler</string>
+    <plurals name="attachments_count">
+        <item quantity="one">%1$d pièce jointe</item>
+        <item quantity="other">%1$d pièces jointes</item>
+    </plurals>
+
+    <!-- One-time codes -->
+    <string name="copy_code">Copier le code</string>
+    <string name="copy_code_value">Copier %1$s</string>
+    <string name="code_copied">Code copié</string>
+    <string name="copy_codes">Copier les codes à usage unique</string>
+    <string name="copy_codes_subtitle">Un bouton \"Copier\" pour les codes de vérification, dans la discussion et dans la notification</string>
+
+    <!-- Reactions -->
+    <string name="react">Réagir</string>
+    <string name="react_body">Envoyée sous forme de SMS, comme les iPhone et Google Messages envoient les réactions, pour qu\'elles s\'affichent aussi sur les autres téléphones. Choisissez-la à nouveau pour la retirer.</string>
+
+    <!-- Selecting and filters -->
+    <plurals name="selected_count">
+        <item quantity="one">%1$d sélectionné</item>
+        <item quantity="other">%1$d sélectionnés</item>
+    </plurals>
+    <plurals name="delete_chats_title">
+        <item quantity="one">Supprimer %1$d discussion ?</item>
+        <item quantity="other">Supprimer %1$d discussions ?</item>
+    </plurals>
+    <plurals name="delete_messages_title">
+        <item quantity="one">Supprimer ce message ?</item>
+        <item quantity="other">Supprimer %1$d messages ?</item>
+    </plurals>
+    <string name="filter_all">Toutes</string>
+    <string name="filter_unread">Non lues</string>
+    <string name="filter_unread_n">Non lues (%1$d)</string>
+    <string name="filter_unknown">Expéditeurs inconnus</string>
+    <string name="filter_unknown_n">Expéditeurs inconnus (%1$d)</string>
+    <string name="unread_empty">Tout est lu</string>
+    <string name="unread_empty_body">Aucune discussion avec des messages non lus.</string>
+    <string name="unknown_empty">Aucun expéditeur inconnu</string>
+    <string name="unknown_empty_body">Les SMS de numéros absents de vos contacts, et auxquels vous n\'avez jamais écrit, apparaissent ici.</string>
+    <string name="pick_chat">Choisissez une discussion</string>
+    <string name="pick_chat_body">Choisissez une discussion à gauche pour l\'ouvrir ici.</string>
+
+    <!-- Search -->
+    <string name="search_in_chat">Rechercher dans la discussion</string>
+    <string name="search_in_chat_hint">Rechercher dans cette discussion</string>
+    <string name="search_position">%1$d sur %2$d</string>
+    <string name="search_older">Résultat plus ancien</string>
+    <string name="search_newer">Résultat plus récent</string>
+    <string name="search_everyone">Tout le monde</string>
+    <string name="search_in">Dans %1$s</string>
+    <string name="search_pick_person">Rechercher dans une discussion</string>
+
+    <!-- Per-chat sound and auto-delete -->
+    <string name="chat_sound">Son de notification</string>
+    <string name="channel_chat_desc">Messages de cette discussion</string>
+    <string name="auto_delete">Supprimer les anciens messages</string>
+    <string name="auto_delete_chat">Supprimer les anciens messages ici</string>
+    <string name="auto_delete_never">Jamais</string>
+    <string name="auto_delete_30d">De plus de 30 jours</string>
+    <string name="auto_delete_90d">De plus de 90 jours</string>
+    <string name="auto_delete_1y">De plus d\'un an</string>
+    <string name="auto_delete_follow">Comme dans les Paramètres (%1$s)</string>
+    <string name="auto_delete_confirm_title">Supprimer les messages %1$s ?</string>
+    <string name="auto_delete_confirm_body">Les messages aussi anciens sont supprimés de ce téléphone maintenant, puis une fois par jour, dans chaque discussion qui n\'a pas son propre réglage. Cette action est irréversible.</string>
+    <string name="auto_delete_confirm">Les supprimer</string>
+
+    <!-- Unknown senders -->
+    <string name="separate_unknown">Séparer les expéditeurs inconnus</string>
+    <string name="separate_unknown_subtitle">Les SMS de numéros absents de vos contacts, et auxquels vous n\'avez jamais écrit, vont dans leur propre filtre au lieu de Discussions</string>
+    <string name="separate_unknown_needs_contacts">Nécessite l\'accès à vos contacts, pour savoir qui est inconnu</string>
+    <string name="notify_unknown">Notifier pour les expéditeurs inconnus</string>
+    <string name="notify_unknown_subtitle">Désactivé : leurs SMS arrivent en silence. Les codes de votre banque ou des services de livraison viennent généralement aussi d\'expéditeurs inconnus.</string>
+
+    <!-- Hidden chats -->
+    <string name="hide">Masquer la discussion</string>
+    <string name="unhide">Afficher</string>
+    <string name="hidden_title">Discussions masquées</string>
+    <string name="hidden_subtitle">Discussions protégées par leur propre code</string>
+    <string name="hidden_setup_title">Configurer les discussions masquées</string>
+    <string name="hidden_choose_intro">Choisissez un code pour les discussions masquées, d\'au moins %1$d chiffres et différent de celui du verrouillage de l\'appli. Les discussions masquées restent hors de Discussions et de la recherche, et leurs notifications n\'affichent jamais de noms ni de texte.</string>
+    <string name="hidden_enter_pin">Saisissez le code des discussions masquées</string>
+    <string name="hidden_done">Discussion masquée. Retrouvez-la sous Vous › Discussions masquées.</string>
+    <string name="hidden_empty">Aucune discussion masquée</string>
+    <string name="hidden_empty_body">Masquez une discussion depuis son menu pour la garder ici.</string>
+    <string name="hidden_list_note">Elles se referment quand vous quittez TextCtrl. Les messages restent dans le stockage de messages d\'Android, les autres applis SMS peuvent donc les voir.</string>
+    <string name="hidden_chat_locked">Cette discussion est masquée</string>
+    <string name="hidden_chat_locked_body">Saisissez le code des discussions masquées pour l\'ouvrir.</string>
+    <string name="hidden_show">Afficher les discussions masquées</string>
+    <string name="hidden_change_pin">Changer le code des discussions masquées</string>
+    <string name="hidden_stop">Ne plus masquer de discussions</string>
+    <string name="hidden_stop_title">Ne plus masquer de discussions ?</string>
+    <string name="hidden_stop_body">Chaque discussion masquée revient dans Discussions, et le code des discussions masquées est supprimé.</string>
+    <string name="hidden_stop_confirm">Tout afficher</string>
+    <string name="hidden_forgot_title">Vous avez oublié le code des discussions masquées ?</string>
+    <string name="hidden_forgot_body">Il ne peut pas être récupéré. Confirmez votre identité avec le verrouillage d\'écran de votre téléphone, et les discussions masquées reviennent dans Discussions pour que vous puissiez définir un nouveau code.</string>
+    <string name="hidden_forgot_no_screen_lock">Il ne peut pas être récupéré, et ce téléphone n\'a pas de verrouillage d\'écran pour confirmer votre identité. Pour repartir de zéro, effacez le stockage de TextCtrl dans les paramètres Android (vos messages restent).</string>
+
+    <!-- Backup -->
+    <string name="backup_title">Sauvegarde et restauration</string>
+    <string name="backup_subtitle">Tous vos messages, dans un fichier chiffré que vous gardez</string>
+    <string name="backup_intro">Enregistrez chaque SMS et MMS dans un seul fichier, chiffré avec un mot de passe que vous seul connaissez. Gardez-le sur une clé USB, votre ordinateur ou une appli de stockage, et restaurez-le sur un nouveau téléphone. Rien ne va chez Google ni sur un serveur.</string>
+    <string name="backup_now">Sauvegarder maintenant</string>
+    <string name="backup_now_subtitle">Choisissez où enregistrer le fichier</string>
+    <string name="backup_restore">Restaurer une sauvegarde</string>
+    <string name="backup_restore_subtitle">Les messages déjà sur ce téléphone ne sont pas ajoutés en double</string>
+    <string name="backup_footer">Chiffré avec AES-256 et une clé dérivée de votre mot de passe (PBKDF2, 600 000 itérations). Sans le mot de passe, personne ne peut lire la sauvegarde, vous non plus : il ne peut pas être récupéré.</string>
+    <string name="backup_password_title">Choisissez un mot de passe de sauvegarde</string>
+    <string name="backup_password_enter">Mot de passe de sauvegarde</string>
+    <string name="backup_password_body">Au moins 8 caractères. Notez-le : sans lui, la sauvegarde ne peut pas être ouverte.</string>
+    <string name="backup_password">Mot de passe</string>
+    <string name="backup_password_repeat">Même mot de passe à nouveau</string>
+    <string name="backup_password_short">Utilisez au moins 8 caractères</string>
+    <string name="backup_password_mismatch">Les mots de passe ne correspondent pas</string>
+    <string name="backup_running">Sauvegarde… %1$d messages pour l\'instant</string>
+    <string name="backup_restoring">Restauration… %1$d messages pour l\'instant</string>
+    <string name="backup_keep_open">Gardez TextCtrl ouvert jusqu\'à la fin.</string>
+    <string name="backup_done">Terminé : %1$d messages sauvegardés.</string>
+    <string name="backup_restored">Terminé : %1$d messages restaurés, %2$d étaient déjà là.</string>
+    <string name="backup_failed">La sauvegarde n\'a pas fonctionné</string>
+    <string name="backup_cant_write">Impossible d\'écrire dans ce fichier</string>
+    <string name="backup_cant_read">Impossible d\'ouvrir ce fichier</string>
+    <string name="backup_wrong_password">Mot de passe incorrect, ou ce n\'est pas une sauvegarde TextCtrl</string>
+    <string name="backup_not_a_backup">Ce n\'est pas une sauvegarde TextCtrl</string>
+    <string name="backup_cut_off">Le fichier de sauvegarde est incomplet. Les messages jusqu\'à ce point ont été restaurés.</string>
+    <string name="backup_damaged">Le fichier de sauvegarde est endommagé ou a été modifié. Les messages jusqu\'à ce point ont été restaurés.</string>
+
+    <!-- Look and feel -->
+    <string name="bubble_colour">Couleur des bulles</string>
+    <string name="bubble_accent">Couleur du thème</string>
+    <string name="bubble_sky">Ciel</string>
+    <string name="bubble_mint">Menthe</string>
+    <string name="bubble_marigold">Souci</string>
+    <string name="bubble_rose">Rose</string>
+    <string name="bubble_lavender">Lavande</string>
+    <string name="bubble_graphite">Graphite</string>
+    <string name="text_size">Taille du texte des discussions</string>
+    <string name="text_size_small">Petite</string>
+    <string name="text_size_default">Par défaut</string>
+    <string name="text_size_large">Grande</string>
+    <string name="text_size_larger">Plus grande</string>
+
+    <!-- Contact cards -->
+    <string name="attach_contact">Contact</string>
+    <string name="vcard_unreadable">Impossible de lire ce contact</string>
+    <string name="vcard_too_many">Vous pouvez joindre jusqu\'à 5 éléments à un message</string>
+    <plurals name="vcard_more">
+        <item quantity="one">%1$d de plus</item>
+        <item quantity="other">%1$d de plus</item>
+    </plurals>
+
+    <!-- Swipe actions -->
+    <string name="group_chat_list">Liste des discussions</string>
+    <string name="swipe_right">Balayer vers la droite</string>
+    <string name="swipe_left">Balayer vers la gauche</string>
+    <string name="swipe_footer">Ce que fait un balayage latéral sur une discussion dans Discussions et Archivées. Archiver, supprimer et bloquer peuvent être annulés pendant quelques secondes.</string>
+    <string name="swipe_none">Rien</string>
+    <string name="swipe_read">Marquer comme lu ou non lu</string>
+    <string name="swipe_pin">Épingler ou désépingler</string>
+    <string name="swipe_mute">Rendre muette ou réactiver</string>
+    <string name="swipe_archived">Archivé : %1$s</string>
+    <string name="swipe_unarchived">Remis dans Discussions : %1$s</string>
+    <string name="swipe_deleted">Discussion avec %1$s supprimée</string>
+    <string name="swipe_blocked">Bloqué : %1$s</string>
+    <string name="swipe_block_group">Seules les discussions avec une seule personne peuvent être bloquées</string>
+
+    <!-- Spam folder and filters -->
+    <string name="save">Enregistrer</string>
+    <string name="spam_title">Spam</string>
+    <string name="spam_subtitle">Discussions écartées par vos filtres, sans notifications</string>
+    <string name="spam_empty">Aucun spam</string>
+    <string name="spam_empty_body">Les discussions que vos filtres interceptent, ou que vous déplacez ici, apparaissent ici sans vous notifier. Configurez des filtres avec le bouton en haut.</string>
+    <string name="spam_move">Déplacer vers Spam</string>
+    <string name="spam_moved">Déplacé vers Spam</string>
+    <string name="spam_restore">Pas un spam</string>
+    <string name="filters_title">Filtres</string>
+    <string name="filters_subtitle">Bloquer ou trier des SMS par mots, numéros et expéditeurs</string>
+    <string name="filters_intro">Vos propres règles, vérifiées sur le téléphone dès qu\'un SMS ou MMS arrive, avant toute notification. Il n\'y a pas de base de données de spam ni de service en ligne : TextCtrl n\'a pas d\'accès à Internet.</string>
+    <string name="filters_skip_contacts">Ne jamais filtrer mes contacts</string>
+    <string name="filters_skip_contacts_subtitle">Les messages des personnes de vos contacts, ou des discussions où vous avez écrit, passent toujours</string>
+    <string name="filters_rules">Règles</string>
+    <string name="filters_empty">Aucun filtre pour l\'instant</string>
+    <string name="filters_empty_body">Ajoutez une règle pour bloquer ou trier les SMS contenant certains mots, venant de certains numéros ou noms d\'expéditeur, de numéros courts, de numéros commençant par un indicatif, ou d\'expéditeurs inconnus.</string>
+    <string name="filter_add">Ajouter un filtre</string>
+    <string name="filter_edit">Modifier le filtre</string>
+    <plurals name="filter_hits">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+    <plurals name="filters_blocked_count">
+        <item quantity="one">%1$d expéditeur mis sur la liste de blocage par vos règles jusqu\'ici.</item>
+        <item quantity="other">%1$d expéditeurs mis sur la liste de blocage par vos règles jusqu\'ici.</item>
+    </plurals>
+    <string name="rule_kind">Intercepter les messages</string>
+    <string name="rule_action">Ensuite</string>
+    <string name="rule_keyword">Contenant ces mots</string>
+    <string name="rule_regex">Correspondant à un modèle (regex)</string>
+    <string name="rule_prefix">De numéros commençant par</string>
+    <string name="rule_short_code">De numéros courts (3 à 8 chiffres)</string>
+    <string name="rule_named_sender">D\'expéditeurs avec un nom au lieu d\'un numéro</string>
+    <string name="rule_unknown">De numéros absents de vos contacts</string>
+    <string name="rule_exact">De ces numéros ou noms d\'expéditeur</string>
+    <string name="rule_summary_exact">De %1$s</string>
+    <string name="rule_pattern_exact">Numéros ou noms d\'expéditeur</string>
+    <string name="rule_pattern_hint_exact">Séparez-en plusieurs par des virgules. 0470 12 34 56 et +32 470 12 34 56 comptent comme le même numéro ; les noms comme BANK doivent correspondre entièrement.</string>
+    <string name="rule_pattern_hint_regex">Majuscules et minuscules n\'ont pas d\'importance. Les modèles qui pourraient devenir très lents ne sont pas acceptés, et un modèle qui prend trop de temps sur un message compte comme non correspondant.</string>
+    <string name="rule_regex_slow">Trop lent, ignoré</string>
+    <string name="rule_regex_unsafe">Ce modèle pourrait devenir très lent. Les groupes répétés ne peuvent pas contenir de répétitions ni de | (utilisez (ab)+, pas (a+)+ ni (a|b)+), les références arrière ne sont pas permises, et au maximum 6 répétitions ouvertes (* + {n,})</string>
+    <string name="filters_summary">Notification récapitulative</string>
+    <string name="filters_summary_subtitle">Une notification discrète compte les messages partis dans Spam, sans dire qui les a envoyés ni ce qu\'ils disent</string>
+    <string name="filters_transfer">Import et export</string>
+    <string name="filters_transfer_footer">Vos règles et les numéros de la liste de blocage d\'Android, en fichier JSON ou CSV que vous gardez où vous voulez. L\'import ajoute ce qui n\'y est pas encore et ne supprime jamais rien.</string>
+    <string name="filters_import">Importer des règles et numéros bloqués</string>
+    <string name="filters_import_subtitle">Depuis un fichier JSON ou CSV exporté par TextCtrl</string>
+    <string name="filters_import_rules_only">Les numéros bloqués ne peuvent être ajoutés que si TextCtrl est votre appli SMS</string>
+    <string name="filters_export">Exporter les règles et numéros bloqués</string>
+    <string name="filters_export_subtitle">Vers un fichier JSON ou CSV</string>
+    <string name="filters_export_json">Fichier JSON</string>
+    <string name="filters_export_csv">Fichier CSV (pour tableurs)</string>
+    <string name="filters_exported">Exporté</string>
+    <string name="filters_export_failed">Impossible d\'écrire le fichier</string>
+    <string name="filters_imported">Règles ajoutées : %1$d. Numéros bloqués : %2$d.</string>
+    <plurals name="filters_import_skipped">
+        <item quantity="one">%1$d entrée existait déjà ou n\'était pas valide.</item>
+        <item quantity="other">%1$d entrées existaient déjà ou n\'étaient pas valides.</item>
+    </plurals>
+    <string name="filters_import_failed">Impossible de lire le fichier</string>
+    <string name="filters_import_too_big">Ce fichier est trop volumineux pour un export de filtres</string>
+    <string name="filters_import_invalid">Ce n\'est pas un export de filtres TextCtrl (JSON ou CSV)</string>
+    <string name="channel_filtered">Messages filtrés</string>
+    <string name="channel_filtered_desc">Un récapitulatif discret des messages que vos filtres ont déplacés vers Spam</string>
+    <string name="notify_filtered_title">Filtre anti-spam</string>
+    <plurals name="notify_filtered">
+        <item quantity="one">%1$d message déplacé vers Spam</item>
+        <item quantity="other">%1$d messages déplacés vers Spam</item>
+    </plurals>
+    <string name="rule_action_block">Bloquer l\'expéditeur, garder dans Spam</string>
+    <string name="rule_action_spam">Déplacer vers Spam</string>
+    <string name="rule_action_mute">Garder, mais sans notifier</string>
+    <string name="rule_action_help">Spam garde le message dans le dossier Spam sans vous notifier. Bloquer fait de même et met aussi l\'expéditeur sur la liste de blocage d\'Android, pour que plus rien de sa part ne vous parvienne (dans votre appli Téléphone non plus). Une règle ne supprime jamais de messages.</string>
+    <string name="rule_summary_keyword">Mots : %1$s</string>
+    <string name="rule_summary_regex">Modèle : %1$s</string>
+    <string name="rule_summary_prefix">Numéros commençant par %1$s</string>
+    <string name="rule_pattern_keyword">Mots ou expressions</string>
+    <string name="rule_pattern_regex">Expression régulière</string>
+    <string name="rule_pattern_prefix">Préfixes de numéro</string>
+    <string name="rule_pattern_hint">Séparez-en plusieurs par des virgules. Majuscules et minuscules n\'ont pas d\'importance.</string>
+    <string name="rule_pattern_needed">Remplissez ce champ</string>
+    <string name="rule_pattern_long">C\'est trop long (300 caractères maximum)</string>
+    <string name="rule_regex_invalid">Ce n\'est pas une expression régulière valide</string>
+    <string name="rule_prefix_invalid">Utilisez des chiffres et +, comme +44 ou 0900</string>
+    <string name="rule_no_pattern">Rien d\'autre à remplir.</string>
+    <string name="rule_unknown_needs_contacts">Nécessite l\'autorisation Contacts pour savoir qui est inconnu ; d\'ici là, cette règle ne fait rien.</string>
+
+    <!-- SMS Backup & Restore files -->
+    <string name="xml_group">Autres applis SMS</string>
+    <string name="xml_footer">Le format XML de SMS Backup &amp; Restore, que beaucoup d\'applis SMS et d\'outils de sauvegarde lisent et écrivent. Ces fichiers ne sont pas chiffrés, gardez-les donc en lieu sûr. Les messages déjà sur le téléphone ne sont pas ajoutés en double.</string>
+    <string name="xml_import">Importer depuis un fichier XML</string>
+    <string name="xml_import_subtitle">SMS et MMS de SMS Backup &amp; Restore ou d\'une autre appli SMS</string>
+    <string name="xml_import_not_default">Possible uniquement si TextCtrl est votre appli SMS</string>
+    <string name="xml_export">Exporter vers un fichier XML</string>
+    <string name="xml_export_subtitle">Chaque SMS et MMS, à ouvrir dans SMS Backup &amp; Restore ou une autre appli SMS</string>
+    <string name="xml_export_title">Exporter sans chiffrement ?</string>
+    <string name="xml_export_body">Les autres applis SMS ont besoin de ce fichier en XML brut, donc toute personne qui l\'obtient peut lire vos messages. Pour une sauvegarde dont seul TextCtrl a besoin, utilisez plutôt Sauvegarder maintenant.</string>
+    <string name="xml_importing">Importation… %1$d messages</string>
+    <string name="xml_importing_of">Importation… %1$d sur %2$d messages</string>
+    <string name="xml_exporting">Exportation… %1$d messages</string>
+    <string name="xml_exporting_of">Exportation… %1$d sur %2$d messages</string>
+    <string name="xml_imported">%1$d SMS et %2$d MMS importés.</string>
+    <plurals name="xml_skipped">
+        <item quantity="one">%1$d était déjà sur le téléphone.</item>
+        <item quantity="other">%1$d étaient déjà sur le téléphone.</item>
+    </plurals>
+    <plurals name="xml_failed_count">
+        <item quantity="one">%1$d n\'a pas pu être lu.</item>
+        <item quantity="other">%1$d n\'ont pas pu être lus.</item>
+    </plurals>
+    <string name="xml_exported">%1$d SMS et %2$d MMS exportés.</string>
+    <string name="xml_failed">Cela n\'a pas fonctionné</string>
+    <string name="xml_cant_read">Impossible d\'ouvrir ce fichier</string>
+    <string name="xml_cant_write">Impossible d\'écrire dans ce fichier</string>
+    <string name="xml_not_backup">Ce n\'est pas un fichier XML de SMS Backup &amp; Restore</string>
+    <string name="xml_damaged_partial">Le fichier est endommagé ou incomplet. %1$d messages jusqu\'à ce point ont été importés.</string>
+
+    <!-- Starred messages -->
+    <string name="star">Ajouter une étoile</string>
+    <string name="unstar">Retirer l\'étoile</string>
+    <string name="starred_mark">Avec étoile</string>
+    <string name="starred_title">Messages avec étoile</string>
+    <string name="starred_subtitle">Les messages que vous avez marqués d\'une étoile, de toutes les discussions</string>
+    <string name="starred_empty">Aucun message avec étoile</string>
+    <string name="starred_empty_body">Maintenez un message dans une discussion et appuyez sur l\'étoile pour le garder ici. Les messages avec étoile ne sont jamais supprimés automatiquement.</string>
+    <string name="starred_yours">Vous : %1$s</string>
+
+    <!-- A colour per chat -->
+    <string name="chat_colour">Couleur des bulles pour cette discussion</string>
+    <string name="chat_colour_follow">Comme dans les Paramètres (%1$s)</string>
+
+    <!-- Export one chat -->
+    <string name="export_chat">Exporter la discussion</string>
+    <string name="export_chat_heading">Export de discussion TextCtrl</string>
+    <string name="export_chat_with">Discussion avec</string>
+    <string name="export_chat_exported">Exporté</string>
+    <string name="export_chat_messages">Messages</string>
+    <string name="export_chat_me">Moi</string>
+    <string name="export_chat_attachment">Pièce jointe</string>
+    <string name="export_chat_not_downloaded">MMS non récupéré</string>
+    <plurals name="export_chat_done">
+        <item quantity="one">%1$d message exporté. Le fichier n\'est pas chiffré</item>
+        <item quantity="other">%1$d messages exportés. Le fichier n\'est pas chiffré</item>
+    </plurals>
+
+    <!-- Link warning -->
+    <string name="warn_links">Demander avant d\'ouvrir les liens d\'expéditeurs inconnus</string>
+    <string name="warn_links_subtitle">Pour les SMS de numéros absents de vos contacts : montre d\'abord où mène vraiment un lien</string>
+    <string name="warn_links_no_contacts">TextCtrl ne peut pas lire vos contacts, il demande donc pour chaque lien reçu</string>
+    <string name="link_warning_title">Ouvrir ce lien ?</string>
+    <string name="link_warning_body">Ce SMS vient d\'un numéro absent de vos contacts. Le lien mène à :\n%1$s</string>
+    <string name="link_warning_disguised">Attention : le lien a un autre nom devant un @ pour faire croire qu\'il mène ailleurs.</string>
+    <string name="link_warning_lookalike">Attention : l\'adresse utilise des lettres d\'un autre alphabet, qui peuvent ressembler exactement à un site que vous connaissez.</string>
+    <string name="link_warning_numeric">Attention : l\'adresse est un nombre au lieu d\'un nom.</string>
+    <string name="link_warning_http">Le lien n\'est pas chiffré (http) : ne saisissez ni mot de passe ni numéro de carte sur la page.</string>
+    <string name="link_warning_open">Ouvrir le lien</string>
+    <string name="link_warning_no_app">Aucune appli ne peut ouvrir ce lien</string>
+
+    <!-- One-time codes -->
+    <string name="delete_codes">Supprimer les codes à usage unique après un jour</string>
+    <string name="delete_codes_subtitle">Les SMS reçus avec un code de connexion ou de vérification sont supprimés au bout d\'un jour. Les messages avec étoile sont conservés</string>
+    <string name="delete_codes_confirm_title">Supprimer les codes à usage unique après un jour ?</string>
+    <string name="delete_codes_confirm_body">Les SMS reçus avec un code à usage unique de plus d\'un jour sont supprimés maintenant, puis les nouveaux au fur et à mesure (vérifié une fois par jour, un code peut donc rester jusqu\'à deux jours). Ils sont supprimés définitivement. TextCtrl reconnaît les codes à leur formulation, il arrive donc qu\'un autre SMS court avec un nombre ressemblant à un code soit pris pour un code : ajoutez une étoile à un message pour le garder.</string>
+    <string name="delete_codes_confirm">Supprimer les codes</string>
+
+    <!-- Send without accents -->
+    <string name="plain_sms">Envoyer sans accents</string>
+    <string name="plain_sms_subtitle">Remplace les accents et les guillemets typographiques par des caractères simples (ë → e) dans les SMS envoyés, pour que 160 caractères tiennent dans un SMS au lieu de 70. Pas pour les MMS</string>
+
+    <!-- Signature and templates -->
+    <string name="snippets_title">Signature et modèles</string>
+    <string name="snippets_subtitle">Une ligne sous vos SMS, et des réponses toutes faites</string>
+    <string name="snippets_save_failed">Impossible d\'enregistrer. Réessayez</string>
+    <string name="snippets_unreadable">Impossible d\'ouvrir votre signature et vos modèles</string>
+    <string name="snippets_unreadable_body">Ils sont stockés chiffrés et la clé de ce téléphone ne peut pas les ouvrir (cela arrive après un passage à un autre téléphone). Ils sont laissés tels quels. Vous pouvez repartir d\'une liste vide, ce qui les supprime.</string>
+    <string name="snippets_start_over">Recommencer</string>
+    <string name="snippets_start_over_title">Supprimer la signature et les modèles stockés ?</string>
+    <string name="snippets_start_over_body">Ils ne peuvent pas être ouverts sur ce téléphone. Recommencer les supprime définitivement.</string>
+    <string name="signature_title">Signature</string>
+    <string name="signature_footer">Votre signature est ajoutée sur une nouvelle ligne sous chaque SMS envoyé depuis une discussion, y compris les SMS programmés. Elle n\'est pas ajoutée aux réponses depuis une notification ni aux réactions, et elle compte dans la longueur du SMS.</string>
+    <string name="signature_none">Pas de signature</string>
+    <string name="signature_add">Appuyez pour en ajouter une</string>
+    <string name="signature_change">Appuyez pour la modifier</string>
+    <string name="signature_remove">Supprimer la signature</string>
+    <string name="signature_label">Signature</string>
+    <string name="templates_title">Modèles</string>
+    <string name="templates_footer">Des textes tout faits. Dans une discussion, appuyez sur + puis Modèles pour en insérer un dans le champ de texte ; vous pouvez encore le modifier avant l\'envoi.</string>
+    <string name="templates_add">Ajouter un modèle</string>
+    <string name="templates_edit">Modifier le modèle</string>
+    <string name="templates_label">Texte</string>
+    <string name="templates_manage">Ajouter ou modifier des modèles</string>
+    <string name="templates_none">Vous n\'avez pas encore de modèles</string>
+    <string name="templates_pick">Appuyez sur un modèle pour l\'insérer dans le champ de texte</string>
+    <plurals name="templates_count">
+        <item quantity="one">%1$d modèle</item>
+        <item quantity="other">%1$d modèles</item>
+    </plurals>
+
+    <!-- Settings file -->
+    <string name="value_on">Activé</string>
+    <string name="value_off">Désactivé</string>
+    <string name="settings_file_title">Fichier de paramètres</string>
+    <string name="settings_file_footer">Un fichier de paramètres contient l\'apparence et le comportement de TextCtrl, votre signature et vos modèles, en texte lisible (non chiffré). Il ne contient jamais de messages, le verrouillage de l\'appli ni son code, les discussions masquées, les choix de suppression automatique, la SIM des nouvelles discussions ni aucun réglage propre à une discussion.</string>
+    <string name="settings_file_export">Exporter les paramètres</string>
+    <string name="settings_file_export_subtitle">Enregistrer vos paramètres, votre signature et vos modèles dans un fichier</string>
+    <string name="settings_file_import">Importer les paramètres</string>
+    <string name="settings_file_import_subtitle">Récupérer des paramètres depuis un fichier. Vous voyez d\'abord ce qui change</string>
+    <string name="settings_file_exported">Paramètres exportés.</string>
+    <string name="settings_file_export_failed">Impossible d\'écrire le fichier.</string>
+    <string name="settings_file_not_ours">Ce n\'est pas un fichier de paramètres TextCtrl, ou il est illisible.</string>
+    <string name="settings_file_same">Le fichier a les mêmes paramètres que maintenant. Rien à changer.</string>
+    <string name="settings_file_will_change">Ces paramètres vont changer :</string>
+    <string name="settings_file_snippets_replace">Votre signature et vos modèles seront remplacés par ceux du fichier (%1$s).</string>
+    <string name="settings_file_snippets_skipped">La signature et les modèles du fichier sont ignorés : ceux stockés sur ce téléphone ne peuvent pas être ouverts pour le moment.</string>
+    <string name="settings_file_refused">Laissés tels quels, car un import ne rend jamais TextCtrl moins privé :</string>
+    <string name="settings_file_confirm_title">Importer ces paramètres ?</string>
+    <string name="settings_file_confirm">Importer</string>
+    <string name="settings_file_imported">Paramètres importés.</string>
+    <string name="settings_file_imported_partly">Paramètres importés, mais la signature et les modèles n\'ont pas pu être enregistrés.</string>
+</resources>

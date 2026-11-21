@@ -47,7 +47,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Hide in screenshots** and **Hide in recent apps**, two separate switches, on their own or with the app lock
 - The **Ctrl / Signal** look shared by every Ctrl app: high-contrast **dark and light** modes that follow your phone's setting, with your own **bubble colour** (also one **per chat**) and **text size**
 - **Tablets and foldables**: chat list and chat side by side
-- **English and Dutch**, following your phone's language
+- **English, Dutch, French and German**, following your phone's language (Android's per-app language setting lists them too)
 
 ## How messages arrive
 

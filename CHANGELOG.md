@@ -4,6 +4,14 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Changes on `main` that aren't in a release yet. They ship with the next version.
+
+### New
+
+- **TextCtrl in French and German, following the phone's language.** When your phone is set to French, TextCtrl now shows in French (polite "vous"); set to German, it shows in German (informal "du"). Every screen, notification and message is translated, including filters, backups, hidden chats and the app lock. Texts and picture messages are called SMS and MMS in both languages, as phones there do. Product and format names (SMS Backup & Restore, JSON, CSV, XML, regex, Pictures › TextCtrl) stay as they are. Android's per-app language setting (Settings > Apps > TextCtrl > Language) now lists English, Dutch, French and German, so you can also pick a language for TextCtrl alone. Not yet tried on a phone.
+
 ## v0.10.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

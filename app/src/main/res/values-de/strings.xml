@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- German ("du"). Android picks it when the phone is set to German. -->
+<resources>
+    <!-- About -->
+    <string name="group_about">Über</string>
+    <string name="support_title">TextCtrl unterstützen</string>
+    <string name="support_subtitle">TextCtrl ist kostenlos und Open Source. Unterstütze die Entwicklung auf GitHub</string>
+    <string name="bugs_title">Fehler melden</string>
+    <string name="bugs_subtitle">Ein Problem oder eine Idee? Eröffne ein Issue auf GitHub</string>
+    <string name="source_title">Quellcode</string>
+    <string name="source_subtitle">github.com/VoidedKN0X/TextCtrl</string>
+    <string name="licence_title">Lizenz</string>
+    <string name="licence_subtitle">GNU General Public License v3.0</string>
+    <string name="about_footer">TextCtrl %1$s · VKNXWorks</string>
+
+    <!-- General -->
+    <string name="error_generic">Etwas ist schiefgelaufen</string>
+    <string name="error_load_title">Konnte nicht geladen werden</string>
+    <string name="error_not_default">TextCtrl ist nicht deine SMS-App, deshalb lässt Android das nicht zu. Mach TextCtrl wieder zu deiner SMS-App.</string>
+    <string name="retry">Wiederholen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="close">Schließen</string>
+    <string name="back">Zurück</string>
+    <string name="clear">Leeren</string>
+    <string name="more">Mehr</string>
+    <string name="remove">Entfernen</string>
+    <string name="share">Teilen</string>
+    <string name="delete">Löschen</string>
+    <string name="details">Details</string>
+    <string name="you_title">Du</string>
+    <string name="you">Du</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+    <string name="unknown_sender">Unbekannt</string>
+
+    <!-- First start -->
+    <string name="setup_title">TextCtrl als SMS-App festlegen</string>
+    <string name="setup_body">Android gibt SMS nur an eine App weiter, deine SMS-App. Sobald TextCtrl diese App ist, bekommt sie jede SMS und MMS direkt aus dem Mobilfunknetz.</string>
+    <string name="setup_again_title">TextCtrl ist nicht mehr deine SMS-App</string>
+    <string name="setup_again_body">Eine andere App wurde zu deiner SMS-App, daher landen neue SMS dort. Mach TextCtrl wieder zu deiner SMS-App, um sie weiter zu nutzen.</string>
+    <string name="setup_point_instant">SMS kommen in dem Moment an, in dem dein Smartphone sie empfängt, ohne Push-Dienst dazwischen.</string>
+    <string name="setup_point_offline">Kein Google, keine Server, überhaupt kein Internetzugriff. Deine SMS verlassen dein Smartphone nur in Richtung der Personen, denen du sie schickst.</string>
+    <string name="setup_make_default">Als meine SMS-App festlegen</string>
+    <string name="setup_no_sms">Dieses Gerät kann keine SMS senden oder empfangen.</string>
+    <string name="setup_declined">TextCtrl wurde nicht als SMS-App festgelegt. Tippe auf die Schaltfläche und wähle TextCtrl, um fortzufahren.</string>
+    <string name="setup_permissions_title">Noch ein paar Dinge</string>
+    <string name="setup_permissions_body">Alles optional, alles nur auf deinem Smartphone. Du kannst es später in den Android-Einstellungen ändern.</string>
+    <string name="setup_point_contacts">Kontakte, um Namen und Bilder statt Nummern anzuzeigen.</string>
+    <string name="setup_point_notifications">Benachrichtigungen, um dich über neue Nachrichten zu informieren.</string>
+    <string name="setup_point_sim">Telefon, um pro Chat eine SIM zu wählen und deine eigene Nummer zu kennen.</string>
+    <string name="setup_allow">Weiter</string>
+    <string name="setup_skip">Nicht jetzt</string>
+
+    <!-- Tabs -->
+    <string name="tab_chats">Chats</string>
+    <string name="tab_archived">Archiviert</string>
+    <string name="tab_search">Suche</string>
+
+    <!-- Chats -->
+    <string name="new_chat">Neuer Chat</string>
+    <string name="chats_empty">Noch keine Chats</string>
+    <string name="chats_empty_body">SMS, die du sendest und empfängst, erscheinen hier. Tippe auf Neuer Chat, um jemandem zu schreiben.</string>
+    <string name="archived_empty">Nichts archiviert</string>
+    <string name="archived_empty_body">Archiviere einen Chat, um ihn wegzuräumen. Eine neue Nachricht holt ihn zurück in die Chats.</string>
+    <string name="mark_all_read">Alle als gelesen markieren</string>
+    <string name="mark_read">Als gelesen markieren</string>
+    <string name="mark_unread">Als ungelesen markieren</string>
+    <string name="pin">Oben anheften</string>
+    <string name="unpin">Loslösen</string>
+    <string name="pinned">Angeheftet</string>
+    <string name="mute">Benachrichtigungen stummschalten</string>
+    <string name="unmute">Benachrichtigungen wieder an</string>
+    <string name="muted">Stumm</string>
+    <string name="archive">Archivieren</string>
+    <string name="unarchive">Zurück zu den Chats</string>
+    <string name="block">Blockieren</string>
+    <string name="block_title">%1$s blockieren?</string>
+    <string name="block_body">SMS und Anrufe von dieser Nummer erreichen dich nicht mehr, in TextCtrl und in deiner Telefon-App. Der Chat wird archiviert. Du kannst die Blockierung unter Du › Blockierte Nummern aufheben.</string>
+    <string name="delete_chat">Chat löschen</string>
+    <string name="delete_chat_title">Chat mit %1$s löschen?</string>
+    <string name="delete_chat_body">Alle Nachrichten darin werden von diesem Smartphone gelöscht. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="draft_prefix">Entwurf</string>
+    <string name="draft_unreadable">Ein gespeicherter Entwurf für diesen Chat ist verschlüsselt und kann gerade nicht geöffnet werden. Er bleibt erhalten.</string>
+    <string name="try_again">Erneut versuchen</string>
+    <string name="not_sent">Nicht gesendet</string>
+    <plurals name="people">
+        <item quantity="one">%1$d Person</item>
+        <item quantity="other">%1$d Personen</item>
+    </plurals>
+
+    <!-- A chat -->
+    <string name="call">Anrufen</string>
+    <string name="add_contact">Zu Kontakten hinzufügen</string>
+    <string name="chat_empty">Sag Hallo</string>
+    <string name="chat_empty_body">Deine Nachrichten in diesem Chat erscheinen hier.</string>
+    <string name="chat_empty_group">Nachrichten an diese Gruppe gehen als eine Gruppen-MMS raus, damit alle die Antworten sehen.</string>
+    <string name="chat_gone">Diesen Chat gibt es nicht mehr</string>
+    <string name="chat_gone_body">Er wurde vielleicht in einer anderen App gelöscht.</string>
+    <string name="load_earlier">Ältere Nachrichten laden</string>
+    <string name="compose_hint">SMS</string>
+    <string name="compose_mms_hint">MMS</string>
+    <string name="send">Senden</string>
+    <string name="send_with">Senden mit</string>
+    <string name="sim_slot">SIM %1$d</string>
+    <string name="sms_counter">%1$d übrig · %2$d SMS</string>
+    <string name="attach">Anhängen</string>
+    <string name="attach_subtitle">Wird als MMS gesendet. Bilder werden passend verkleinert, dabei werden auch Standort und Kameradaten entfernt.</string>
+    <string name="attach_media">Fotos und Videos</string>
+    <string name="attach_file">Datei</string>
+    <string name="tap_to_retry">Zum Wiederholen tippen</string>
+    <string name="copy_text">Text kopieren</string>
+    <string name="copied">Kopiert</string>
+    <string name="forward">Weiterleiten</string>
+    <string name="forward_title">Weiterleiten an</string>
+    <string name="save_to_phone">Auf dem Smartphone speichern</string>
+    <string name="saved_to_phone">In Pictures › TextCtrl gespeichert</string>
+    <string name="save_failed">Konnte nicht gespeichert werden</string>
+    <string name="delete_message_title">Diese Nachricht löschen?</string>
+    <string name="delete_message_body">Sie wird nur von diesem Smartphone gelöscht.</string>
+    <string name="status_sending">Wird gesendet…</string>
+    <string name="status_sent">Gesendet</string>
+    <string name="status_delivered">Zugestellt</string>
+    <string name="status_not_delivered">Nicht zugestellt</string>
+    <string name="status_failed">Nicht gesendet</string>
+    <string name="details_type_sms">Textnachricht (SMS)</string>
+    <string name="details_type_mms">Bildnachricht (MMS)</string>
+    <string name="details_from">Von: %1$s</string>
+    <string name="details_to">An: %1$s</string>
+    <string name="details_received">Empfangen: %1$s</string>
+    <string name="details_sent">Gesendet: %1$s</string>
+    <string name="details_sim">SIM: %1$s</string>
+    <string name="details_subject">Betreff: %1$s</string>
+    <string name="details_status">Status: %1$s</string>
+    <string name="details_attachments">Anhänge: %1$s</string>
+
+    <!-- Picture messages -->
+    <string name="mms_waiting">MMS</string>
+    <string name="mms_tap_to_fetch">Zum Abrufen tippen</string>
+    <string name="mms_fetch">Abrufen</string>
+    <string name="mms_expires">Bis %1$s</string>
+    <string name="mms_fetch_failed">Die MMS konnte nicht abgerufen werden. Prüfe, ob mobile Daten an sind, und versuche es erneut.</string>
+    <string name="attachment_picture">Bild</string>
+    <string name="attachment_picture_message">MMS</string>
+    <string name="attachment_video">Video</string>
+    <string name="attachment_audio">Audio</string>
+    <string name="attachment_contact">Kontaktkarte</string>
+    <string name="attachment_file">Datei</string>
+    <string name="attachment_open_failed">Keine App auf diesem Smartphone kann das öffnen</string>
+
+    <!-- Sending -->
+    <string name="send_no_recipient">An wen soll das gehen? Füge zuerst eine Nummer hinzu.</string>
+    <string name="send_empty">Es gibt nichts zu senden</string>
+    <string name="send_store_failed">Die Nachricht konnte nicht gespeichert werden. Ist TextCtrl noch deine SMS-App?</string>
+    <string name="send_failed">Die Nachricht konnte nicht gesendet werden</string>
+    <string name="send_attachment_unreadable">Dieser Anhang konnte nicht gelesen werden</string>
+    <string name="send_attachment_too_big">%1$s ist zu groß für eine MMS</string>
+    <string name="send_picture_too_big">Dieses Bild lässt sich nicht klein genug für eine MMS machen</string>
+
+    <!-- New chat -->
+    <string name="new_chat_hint">Name oder Nummer</string>
+    <string name="new_chat_send_to">An %1$s senden</string>
+    <string name="new_chat_add_to_group">Zur Gruppe hinzufügen</string>
+    <string name="new_chat_remove_from_group">Aus Gruppe entfernen</string>
+    <string name="new_chat_start_one">Chat mit %1$s</string>
+    <plurals name="new_chat_start_group">
+        <item quantity="one">Chat mit %1$d Person</item>
+        <item quantity="other">Gruppenchat mit %1$d Personen</item>
+    </plurals>
+    <string name="contacts_allow">Deine Kontakte anzeigen</string>
+    <string name="contacts_allow_body">Um Personen nach Namen zu finden. Kontakte werden nur auf diesem Smartphone gelesen.</string>
+
+    <!-- Search -->
+    <string name="search_hint">Nachrichten suchen</string>
+    <string name="search_start">Durchsuche deine Nachrichten</string>
+    <string name="search_start_body">Finde SMS und MMS anhand ihrer Wörter. Die Suche läuft nur auf diesem Smartphone.</string>
+    <string name="search_none">Nichts gefunden</string>
+    <string name="search_none_body">Keine Nachricht enthält diese Wörter. Versuche weniger oder andere.</string>
+    <string name="search_you_to">Du an %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_messages">Nachrichten</string>
+    <string name="channel_messages_desc">Neue SMS und MMS</string>
+    <string name="channel_failed">Nicht gesendete Nachrichten</string>
+    <string name="channel_failed_desc">Wenn eine gesendete Nachricht nicht rausgehen konnte</string>
+    <string name="notify_new_message">Neue Nachricht</string>
+    <plurals name="notify_new_messages">
+        <item quantity="one">%1$d neue Nachricht</item>
+        <item quantity="other">%1$d neue Nachrichten</item>
+    </plurals>
+    <string name="notify_reply">Antworten</string>
+    <string name="notify_reply_hint">Nachricht</string>
+    <string name="notify_mark_read">Als gelesen markieren</string>
+    <string name="notify_failed_title">Nachricht nicht gesendet</string>
+    <string name="notify_failed_body">An %1$s. Öffne den Chat, um es erneut zu versuchen.</string>
+    <string name="notify_failed_body_private">Öffne TextCtrl, um es erneut zu versuchen.</string>
+
+    <!-- You -->
+    <string name="you_is_default">Deine SMS-App · Google-frei · kein Internetzugriff</string>
+    <string name="you_not_default">Gerade nicht deine SMS-App</string>
+    <string name="group_sims">Deine SIMs</string>
+    <string name="blocked_title">Blockierte Nummern</string>
+    <string name="blocked_subtitle">SMS und Anrufe von diesen Nummern erreichen dich nie</string>
+    <string name="notification_settings">Benachrichtigungstöne</string>
+    <string name="notification_settings_subtitle">Ton, Vibration und Pop-ups, in den Android-Einstellungen</string>
+
+    <!-- Settings -->
+    <string name="settings">Einstellungen</string>
+    <string name="group_appearance">Darstellung</string>
+    <string name="theme">Design</string>
+    <string name="theme_system">System folgen</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_black">Reines Schwarz</string>
+    <string name="dynamic_colour">Hintergrundfarben verwenden</string>
+    <string name="dynamic_colour_subtitle">Ersetzt die Standardfarben durch Farben aus deinem Hintergrundbild</string>
+    <string name="group_privacy">Datenschutz und Sicherheit</string>
+    <string name="privacy_footer">TextCtrl hat keinen Internetzugriff, keine Analyse, kein Tracking. Deine SMS gehen nur an die Personen, denen du sie schickst, über das Mobilfunknetz.</string>
+    <string name="lock_app">App-Sperre</string>
+    <string name="lock_app_subtitle">Beim Öffnen von TextCtrl nach einer App-PIN fragen (und optional nach deinem Fingerabdruck). Solange gesperrt, bleiben deine Entwürfe mit der PIN verschlüsselt und die Übersicht der letzten Apps verbirgt deine Chats.</string>
+    <string name="lock_change_pin">App-PIN ändern</string>
+    <string name="lock_change_pin_subtitle">Mindestens %1$d Ziffern, getrennt von der PIN deines Smartphones</string>
+    <string name="lock_fingerprint">Mit Fingerabdruck entsperren</string>
+    <string name="lock_fingerprint_settings_subtitle">Nur starke Biometrie wie dein Fingerabdruck, geprüft von der sicheren Hardware des Smartphones. Die PIN wird nach einem Neustart und alle 72 Stunden weiterhin benötigt.</string>
+    <string name="lock_fingerprint_unavailable">Richte zuerst einen Fingerabdruck auf diesem Smartphone ein</string>
+    <string name="lock_fingerprint_setup_failed">Entsperren per Fingerabdruck konnte nicht eingerichtet werden</string>
+    <string name="lock_fingerprint_enable_title">Entsperren per Fingerabdruck einschalten</string>
+    <string name="lock_fingerprint_enable_subtitle">Bestätige deinen Fingerabdruck</string>
+    <string name="lock_again">Erneut sperren</string>
+    <string name="lock_again_immediately">Sobald du die App verlässt</string>
+    <string name="lock_again_1m">Nach 1 Minute Abwesenheit</string>
+    <string name="lock_again_5m">Nach 5 Minuten Abwesenheit</string>
+    <string name="lock_again_15m">Nach 15 Minuten Abwesenheit</string>
+    <string name="lock_again_1h">Nach 1 Stunde Abwesenheit</string>
+    <string name="lock_again_restart">Nur beim Neustart der App</string>
+    <string name="hide_screenshots">In Screenshots ausblenden</string>
+    <string name="hide_screenshots_subtitle">Screenshots und Bildschirmaufnahmen zeigen einen leeren Bildschirm</string>
+    <string name="hide_recents">In letzten Apps ausblenden</string>
+    <string name="hide_recents_subtitle">Die Übersicht der letzten Apps zeigt statt der App eine leere Karte</string>
+    <string name="notify_content">Inhalt der Benachrichtigungen</string>
+    <string name="notify_content_all">Name und Nachricht</string>
+    <string name="notify_content_name">Nur Name</string>
+    <string name="notify_content_nothing">Nichts (nur \"neue Nachricht\")</string>
+    <string name="group_messages">Nachrichten</string>
+    <string name="delivery_reports">Zustellberichte</string>
+    <string name="delivery_reports_subtitle">Das Netz bitten, dir zu melden, wenn eine SMS das andere Smartphone erreicht. Manche Anbieter berechnen das.</string>
+    <string name="auto_download">MMS automatisch abrufen</string>
+    <string name="auto_download_subtitle">Nutzt mobile Daten. Wenn aus, tippe auf eine MMS, um sie abzurufen.</string>
+    <string name="group_mms">Gruppen-SMS als MMS</string>
+    <string name="group_mms_subtitle">Eine SMS an mehrere Personen geht als eine Gruppennachricht raus, damit alle die Antworten sehen. Wenn aus, bekommt jeder eine eigene SMS.</string>
+    <string name="sim_for_new">SIM für neue Chats</string>
+    <string name="sim_default">Standard des Smartphones</string>
+    <string name="sms_app">SMS-App</string>
+    <string name="sms_app_yes">TextCtrl ist deine SMS-App</string>
+    <string name="sms_app_no">TextCtrl ist nicht deine SMS-App. Zum Ändern tippen.</string>
+
+    <!-- Blocked numbers -->
+    <string name="blocked_add">Nummer blockieren</string>
+    <string name="blocked_number">Telefonnummer</string>
+    <string name="blocked_empty">Keine blockierten Nummern</string>
+    <string name="blocked_empty_body">Blockiere eine Nummer in ihrem Chat oder mit der Schaltfläche +.</string>
+    <string name="blocked_footer">Das ist die Sperrliste von Android, gemeinsam mit deiner Telefon-App. Tippe auf eine Nummer, um die Blockierung aufzuheben. Du kannst sie mit deinen Filtern unter Filter importieren und exportieren.</string>
+    <string name="unblock">Blockierung aufheben</string>
+    <string name="unblock_title">Blockierung von %1$s aufheben?</string>
+    <string name="unblock_body">SMS und Anrufe von dieser Nummer erreichen dich wieder.</string>
+
+    <!-- App lock -->
+    <string name="lock_title">TextCtrl ist gesperrt</string>
+    <string name="lock_locked">Gesperrt</string>
+    <string name="lock_enter_pin">PIN eingeben</string>
+    <string name="lock_pin_due">Gib deine PIN ein. Sie wird nach einem Neustart und alle 72 Stunden benötigt.</string>
+    <string name="lock_wrong_pin">Falsche PIN</string>
+    <string name="lock_too_many">Zu viele Versuche. Versuche es in %1$d s erneut</string>
+    <string name="lock_use_fingerprint">Fingerabdruck verwenden</string>
+    <string name="lock_use_pin">PIN verwenden</string>
+    <string name="lock_fingerprint_title">TextCtrl entsperren</string>
+    <string name="lock_fingerprint_subtitle">Bestätige, dass du es bist, um deine Nachrichten zu sehen</string>
+    <string name="lock_fingerprint_changed">Ein Fingerabdruck wurde hinzugefügt oder entfernt. Entsperre mit deiner PIN und schalte dann das Entsperren per Fingerabdruck wieder ein.</string>
+    <string name="lock_fingerprint_failed">Entsperren mit Fingerabdruck fehlgeschlagen. Verwende deine PIN.</string>
+    <string name="lock_fingerprint_key_failed">Der Fingerabdruck hat den Schlüssel nicht entsperrt</string>
+    <string name="lock_fingerprint_prompt_failed">Fingerabdruck-Abfrage konnte nicht angezeigt werden</string>
+    <string name="lock_prompt_failed">Entsperr-Abfrage konnte nicht angezeigt werden</string>
+    <string name="lock_forgot">PIN vergessen?</string>
+    <string name="lock_forgot_title">PIN vergessen?</string>
+    <string name="lock_forgot_body">Die PIN kann nicht wiederhergestellt werden. Bestätige mit der Displaysperre deines Smartphones, dass du es bist, um die App-Sperre auszuschalten. Mit der alten PIN verschlüsselte Entwürfe werden gelöscht; deine Nachrichten bleiben.</string>
+    <string name="lock_forgot_no_screen_lock">Die PIN kann nicht wiederhergestellt werden, und dieses Smartphone hat keine Displaysperre, um zu bestätigen, dass du es bist. Um neu anzufangen, lösche den Speicher von TextCtrl in den Android-Einstellungen (deine Nachrichten bleiben).</string>
+    <string name="lock_forgot_confirm">Bestätigen und zurücksetzen</string>
+    <string name="lock_reset_prompt_title">App-Sperre von TextCtrl zurücksetzen</string>
+    <string name="lock_reset_prompt_subtitle">Bestätige mit der Displaysperre deines Smartphones, dass du es bist</string>
+    <string name="lock_choose_title">App-PIN wählen</string>
+    <string name="lock_choose_intro">Mindestens %1$d Ziffern, anders als die PIN deines Smartphones.</string>
+    <string name="lock_change_title">App-PIN ändern</string>
+    <string name="lock_change_intro">Mindestens %1$d Ziffern, anders als die PIN deines Smartphones.</string>
+    <string name="lock_disable_title">App-Sperre ausschalten</string>
+    <string name="lock_disable_intro">Gib deine App-PIN ein, um die Sperre auszuschalten.</string>
+    <string name="lock_current_pin">Aktuelle PIN eingeben</string>
+    <string name="lock_repeat_pin">Gib dieselbe PIN noch einmal ein</string>
+    <string name="lock_too_easy">Zu leicht zu erraten. Wähle eine weniger offensichtliche PIN.</string>
+    <string name="lock_mismatch">Die PINs stimmen nicht überein. Fang noch einmal an.</string>
+    <string name="lock_save_failed">PIN konnte nicht gespeichert werden. Versuche es noch einmal.</string>
+    <string name="lock_next">Weiter</string>
+    <string name="lock_done">Fertig</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_delete">Löschen</string>
+    <string name="lock_cancel">Abbrechen</string>
+    <!-- 0.2.0: scheduling and undo send -->
+    <string name="schedule_title">Nachricht planen</string>
+    <string name="schedule_body">Sie geht zu dieser Zeit raus, auch wenn TextCtrl geschlossen ist oder das Smartphone neu gestartet wurde. Tipp: Halte die Senden-Schaltfläche gedrückt.</string>
+    <string name="schedule_pick">Datum und Uhrzeit wählen</string>
+    <string name="schedule_time">Uhrzeit</string>
+    <string name="schedule_confirm">Planen</string>
+    <string name="schedule_past">Wähle eine Zeit, die noch kommt</string>
+    <string name="schedule_write_first">Schreib zuerst eine Nachricht</string>
+    <string name="scheduled_for">Geplant · %1$s</string>
+    <string name="scheduled_title">Geplante Nachricht</string>
+    <string name="scheduled_list_title">Geplante Nachrichten</string>
+    <string name="scheduled_list_subtitle">Nachrichten, die später rausgehen</string>
+    <string name="scheduled_empty">Nichts geplant</string>
+    <string name="scheduled_empty_body">Halte in einem Chat die Senden-Schaltfläche gedrückt, um eine Nachricht später zu senden.</string>
+    <string name="has_scheduled">Geplante Nachricht</string>
+    <string name="send_now">Jetzt senden</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="open_chat">Chat öffnen</string>
+    <string name="undo">Rückgängig</string>
+    <string name="undo_title">Wird gleich gesendet</string>
+    <string name="undo_sending_in">Senden in %1$d s</string>
+    <string name="undo_send">Senden rückgängig machen</string>
+    <string name="undo_off">Aus: sofort senden</string>
+    <string name="undo_5s">5 Sekunden zum Zurücknehmen</string>
+    <string name="undo_10s">10 Sekunden zum Zurücknehmen</string>
+    <plurals name="attachments_count">
+        <item quantity="one">%1$d Anhang</item>
+        <item quantity="other">%1$d Anhänge</item>
+    </plurals>
+
+    <!-- One-time codes -->
+    <string name="copy_code">Code kopieren</string>
+    <string name="copy_code_value">%1$s kopieren</string>
+    <string name="code_copied">Code kopiert</string>
+    <string name="copy_codes">Einmalcodes kopieren</string>
+    <string name="copy_codes_subtitle">Eine Schaltfläche \"Kopieren\" für Bestätigungscodes, im Chat und in der Benachrichtigung</string>
+
+    <!-- Reactions -->
+    <string name="react">Reagieren</string>
+    <string name="react_body">Wird als SMS gesendet, so wie iPhones und Google Messages Reaktionen senden, damit sie auch auf anderen Smartphones erscheinen. Wähle sie noch einmal, um sie zurückzunehmen.</string>
+
+    <!-- Selecting and filters -->
+    <plurals name="selected_count">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
+    <plurals name="delete_chats_title">
+        <item quantity="one">%1$d Chat löschen?</item>
+        <item quantity="other">%1$d Chats löschen?</item>
+    </plurals>
+    <plurals name="delete_messages_title">
+        <item quantity="one">Diese Nachricht löschen?</item>
+        <item quantity="other">%1$d Nachrichten löschen?</item>
+    </plurals>
+    <string name="filter_all">Alle</string>
+    <string name="filter_unread">Ungelesen</string>
+    <string name="filter_unread_n">Ungelesen (%1$d)</string>
+    <string name="filter_unknown">Unbekannte Absender</string>
+    <string name="filter_unknown_n">Unbekannte Absender (%1$d)</string>
+    <string name="unread_empty">Alles gelesen</string>
+    <string name="unread_empty_body">Keine Chats mit ungelesenen Nachrichten.</string>
+    <string name="unknown_empty">Keine unbekannten Absender</string>
+    <string name="unknown_empty_body">SMS von Nummern, die nicht in deinen Kontakten sind und denen du nie geschrieben hast, erscheinen hier.</string>
+    <string name="pick_chat">Chat auswählen</string>
+    <string name="pick_chat_body">Wähle links einen Chat, um ihn hier zu öffnen.</string>
+
+    <!-- Search -->
+    <string name="search_in_chat">Im Chat suchen</string>
+    <string name="search_in_chat_hint">Diesen Chat durchsuchen</string>
+    <string name="search_position">%1$d von %2$d</string>
+    <string name="search_older">Älterer Treffer</string>
+    <string name="search_newer">Neuerer Treffer</string>
+    <string name="search_everyone">Alle</string>
+    <string name="search_in">In %1$s</string>
+    <string name="search_pick_person">In einem Chat suchen</string>
+
+    <!-- Per-chat sound and auto-delete -->
+    <string name="chat_sound">Benachrichtigungston</string>
+    <string name="channel_chat_desc">Nachrichten in diesem Chat</string>
+    <string name="auto_delete">Alte Nachrichten löschen</string>
+    <string name="auto_delete_chat">Alte Nachrichten hier löschen</string>
+    <string name="auto_delete_never">Nie</string>
+    <string name="auto_delete_30d">Älter als 30 Tage</string>
+    <string name="auto_delete_90d">Älter als 90 Tage</string>
+    <string name="auto_delete_1y">Älter als ein Jahr</string>
+    <string name="auto_delete_follow">Wie in den Einstellungen (%1$s)</string>
+    <string name="auto_delete_confirm_title">Nachrichten löschen, die %1$s sind?</string>
+    <string name="auto_delete_confirm_body">So alte Nachrichten werden jetzt von diesem Smartphone gelöscht und danach einmal am Tag, in jedem Chat ohne eigene Einstellung. Das kann nicht rückgängig gemacht werden.</string>
+    <string name="auto_delete_confirm">Löschen</string>
+
+    <!-- Unknown senders -->
+    <string name="separate_unknown">Unbekannte Absender trennen</string>
+    <string name="separate_unknown_subtitle">SMS von Nummern, die nicht in deinen Kontakten sind und denen du nie geschrieben hast, landen in einem eigenen Filter statt in den Chats</string>
+    <string name="separate_unknown_needs_contacts">Braucht Zugriff auf deine Kontakte, um zu erkennen, wer unbekannt ist</string>
+    <string name="notify_unknown">Bei unbekannten Absendern benachrichtigen</string>
+    <string name="notify_unknown_subtitle">Aus: Ihre SMS kommen still an. Codes von deiner Bank oder von Lieferdiensten kommen meist auch von unbekannten Absendern.</string>
+
+    <!-- Hidden chats -->
+    <string name="hide">Chat verbergen</string>
+    <string name="unhide">Wieder anzeigen</string>
+    <string name="hidden_title">Verborgene Chats</string>
+    <string name="hidden_subtitle">Chats hinter einer eigenen PIN</string>
+    <string name="hidden_setup_title">Verborgene Chats einrichten</string>
+    <string name="hidden_choose_intro">Wähle eine PIN für verborgene Chats, mindestens %1$d Ziffern und anders als die der App-Sperre. Verborgene Chats bleiben außerhalb von Chats und Suche, und ihre Benachrichtigungen zeigen nie Namen oder Text.</string>
+    <string name="hidden_enter_pin">PIN für verborgene Chats eingeben</string>
+    <string name="hidden_done">Chat verborgen. Du findest ihn unter Du › Verborgene Chats.</string>
+    <string name="hidden_empty">Keine verborgenen Chats</string>
+    <string name="hidden_empty_body">Verbirg einen Chat über sein Menü, um ihn hier aufzubewahren.</string>
+    <string name="hidden_list_note">Sie schließen sich wieder, wenn du TextCtrl verlässt. Die Nachrichten liegen weiterhin im Nachrichtenspeicher von Android, andere SMS-Apps können sie also sehen.</string>
+    <string name="hidden_chat_locked">Dieser Chat ist verborgen</string>
+    <string name="hidden_chat_locked_body">Gib die PIN für verborgene Chats ein, um ihn zu öffnen.</string>
+    <string name="hidden_show">Verborgene Chats anzeigen</string>
+    <string name="hidden_change_pin">PIN für verborgene Chats ändern</string>
+    <string name="hidden_stop">Keine Chats mehr verbergen</string>
+    <string name="hidden_stop_title">Keine Chats mehr verbergen?</string>
+    <string name="hidden_stop_body">Jeder verborgene Chat kehrt in die Chats zurück, und die PIN für verborgene Chats wird entfernt.</string>
+    <string name="hidden_stop_confirm">Alle anzeigen</string>
+    <string name="hidden_forgot_title">PIN für verborgene Chats vergessen?</string>
+    <string name="hidden_forgot_body">Sie kann nicht wiederhergestellt werden. Bestätige mit der Displaysperre deines Smartphones, dass du es bist, dann kehren die verborgenen Chats in die Chats zurück und du kannst eine neue PIN einrichten.</string>
+    <string name="hidden_forgot_no_screen_lock">Sie kann nicht wiederhergestellt werden, und dieses Smartphone hat keine Displaysperre, um zu bestätigen, dass du es bist. Um neu anzufangen, lösche den Speicher von TextCtrl in den Android-Einstellungen (deine Nachrichten bleiben).</string>
+
+    <!-- Backup -->
+    <string name="backup_title">Sichern und wiederherstellen</string>
+    <string name="backup_subtitle">Alle deine Nachrichten in einer verschlüsselten Datei, die du behältst</string>
+    <string name="backup_intro">Speichere jede SMS und MMS in einer Datei, verschlüsselt mit einem Passwort, das nur du kennst. Bewahre sie auf einem USB-Stick, deinem Computer oder in einer Speicher-App auf und stelle sie auf einem neuen Smartphone wieder her. Nichts geht an Google oder irgendeinen Server.</string>
+    <string name="backup_now">Jetzt sichern</string>
+    <string name="backup_now_subtitle">Wähle, wo die Datei gespeichert wird</string>
+    <string name="backup_restore">Sicherung wiederherstellen</string>
+    <string name="backup_restore_subtitle">Nachrichten, die schon auf diesem Smartphone sind, werden nicht doppelt hinzugefügt</string>
+    <string name="backup_footer">Verschlüsselt mit AES-256 und einem aus deinem Passwort abgeleiteten Schlüssel (PBKDF2, 600.000 Runden). Ohne das Passwort kann niemand die Sicherung lesen, auch du nicht: Es kann nicht wiederhergestellt werden.</string>
+    <string name="backup_password_title">Sicherungspasswort wählen</string>
+    <string name="backup_password_enter">Sicherungspasswort</string>
+    <string name="backup_password_body">Mindestens 8 Zeichen. Schreib es auf: Ohne es kann die Sicherung nicht geöffnet werden.</string>
+    <string name="backup_password">Passwort</string>
+    <string name="backup_password_repeat">Dasselbe Passwort noch einmal</string>
+    <string name="backup_password_short">Verwende mindestens 8 Zeichen</string>
+    <string name="backup_password_mismatch">Die Passwörter stimmen nicht überein</string>
+    <string name="backup_running">Wird gesichert… bisher %1$d Nachrichten</string>
+    <string name="backup_restoring">Wird wiederhergestellt… bisher %1$d Nachrichten</string>
+    <string name="backup_keep_open">Lass TextCtrl geöffnet, bis es fertig ist.</string>
+    <string name="backup_done">Fertig: %1$d Nachrichten gesichert.</string>
+    <string name="backup_restored">Fertig: %1$d Nachrichten wiederhergestellt, %2$d waren schon da.</string>
+    <string name="backup_failed">Die Sicherung hat nicht funktioniert</string>
+    <string name="backup_cant_write">In diese Datei konnte nicht geschrieben werden</string>
+    <string name="backup_cant_read">Diese Datei konnte nicht geöffnet werden</string>
+    <string name="backup_wrong_password">Falsches Passwort oder keine TextCtrl-Sicherung</string>
+    <string name="backup_not_a_backup">Das ist keine TextCtrl-Sicherung</string>
+    <string name="backup_cut_off">Die Sicherungsdatei ist unvollständig. Nachrichten bis zu dieser Stelle wurden wiederhergestellt.</string>
+    <string name="backup_damaged">Die Sicherungsdatei ist beschädigt oder wurde verändert. Nachrichten bis zu dieser Stelle wurden wiederhergestellt.</string>
+
+    <!-- Look and feel -->
+    <string name="bubble_colour">Blasenfarbe</string>
+    <string name="bubble_accent">Designfarbe</string>
+    <string name="bubble_sky">Himmel</string>
+    <string name="bubble_mint">Mint</string>
+    <string name="bubble_marigold">Ringelblume</string>
+    <string name="bubble_rose">Rosa</string>
+    <string name="bubble_lavender">Lavendel</string>
+    <string name="bubble_graphite">Graphit</string>
+    <string name="text_size">Textgröße in Chats</string>
+    <string name="text_size_small">Klein</string>
+    <string name="text_size_default">Standard</string>
+    <string name="text_size_large">Groß</string>
+    <string name="text_size_larger">Größer</string>
+
+    <!-- Contact cards -->
+    <string name="attach_contact">Kontakt</string>
+    <string name="vcard_unreadable">Dieser Kontakt konnte nicht gelesen werden</string>
+    <string name="vcard_too_many">Du kannst bis zu 5 Dinge an eine Nachricht anhängen</string>
+    <plurals name="vcard_more">
+        <item quantity="one">%1$d weiterer</item>
+        <item quantity="other">%1$d weitere</item>
+    </plurals>
+
+    <!-- Swipe actions -->
+    <string name="group_chat_list">Chatliste</string>
+    <string name="swipe_right">Nach rechts wischen</string>
+    <string name="swipe_left">Nach links wischen</string>
+    <string name="swipe_footer">Was seitliches Wischen über einen Chat in Chats und Archiviert bewirkt. Archivieren, Löschen und Blockieren können einige Sekunden lang rückgängig gemacht werden.</string>
+    <string name="swipe_none">Nichts</string>
+    <string name="swipe_read">Als gelesen oder ungelesen markieren</string>
+    <string name="swipe_pin">Anheften oder loslösen</string>
+    <string name="swipe_mute">Stumm oder wieder laut</string>
+    <string name="swipe_archived">%1$s archiviert</string>
+    <string name="swipe_unarchived">%1$s zurück in die Chats verschoben</string>
+    <string name="swipe_deleted">Chat mit %1$s gelöscht</string>
+    <string name="swipe_blocked">%1$s blockiert</string>
+    <string name="swipe_block_group">Nur Chats mit einer Person können blockiert werden</string>
+
+    <!-- Spam folder and filters -->
+    <string name="save">Speichern</string>
+    <string name="spam_title">Spam</string>
+    <string name="spam_subtitle">Chats, die deine Filter aussortiert haben, ohne Benachrichtigungen</string>
+    <string name="spam_empty">Kein Spam</string>
+    <string name="spam_empty_body">Chats, die deine Filter abfangen oder die du hierher verschiebst, erscheinen hier, ohne dich zu benachrichtigen. Richte Filter mit der Schaltfläche oben ein.</string>
+    <string name="spam_move">In Spam verschieben</string>
+    <string name="spam_moved">In Spam verschoben</string>
+    <string name="spam_restore">Kein Spam</string>
+    <string name="filters_title">Filter</string>
+    <string name="filters_subtitle">SMS nach Wörtern, Nummern und Absendern blockieren oder aussortieren</string>
+    <string name="filters_intro">Deine eigenen Regeln, geprüft auf dem Smartphone, sobald eine SMS oder MMS ankommt, vor jeder Benachrichtigung. Es gibt keine Spam-Datenbank und keinen Online-Dienst: TextCtrl hat keinen Internetzugriff.</string>
+    <string name="filters_skip_contacts">Meine Kontakte nie filtern</string>
+    <string name="filters_skip_contacts_subtitle">Nachrichten von Personen in deinen Kontakten oder aus Chats, in denen du geschrieben hast, kommen immer durch</string>
+    <string name="filters_rules">Regeln</string>
+    <string name="filters_empty">Noch keine Filter</string>
+    <string name="filters_empty_body">Füge eine Regel hinzu, um SMS mit bestimmten Wörtern, von bestimmten Nummern oder Absendernamen, von Kurznummern, von Nummern mit einer bestimmten Vorwahl oder von unbekannten Absendern zu blockieren oder auszusortieren.</string>
+    <string name="filter_add">Filter hinzufügen</string>
+    <string name="filter_edit">Filter bearbeiten</string>
+    <plurals name="filter_hits">
+        <item quantity="one">%1$d Nachricht</item>
+        <item quantity="other">%1$d Nachrichten</item>
+    </plurals>
+    <plurals name="filters_blocked_count">
+        <item quantity="one">%1$d Absender wurde bisher durch deine Regeln auf die Sperrliste gesetzt.</item>
+        <item quantity="other">%1$d Absender wurden bisher durch deine Regeln auf die Sperrliste gesetzt.</item>
+    </plurals>
+    <string name="rule_kind">Nachrichten abfangen</string>
+    <string name="rule_action">Dann</string>
+    <string name="rule_keyword">Mit diesen Wörtern</string>
+    <string name="rule_regex">Passend zu einem Muster (Regex)</string>
+    <string name="rule_prefix">Von Nummern, die beginnen mit</string>
+    <string name="rule_short_code">Von Kurznummern (3 bis 8 Ziffern)</string>
+    <string name="rule_named_sender">Von Absendern mit Namen statt Nummer</string>
+    <string name="rule_unknown">Von Nummern, die nicht in deinen Kontakten sind</string>
+    <string name="rule_exact">Von diesen Nummern oder Absendernamen</string>
+    <string name="rule_summary_exact">Von %1$s</string>
+    <string name="rule_pattern_exact">Nummern oder Absendernamen</string>
+    <string name="rule_pattern_hint_exact">Trenne mehrere mit Kommas. 0470 12 34 56 und +32 470 12 34 56 zählen als dieselbe Nummer; Namen wie BANK müssen vollständig übereinstimmen.</string>
+    <string name="rule_pattern_hint_regex">Groß- und Kleinschreibung spielen keine Rolle. Muster, die sehr langsam werden könnten, werden nicht angenommen, und eines, das bei einer Nachricht zu lange braucht, gilt als kein Treffer.</string>
+    <string name="rule_regex_slow">Zu langsam, übersprungen</string>
+    <string name="rule_regex_unsafe">Dieses Muster könnte sehr langsam werden. Wiederholte Gruppen dürfen keine Wiederholungen oder | enthalten (nutze (ab)+, nicht (a+)+ oder (a|b)+), Rückverweise sind nicht erlaubt, und höchstens 6 offene Wiederholungen (* + {n,})</string>
+    <string name="filters_summary">Zusammenfassende Benachrichtigung</string>
+    <string name="filters_summary_subtitle">Eine stille Benachrichtigung zählt die Nachrichten, die in Spam gelandet sind, ohne zu sagen, wer sie geschickt hat oder was drinsteht</string>
+    <string name="filters_transfer">Import und Export</string>
+    <string name="filters_transfer_footer">Deine Regeln und die Nummern auf der Sperrliste von Android, als JSON- oder CSV-Datei, die du aufbewahrst, wo du willst. Ein Import fügt hinzu, was noch fehlt, und entfernt nie etwas.</string>
+    <string name="filters_import">Regeln und blockierte Nummern importieren</string>
+    <string name="filters_import_subtitle">Aus einer JSON- oder CSV-Datei, die TextCtrl exportiert hat</string>
+    <string name="filters_import_rules_only">Blockierte Nummern können nur hinzugefügt werden, solange TextCtrl deine SMS-App ist</string>
+    <string name="filters_export">Regeln und blockierte Nummern exportieren</string>
+    <string name="filters_export_subtitle">In eine JSON- oder CSV-Datei</string>
+    <string name="filters_export_json">JSON-Datei</string>
+    <string name="filters_export_csv">CSV-Datei (für Tabellen)</string>
+    <string name="filters_exported">Exportiert</string>
+    <string name="filters_export_failed">Datei konnte nicht geschrieben werden</string>
+    <string name="filters_imported">Regeln hinzugefügt: %1$d. Nummern blockiert: %2$d.</string>
+    <plurals name="filters_import_skipped">
+        <item quantity="one">%1$d Eintrag war schon da oder ungültig.</item>
+        <item quantity="other">%1$d Einträge waren schon da oder ungültig.</item>
+    </plurals>
+    <string name="filters_import_failed">Datei konnte nicht gelesen werden</string>
+    <string name="filters_import_too_big">Diese Datei ist zu groß für einen Filter-Export</string>
+    <string name="filters_import_invalid">Das ist kein Filter-Export von TextCtrl (JSON oder CSV)</string>
+    <string name="channel_filtered">Gefilterte Nachrichten</string>
+    <string name="channel_filtered_desc">Eine stille Zusammenfassung der Nachrichten, die deine Filter in Spam verschoben haben</string>
+    <string name="notify_filtered_title">Spamfilter</string>
+    <plurals name="notify_filtered">
+        <item quantity="one">%1$d Nachricht in Spam verschoben</item>
+        <item quantity="other">%1$d Nachrichten in Spam verschoben</item>
+    </plurals>
+    <string name="rule_action_block">Absender blockieren, in Spam behalten</string>
+    <string name="rule_action_spam">In Spam verschieben</string>
+    <string name="rule_action_mute">Behalten, aber nicht benachrichtigen</string>
+    <string name="rule_action_help">Spam behält die Nachricht im Spam-Ordner, ohne dich zu benachrichtigen. Blockieren macht dasselbe und setzt den Absender zusätzlich auf die Sperrliste von Android, sodass nichts mehr von ihm dich erreicht (auch nicht in deiner Telefon-App). Eine Regel löscht nie Nachrichten.</string>
+    <string name="rule_summary_keyword">Wörter: %1$s</string>
+    <string name="rule_summary_regex">Muster: %1$s</string>
+    <string name="rule_summary_prefix">Nummern, die mit %1$s beginnen</string>
+    <string name="rule_pattern_keyword">Wörter oder Ausdrücke</string>
+    <string name="rule_pattern_regex">Regulärer Ausdruck</string>
+    <string name="rule_pattern_prefix">Nummernanfänge</string>
+    <string name="rule_pattern_hint">Trenne mehrere mit Kommas. Groß- und Kleinschreibung spielen keine Rolle.</string>
+    <string name="rule_pattern_needed">Bitte ausfüllen</string>
+    <string name="rule_pattern_long">Das ist zu lang (bis zu 300 Zeichen)</string>
+    <string name="rule_regex_invalid">Das ist kein gültiger regulärer Ausdruck</string>
+    <string name="rule_prefix_invalid">Verwende Ziffern und +, etwa +44 oder 0900</string>
+    <string name="rule_no_pattern">Sonst gibt es nichts auszufüllen.</string>
+    <string name="rule_unknown_needs_contacts">Braucht die Kontakte-Berechtigung, um zu erkennen, wer unbekannt ist; bis dahin tut diese Regel nichts.</string>
+
+    <!-- SMS Backup & Restore files -->
+    <string name="xml_group">Andere SMS-Apps</string>
+    <string name="xml_footer">Das XML-Format von SMS Backup &amp; Restore, das viele SMS-Apps und Sicherungsprogramme lesen und schreiben. Diese Dateien sind nicht verschlüsselt, bewahre sie also sicher auf. Nachrichten, die schon auf dem Smartphone sind, werden nicht doppelt hinzugefügt.</string>
+    <string name="xml_import">Aus einer XML-Datei importieren</string>
+    <string name="xml_import_subtitle">SMS und MMS aus SMS Backup &amp; Restore oder einer anderen SMS-App</string>
+    <string name="xml_import_not_default">Nur möglich, solange TextCtrl deine SMS-App ist</string>
+    <string name="xml_export">In eine XML-Datei exportieren</string>
+    <string name="xml_export_subtitle">Jede SMS und MMS, zum Öffnen in SMS Backup &amp; Restore oder einer anderen SMS-App</string>
+    <string name="xml_export_title">Ohne Verschlüsselung exportieren?</string>
+    <string name="xml_export_body">Andere SMS-Apps brauchen diese Datei als einfaches XML, also kann jeder, der sie in die Hände bekommt, deine Nachrichten lesen. Für eine Sicherung, die nur TextCtrl braucht, nutze stattdessen Jetzt sichern.</string>
+    <string name="xml_importing">Wird importiert… %1$d Nachrichten</string>
+    <string name="xml_importing_of">Wird importiert… %1$d von %2$d Nachrichten</string>
+    <string name="xml_exporting">Wird exportiert… %1$d Nachrichten</string>
+    <string name="xml_exporting_of">Wird exportiert… %1$d von %2$d Nachrichten</string>
+    <string name="xml_imported">%1$d SMS und %2$d MMS importiert.</string>
+    <plurals name="xml_skipped">
+        <item quantity="one">%1$d war schon auf dem Smartphone.</item>
+        <item quantity="other">%1$d waren schon auf dem Smartphone.</item>
+    </plurals>
+    <plurals name="xml_failed_count">
+        <item quantity="one">%1$d konnte nicht gelesen werden.</item>
+        <item quantity="other">%1$d konnten nicht gelesen werden.</item>
+    </plurals>
+    <string name="xml_exported">%1$d SMS und %2$d MMS exportiert.</string>
+    <string name="xml_failed">Das hat nicht geklappt</string>
+    <string name="xml_cant_read">Diese Datei konnte nicht geöffnet werden</string>
+    <string name="xml_cant_write">In diese Datei konnte nicht geschrieben werden</string>
+    <string name="xml_not_backup">Das ist keine XML-Datei von SMS Backup &amp; Restore</string>
+    <string name="xml_damaged_partial">Die Datei ist beschädigt oder unvollständig. %1$d Nachrichten bis zu dieser Stelle wurden importiert.</string>
+
+    <!-- Starred messages -->
+    <string name="star">Markieren</string>
+    <string name="unstar">Markierung entfernen</string>
+    <string name="starred_mark">Markiert</string>
+    <string name="starred_title">Markierte Nachrichten</string>
+    <string name="starred_subtitle">Nachrichten, die du mit einem Stern markiert hast, aus allen Chats</string>
+    <string name="starred_empty">Keine markierten Nachrichten</string>
+    <string name="starred_empty_body">Halte eine Nachricht in einem Chat gedrückt und tippe auf den Stern, um sie hier aufzubewahren. Markierte Nachrichten werden nie automatisch gelöscht.</string>
+    <string name="starred_yours">Du: %1$s</string>
+
+    <!-- A colour per chat -->
+    <string name="chat_colour">Blasenfarbe für diesen Chat</string>
+    <string name="chat_colour_follow">Wie in den Einstellungen (%1$s)</string>
+
+    <!-- Export one chat -->
+    <string name="export_chat">Chat exportieren</string>
+    <string name="export_chat_heading">TextCtrl-Chatexport</string>
+    <string name="export_chat_with">Chat mit</string>
+    <string name="export_chat_exported">Exportiert</string>
+    <string name="export_chat_messages">Nachrichten</string>
+    <string name="export_chat_me">Ich</string>
+    <string name="export_chat_attachment">Anhang</string>
+    <string name="export_chat_not_downloaded">MMS, die nicht abgerufen wurde</string>
+    <plurals name="export_chat_done">
+        <item quantity="one">%1$d Nachricht exportiert. Die Datei ist nicht verschlüsselt</item>
+        <item quantity="other">%1$d Nachrichten exportiert. Die Datei ist nicht verschlüsselt</item>
+    </plurals>
+
+    <!-- Link warning -->
+    <string name="warn_links">Vor dem Öffnen von Links unbekannter Absender fragen</string>
+    <string name="warn_links_subtitle">Für SMS von Nummern, die nicht in deinen Kontakten sind: zeigt zuerst, wohin ein Link wirklich führt</string>
+    <string name="warn_links_no_contacts">TextCtrl kann deine Kontakte nicht lesen und fragt daher bei jedem empfangenen Link</string>
+    <string name="link_warning_title">Diesen Link öffnen?</string>
+    <string name="link_warning_body">Diese SMS kommt von einer Nummer, die nicht in deinen Kontakten ist. Der Link führt zu:\n%1$s</string>
+    <string name="link_warning_disguised">Vorsicht: Der Link hat einen anderen Namen vor einem @, damit es so aussieht, als führe er woanders hin.</string>
+    <string name="link_warning_lookalike">Vorsicht: Die Adresse verwendet Buchstaben aus einem anderen Alphabet, die genau wie eine bekannte Website aussehen können.</string>
+    <string name="link_warning_numeric">Vorsicht: Die Adresse ist eine Zahl statt eines Namens.</string>
+    <string name="link_warning_http">Der Link ist nicht verschlüsselt (http): Gib auf der Seite keine Passwörter oder Kartennummern ein.</string>
+    <string name="link_warning_open">Link öffnen</string>
+    <string name="link_warning_no_app">Keine App kann diesen Link öffnen</string>
+
+    <!-- One-time codes -->
+    <string name="delete_codes">Einmalcodes nach einem Tag löschen</string>
+    <string name="delete_codes_subtitle">Empfangene SMS mit einem Anmelde- oder Bestätigungscode werden gelöscht, sobald sie einen Tag alt sind. Markierte Nachrichten bleiben erhalten</string>
+    <string name="delete_codes_confirm_title">Einmalcodes nach einem Tag löschen?</string>
+    <string name="delete_codes_confirm_body">Empfangene SMS mit einem Einmalcode, die älter als einen Tag sind, werden jetzt gelöscht, und neue danach ebenso (einmal am Tag geprüft, ein Code kann also bis zu zwei Tage bleiben). Sie werden endgültig gelöscht. TextCtrl erkennt Codes am Wortlaut, daher kann ab und zu eine andere kurze SMS mit einer codeähnlichen Zahl für einen gehalten werden: Markiere eine Nachricht mit einem Stern, um sie zu behalten.</string>
+    <string name="delete_codes_confirm">Codes löschen</string>
+
+    <!-- Send without accents -->
+    <string name="plain_sms">Ohne Akzente senden</string>
+    <string name="plain_sms_subtitle">Ersetzt Akzente und typografische Anführungszeichen in gesendeten SMS durch einfache Zeichen (ë → e), damit 160 Zeichen statt 70 in eine SMS passen. Nicht für MMS</string>
+
+    <!-- Signature and templates -->
+    <string name="snippets_title">Signatur und Vorlagen</string>
+    <string name="snippets_subtitle">Eine Zeile unter deinen SMS und fertige Antworten</string>
+    <string name="snippets_save_failed">Konnte nicht gespeichert werden. Versuche es erneut</string>
+    <string name="snippets_unreadable">Signatur und Vorlagen können nicht geöffnet werden</string>
+    <string name="snippets_unreadable_body">Sie sind verschlüsselt gespeichert, und der Schlüssel auf diesem Smartphone kann sie nicht öffnen (das passiert nach einem Umzug auf ein anderes Smartphone). Sie bleiben, wie sie sind. Du kannst mit einer leeren Liste neu anfangen, was sie löscht.</string>
+    <string name="snippets_start_over">Neu anfangen</string>
+    <string name="snippets_start_over_title">Gespeicherte Signatur und Vorlagen löschen?</string>
+    <string name="snippets_start_over_body">Sie können auf diesem Smartphone nicht geöffnet werden. Neu anfangen löscht sie endgültig.</string>
+    <string name="signature_title">Signatur</string>
+    <string name="signature_footer">Deine Signatur wird in einer neuen Zeile unter jede SMS gesetzt, die du aus einem Chat sendest, auch unter geplante. Sie wird nicht an Antworten aus einer Benachrichtigung oder an Reaktionen angehängt und zählt zur Länge der SMS.</string>
+    <string name="signature_none">Keine Signatur</string>
+    <string name="signature_add">Zum Hinzufügen tippen</string>
+    <string name="signature_change">Zum Ändern tippen</string>
+    <string name="signature_remove">Signatur entfernen</string>
+    <string name="signature_label">Signatur</string>
+    <string name="templates_title">Vorlagen</string>
+    <string name="templates_footer">Fertige Texte. Tippe in einem Chat auf + und dann auf Vorlagen, um eine ins Textfeld einzufügen; du kannst sie vor dem Senden noch ändern.</string>
+    <string name="templates_add">Vorlage hinzufügen</string>
+    <string name="templates_edit">Vorlage bearbeiten</string>
+    <string name="templates_label">Text</string>
+    <string name="templates_manage">Vorlagen hinzufügen oder ändern</string>
+    <string name="templates_none">Du hast noch keine Vorlagen</string>
+    <string name="templates_pick">Tippe auf eine, um sie ins Textfeld einzufügen</string>
+    <plurals name="templates_count">
+        <item quantity="one">%1$d Vorlage</item>
+        <item quantity="other">%1$d Vorlagen</item>
+    </plurals>
+
+    <!-- Settings file -->
+    <string name="value_on">An</string>
+    <string name="value_off">Aus</string>
+    <string name="settings_file_title">Einstellungsdatei</string>
+    <string name="settings_file_footer">Eine Einstellungsdatei enthält, wie TextCtrl aussieht und sich verhält, deine Signatur und deine Vorlagen, als lesbaren Text (nicht verschlüsselt). Sie enthält nie Nachrichten, die App-Sperre oder ihre PIN, die verborgenen Chats, die Einstellungen zum automatischen Löschen, die SIM für neue Chats oder etwas, das pro Chat eingestellt ist.</string>
+    <string name="settings_file_export">Einstellungen exportieren</string>
+    <string name="settings_file_export_subtitle">Deine Einstellungen, Signatur und Vorlagen in einer Datei speichern</string>
+    <string name="settings_file_import">Einstellungen importieren</string>
+    <string name="settings_file_import_subtitle">Einstellungen aus einer Datei zurückholen. Du siehst zuerst, was sich ändert</string>
+    <string name="settings_file_exported">Einstellungen exportiert.</string>
+    <string name="settings_file_export_failed">Datei konnte nicht geschrieben werden.</string>
+    <string name="settings_file_not_ours">Das ist keine Einstellungsdatei von TextCtrl, oder sie kann nicht gelesen werden.</string>
+    <string name="settings_file_same">Die Datei hat dieselben Einstellungen wie jetzt. Nichts zu ändern.</string>
+    <string name="settings_file_will_change">Diese Einstellungen ändern sich:</string>
+    <string name="settings_file_snippets_replace">Deine Signatur und Vorlagen werden durch die aus der Datei ersetzt (%1$s).</string>
+    <string name="settings_file_snippets_skipped">Signatur und Vorlagen aus der Datei werden übersprungen: Die auf diesem Smartphone gespeicherten können gerade nicht geöffnet werden.</string>
+    <string name="settings_file_refused">Unverändert gelassen, weil ein Import TextCtrl nie weniger privat macht:</string>
+    <string name="settings_file_confirm_title">Diese Einstellungen importieren?</string>
+    <string name="settings_file_confirm">Importieren</string>
+    <string name="settings_file_imported">Einstellungen importiert.</string>
+    <string name="settings_file_imported_partly">Einstellungen importiert, aber Signatur und Vorlagen konnten nicht gespeichert werden.</string>
+</resources>
