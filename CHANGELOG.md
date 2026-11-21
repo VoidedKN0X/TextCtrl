@@ -8,8 +8,6 @@ To publish a new version: bump `versionCode` and `versionName` in `app/build.gra
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.
 
-Built and checked by CI only: nothing here had been run on a phone yet.
-
 ### New
 
 - **Starred messages.** Hold a message (or several) in a chat and tap the star in the top bar. A starred message shows a small star under it, and all of them are listed under your profile picture › **Starred messages**, newest first; tap one to jump to it in its chat, or tap its star there to remove it. Starred messages are never deleted by **Delete old messages** or by the new one-time-code clean-up. Stars on messages in hidden chats only show while the hidden chats are open; stars in Spam chats aren't listed.
