@@ -4,6 +4,12 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+### Fixed
+
+- **German: the confirmation before deleting old messages.** Choosing an automatic clean-up such as "Älter als 30 Tage" asked "Nachrichten löschen, die älter als 30 tage sind?", with the noun "Tage" written in lowercase. The question now keeps the choice exactly as written in the list ("Nachrichten löschen: Älter als 30 Tage?"). English, Dutch and French read as before.
+
 ## v0.11.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

@@ -389,7 +389,7 @@
     <string name="auto_delete_90d">Älter als 90 Tage</string>
     <string name="auto_delete_1y">Älter als ein Jahr</string>
     <string name="auto_delete_follow">Wie in den Einstellungen (%1$s)</string>
-    <string name="auto_delete_confirm_title">Nachrichten löschen, die %1$s sind?</string>
+    <string name="auto_delete_confirm_title">Nachrichten löschen: %1$s?</string>
     <string name="auto_delete_confirm_body">So alte Nachrichten werden jetzt von diesem Smartphone gelöscht und danach einmal am Tag, in jedem Chat ohne eigene Einstellung. Das kann nicht rückgängig gemacht werden.</string>
     <string name="auto_delete_confirm">Löschen</string>
 

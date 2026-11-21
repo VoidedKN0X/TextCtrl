@@ -511,13 +511,17 @@ private fun DeleteCodesConfirm(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 @Composable
 private fun AutoDeleteConfirm(choice: AutoDelete, onDismiss: () -> Unit, onConfirm: () -> Unit) {
     ConfirmDialog(
-        stringResource(R.string.auto_delete_confirm_title, stringResource(choice.label).lowercase()),
+        stringResource(R.string.auto_delete_confirm_title, inSentence(stringResource(choice.label))),
         stringResource(R.string.auto_delete_confirm_body),
         stringResource(R.string.auto_delete_confirm),
         onDismiss = onDismiss,
         onConfirm = onConfirm,
     )
 }
+
+/** A setting's label inside a sentence: lowercased, except in German, where nouns keep their capital. */
+private fun inSentence(label: String): String =
+    if (java.util.Locale.getDefault().language == "de") label else label.lowercase()
 
 /** Android's block list: texts (and calls) from these numbers never reach you. */
 @Composable
