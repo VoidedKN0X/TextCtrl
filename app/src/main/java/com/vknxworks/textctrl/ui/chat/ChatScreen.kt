@@ -274,7 +274,18 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     }
     fun addAttachments(list: List<Attachment>) {
         val fresh = list.distinctBy { it.uri }.filter { a -> attachments.none { it.uri == a.uri } }
-        attachments.addAll(fresh.take((MAX_ATTACHMENTS - attachments.size).coerceAtLeast(0)))
+        if (fresh.isEmpty()) return
+        draftScope.launch {
+            // A video or file that can't fit in a picture message is refused right away, before it is
+            // copied or read (pictures are shrunk to fit, so they're always fine).
+            val sim = simId
+            val big = withContext(Dispatchers.IO) { fresh.filter { c.messenger.tooBig(it, sim) } }
+            if (big.isNotEmpty()) {
+                Toast.makeText(context, context.getString(R.string.send_attachment_too_big, big.first().name), Toast.LENGTH_SHORT).show()
+            }
+            val ok = fresh.filter { a -> a !in big && attachments.none { it.uri == a.uri } }
+            attachments.addAll(ok.take((MAX_ATTACHMENTS - attachments.size).coerceAtLeast(0)))
+        }
     }
     LaunchedEffect(threadId) {
         val draft = c.composeDraft.value ?: return@LaunchedEffect
@@ -391,7 +402,13 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
     }
 
     val list = messages
-    val rows = remember(list, pending) { if (list == null) emptyList() else buildRows(list, pending) }
+    // Built off the main thread (matching reactions to messages can take a while in a long group chat).
+    // Null until the first build for this chat is done; after that the last build stays shown until the next.
+    val builtRows by produceState<List<ChatRow>?>(null, list, pending) {
+        val l = list
+        value = if (l == null) emptyList() else withContext(Dispatchers.Default) { buildRows(l, pending) }
+    }
+    val rows = builtRows ?: emptyList()
     val byKey = remember(list) { list.orEmpty().associateBy { it.key } }
     val selectedMessages = selected.mapNotNull { byKey[it] }
     // Matches of the in-chat search, newest first.
@@ -516,7 +533,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
 
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
-                list == null || addresses == null -> LoadingView()
+                list == null || addresses == null || (builtRows == null && list.isNotEmpty()) -> LoadingView()
                 to.isEmpty() && list.isEmpty() -> MessageView(Icons.Outlined.ErrorOutline, stringResource(R.string.chat_gone), stringResource(R.string.chat_gone_body))
                 list.isEmpty() && pending.isEmpty() -> MessageView(
                     Icons.Outlined.AddCircleOutline,
@@ -527,7 +544,7 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                     val state = rememberLazyListState()
                     var scrolledToHighlight by rememberSaveable { mutableStateOf(false) }
                     LaunchedEffect(rows, highlight) {
-                        if (highlight == null || scrolledToHighlight) return@LaunchedEffect
+                        if (highlight == null || scrolledToHighlight || builtRows == null) return@LaunchedEffect
                         val i = rows.indexOfFirst { it.key == highlight }
                         if (i >= 0) state.scrollToItem(i)
                         scrolledToHighlight = true
@@ -537,7 +554,8 @@ fun ChatScreen(threadId: Long, highlight: String?, onBack: (() -> Unit)? = null)
                         if (currentMatch != null && i >= 0) state.animateScrollToItem(i)
                     }
                     // The newest message stays at the bottom, also when a new one arrives.
-                    LaunchedEffect(list.lastOrNull()?.key, pending.size) {
+                    // Keyed on the rows (built in the background), so it runs once the new message is in them.
+                    LaunchedEffect(rows.firstOrNull()?.key, pending.size) {
                         if (state.firstVisibleItemIndex <= 2) state.animateScrollToItem(0)
                     }
                     LazyColumn(

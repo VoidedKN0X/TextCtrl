@@ -4,6 +4,26 @@ What changed in each TextCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing here has been run on a phone yet.
+
+### Fixed
+
+- **Settings are now honoured right after TextCtrl was closed.** A scheduled text, an undo-send text, a reply from a notification, "Reply with a message" when you decline a call, and a picture message that arrives while TextCtrl isn't running could start before TextCtrl had read its settings, and then used the defaults instead of your choices. So a group text could go out as one group picture message (everyone sees everyone's number) although you turned that off, delivery reports and "Send without accents" could be wrong, a dual-SIM phone could use the wrong SIM, and a picture message could be downloaded over mobile data although you turned auto-download off. These now always wait for your saved settings first.
+- **A video or file that's too big for a picture message is refused straight away.** Before, a big video (picked with Files or Photos & videos) was first copied completely into TextCtrl's storage and read into memory before TextCtrl noticed it was over your carrier's limit, which could take seconds or even crash the send. Now the size is checked when you add it: you get the "… is too big for a picture message" message and it isn't added. If the other app doesn't say how big a file is, TextCtrl reads no more than the limit before refusing it. Pictures are still shrunk to fit, as before.
+- **Smoother chats with many reactions.** In group chats with lots of iPhone-style reactions ("Loved “…”"), matching each reaction to its message was done on the main thread every time a message arrived, which could stutter. It is now done in the background and much less work. The chat looks the same.
+- **Restoring a large backup uses much less memory and is faster.** The texts in a backup are now read one at a time instead of as one big block, and added to the phone's message store 200 at a time.
+- **Cancelling the screen-lock check under "Forgot PIN?"** (for the app lock or the hidden chats) no longer shows a "cancelled" error; nothing happens, as you'd expect.
+
+### Changed
+
+- **The daily one-time code clean-up only looks at new texts.** When **Delete one-time codes after a day** is on, the daily check used to read every text you ever received. It now only reads the texts that turned a day old since the last check (with two days to spare). The first check after turning it on, or after this update, still looks at everything.
+
+### Security
+
+- **Attachments you opened in another app don't stay in TextCtrl's cache.** Tapping a picture or file opens a temporary copy in another app. Old copies were only removed the next time you opened an attachment, so one could stay for weeks. Copies older than an hour are now also removed when TextCtrl starts and when the app lock locks, together with left-over contact cards and picture message files.
+
 ## v0.11.1 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.vknxworks.textctrl.data.backup.Backup
 import com.vknxworks.textctrl.data.backup.XmlTransfer
+import com.vknxworks.textctrl.data.files.CacheFiles
 import com.vknxworks.textctrl.data.filters.Filters
 import com.vknxworks.textctrl.data.filters.RuleFiles
 import com.vknxworks.textctrl.data.lock.LockVault
@@ -28,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Something another app, a notification or a shortcut asked the app to open. */
@@ -140,6 +142,8 @@ class AppContainer(val context: Context) {
     /** Locked: wipe the key from memory. */
     fun onLocked() {
         vault.close()
+        // Attachments opened in other apps (and other short-lived copies) don't wait for the next start.
+        appScope.launch(Dispatchers.IO) { CacheFiles.clearLeftovers(context) }
     }
 
     fun onUnlocked() {

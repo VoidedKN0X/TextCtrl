@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.vknxworks.textctrl.container
+import com.vknxworks.textctrl.sms.Messenger
 import com.vknxworks.textctrl.ui.components.copySensitive
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 }
                 if (reply != null) {
                     val to = c.store.threadAddresses(threadId)
-                    if (to.isNotEmpty()) c.messenger.send(to, reply, emptyList(), c.settings.settings.value.defaultSim)
+                    if (to.isNotEmpty()) c.messenger.send(to, reply, emptyList(), Messenger.SIM_FROM_SETTINGS)
                 }
                 c.store.markRead(threadId)
                 c.notifier.cancel(threadId)

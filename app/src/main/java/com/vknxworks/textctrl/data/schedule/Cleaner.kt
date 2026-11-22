@@ -52,15 +52,32 @@ class Cleaner(
             }
         }
         // One-time codes: only when you turned it on. A code is deleted once it is a day old.
+        // Only the texts that turned a day old since the last check are read (with two days to spare), not the
+        // whole history every day; the first run after turning it on checks everything.
         if (stored.deleteCodes) {
-            deleted += store.deleteCodesOlderThan(now - DAY, starred.map { it.key }) { OneTimeCode.find(it) != null }
+            val cutoff = now - DAY
+            val from = codeScanFrom(prefs.getLong(K_CODES_UNTIL, 0L), cutoff)
+            deleted += store.deleteCodesOlderThan(cutoff, starred.map { it.key }, from) { OneTimeCode.find(it) != null }
+            prefs.edit().putLong(K_CODES_UNTIL, cutoff).apply()
+        } else {
+            prefs.edit().remove(K_CODES_UNTIL).apply()
         }
         if (deleted > 0) store.touch()
     }
 
-    private companion object {
+    internal companion object {
         const val K_LAST = "auto_delete_last"
+        /** The cut-off of the last one-time code check: texts older than this were all checked. */
+        const val K_CODES_UNTIL = "codes_checked_until"
         const val HOUR = 3_600_000L
         const val DAY = 24 * HOUR
+
+        /**
+         * Where the one-time code check starts: two days before the last check's cut-off ([lastUntil]), so a
+         * text that arrived late or a clock change isn't missed; 0 (everything) when there was no earlier check
+         * or its cut-off is in the future (the clock went back).
+         */
+        fun codeScanFrom(lastUntil: Long, cutoff: Long): Long =
+            if (lastUntil <= 0L || lastUntil > cutoff) 0L else (lastUntil - 2 * DAY).coerceAtLeast(0L)
     }
 }

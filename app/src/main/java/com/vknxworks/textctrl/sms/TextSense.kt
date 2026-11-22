@@ -91,14 +91,21 @@ object Reactions {
     }
 
     /** Whether [quoted] (as written in a reaction, maybe cut short) is about the message text [body]. */
-    fun matches(quoted: String, body: String): Boolean {
-        val q = normalize(quoted).removeSuffix("…").removeSuffix("...").trimEnd()
-        val b = normalize(body)
+    fun matches(quoted: String, body: String): Boolean = matchesNormalized(normalizeQuote(quoted), normalize(body))
+
+    /** [matches] for a quote from [normalizeQuote] and a body from [normalize], for checking many bodies. */
+    fun matchesNormalized(q: String, b: String): Boolean {
         if (q.isEmpty() || b.isEmpty()) return false
         return b == q || (q.length >= 8 && b.startsWith(q))
     }
 
-    private fun normalize(s: String) = s.replace(Regex("\\s+"), " ").trim()
+    /** A quote as written in a reaction, normalised once and without the "…" of a cut-short quote. */
+    fun normalizeQuote(quoted: String): String = normalize(quoted).removeSuffix("…").removeSuffix("...").trimEnd()
+
+    /** Runs of whitespace (spaces, new lines) as one space, trimmed. */
+    fun normalize(s: String): String = s.replace(WHITESPACE, " ").trim()
+
+    private val WHITESPACE = Regex("\\s+")
 
     /** The text to send for reacting with [emoji] to a message with [body] (blank for a picture). */
     fun compose(emoji: String, body: String, remove: Boolean = false): String {

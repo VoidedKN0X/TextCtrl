@@ -6,11 +6,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.vknxworks.textctrl.R
 import com.vknxworks.textctrl.container
 import com.vknxworks.textctrl.data.crypto.KeystoreCrypto
 import com.vknxworks.textctrl.notify.Notifier
 import com.vknxworks.textctrl.sms.Attachment
 import com.vknxworks.textctrl.sms.Messenger
+import com.vknxworks.textctrl.sms.SendException
+import com.vknxworks.textctrl.str
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +27,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.security.SecureRandom
 
 /** A file waiting in TextCtrl's own storage to go out with a scheduled message. */
@@ -78,12 +83,26 @@ class Scheduler(
     ): Scheduled = withContext(Dispatchers.IO) {
         val id = (random.nextLong() and Long.MAX_VALUE).coerceAtLeast(1)
         val dir = File(filesDir, id.toString()).apply { mkdirs() }
-        val files = attachments.mapIndexed { i, a ->
-            val safe = a.name.substringAfterLast('/').replace(Regex("[^A-Za-z0-9._-]"), "_").take(60).ifBlank { "file" }
-            val target = File(dir, "${i}_$safe")
-            context.contentResolver.openInputStream(a.uri)?.use { input -> target.outputStream().use { input.copyTo(it) } }
-                ?: throw java.io.IOException(a.name)
-            StoredFile(target.path, a.mime, a.name)
+        // A file that can't fit in a picture message is refused before anything is copied.
+        attachments.firstOrNull { messenger.tooBig(it, subId) }?.let {
+            dir.deleteRecursively()
+            throw SendException(str(R.string.send_attachment_too_big, it.name))
+        }
+        val files = try {
+            attachments.mapIndexed { i, a ->
+                val safe = a.name.substringAfterLast('/').replace(UNSAFE_NAME, "_").take(60).ifBlank { "file" }
+                val target = File(dir, "${i}_$safe")
+                // Files that aren't shrunk are copied up to the carrier's limit only (their size may be unknown).
+                val limit = messenger.attachmentLimit(a, subId)
+                val copied = context.contentResolver.openInputStream(a.uri)?.use { input ->
+                    target.outputStream().use { out -> copyAtMost(input, out, limit?.toLong()?.plus(1) ?: Long.MAX_VALUE) }
+                } ?: throw java.io.IOException(a.name)
+                if (limit != null && copied > limit) throw SendException(str(R.string.send_attachment_too_big, a.name))
+                StoredFile(target.path, a.mime, a.name)
+            }
+        } catch (e: Throwable) {
+            dir.deleteRecursively()
+            throw e
         }
         val item = Scheduled(id, threadId, addresses, text, files, at, subId, undo)
         synchronized(lock) {
@@ -216,6 +235,20 @@ class Scheduler(
         const val ACTION_FIRE = "com.vknxworks.textctrl.SCHEDULED_FIRE"
         const val ACTION_CLEANUP = "com.vknxworks.textctrl.AUTO_DELETE"
         const val EXTRA_ID = "id"
+        private val UNSAFE_NAME = Regex("[^A-Za-z0-9._-]")
+
+        /** Copies up to [max] bytes from [input] to [out]; returns how many were copied. */
+        internal fun copyAtMost(input: InputStream, out: OutputStream, max: Long): Long {
+            val buffer = ByteArray(64 * 1024)
+            var total = 0L
+            while (total < max) {
+                val n = input.read(buffer, 0, minOf(buffer.size.toLong(), max - total).toInt())
+                if (n < 0) break
+                out.write(buffer, 0, n)
+                total += n
+            }
+            return total
+        }
     }
 }
 

@@ -144,7 +144,7 @@ class RespondViaMessageService : Service() {
         val c = container
         c.appScope.launch {
             try {
-                c.messenger.send(to, text, emptyList(), c.settings.settings.value.defaultSim)
+                c.messenger.send(to, text, emptyList(), Messenger.SIM_FROM_SETTINGS)
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Throwable) {

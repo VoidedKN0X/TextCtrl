@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.vknxworks.textctrl.data.files.CacheFiles
 import com.vknxworks.textctrl.ui.lock.AppLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,6 +30,8 @@ class TextCtrlApp : Application() {
         // The key that encrypts drafts at rest is asked from the secure hardware here, off the main thread,
         // so a chat that opens finds it in memory. Receiving and sending never wait for it.
         container.appScope.launch(Dispatchers.IO) { container.chats.prepareDrafts() }
+        // Copies of attachments opened in other apps, left from an earlier run.
+        container.appScope.launch(Dispatchers.IO) { CacheFiles.clearLeftovers(this@TextCtrlApp) }
         AppLock.onLocked = { container.onLocked() }
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {

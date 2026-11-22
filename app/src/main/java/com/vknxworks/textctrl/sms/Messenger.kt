@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -72,8 +73,11 @@ class Messenger(
         val to = addresses.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
         if (to.isEmpty()) throw SendException(str(R.string.send_no_recipient))
         if (text.isBlank() && attachments.isEmpty()) throw SendException(str(R.string.send_empty))
-        val s = settings.settings.value
-        val sub = sims.resolve(subId)
+        // The stored settings, not the StateFlow: a send started by an alarm, a notification reply or the
+        // phone app can run in a process that has only just started, before the StateFlow has loaded them.
+        val s = settings.stored.first()
+        // A negative subId means "the SIM chosen in Settings" (resolved here, from the loaded settings).
+        val sub = sims.resolve(if (subId >= 0) subId else s.defaultSim)
         val group = to.size > 1
         if (attachments.isEmpty() && (!group || !s.groupAsMms)) {
             // "Send without accents" is for texts only (a picture message has room). Reactions keep their
@@ -164,11 +168,32 @@ class Messenger(
         store.touch()
     }
 
+    /** The carrier's size limit for one picture message on [subId] (a negative one: the phone's default SIM). */
+    fun maxMessageSize(subId: Int): Int = maxMessageSize(sims.smsManager(sims.resolve(subId)))
+
+    private fun maxMessageSize(manager: SmsManager): Int = runCatching {
+        manager.carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, DEFAULT_MMS_SIZE)
+    }.getOrDefault(DEFAULT_MMS_SIZE).takeIf { it > 0 } ?: DEFAULT_MMS_SIZE
+
+    /**
+     * The most bytes [a] may have, or null when it has no fixed limit: pictures (other than GIFs) are shrunk to
+     * fit, everything else is sent as it is and must fit the carrier's limit for [subId] on its own.
+     */
+    fun attachmentLimit(a: Attachment, subId: Int): Int? {
+        val mime = (runCatching { context.contentResolver.getType(a.uri) }.getOrNull() ?: a.mime).lowercase()
+        return if (shrinksToFit(mime)) null else maxMessageSize(subId)
+    }
+
+    /** True when [a] is too big to send even on its own (read from its size, without reading the file). */
+    fun tooBig(a: Attachment, subId: Int): Boolean {
+        val limit = attachmentLimit(a, subId) ?: return false
+        val size = sizeOf(context, a.uri) ?: return false // unknown: checked again while it's read
+        return size > limit
+    }
+
     private fun sendMms(threadId: Long, to: List<String>, text: String, attachments: List<Attachment>, subId: Int, deliveryReport: Boolean) {
         val manager = sims.smsManager(subId)
-        val maxSize = runCatching {
-            manager.carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, DEFAULT_MMS_SIZE)
-        }.getOrDefault(DEFAULT_MMS_SIZE).takeIf { it > 0 } ?: DEFAULT_MMS_SIZE
+        val maxSize = maxMessageSize(manager)
         val parts = ArrayList<PduPart>()
         if (text.isNotBlank()) {
             parts += PduPart("text/plain", text.toByteArray(Charsets.UTF_8), name = "text_0.txt", contentId = "text_0", contentLocation = "text_0.txt")
@@ -218,12 +243,13 @@ class Messenger(
         val cr = context.contentResolver
         val mime = (cr.getType(a.uri) ?: a.mime).lowercase()
         val baseName = a.name.substringBeforeLast('.').ifBlank { "file_$index" }.replace(Regex("[^A-Za-z0-9._-]"), "_").take(40)
-        if (mime.startsWith("image/") && mime != "image/gif") {
+        if (shrinksToFit(mime)) {
             val data = compressImage(a.uri, maxBytes)
             val name = "$baseName.jpg"
             return PduPart("image/jpeg", data, name = name, contentId = "image_$index", contentLocation = name)
         }
-        val data = cr.openInputStream(a.uri)?.use { it.readBytes() } ?: throw SendException(str(R.string.send_attachment_unreadable))
+        // Read at most one byte more than fits, so a huge file is refused without loading all of it.
+        val data = cr.openInputStream(a.uri)?.use { it.readNBytes(maxBytes + 1) } ?: throw SendException(str(R.string.send_attachment_unreadable))
         if (data.size > maxBytes) throw SendException(str(R.string.send_attachment_too_big, a.name))
         val ext = a.name.substringAfterLast('.', "").take(8)
         val name = if (ext.isNotEmpty()) "$baseName.$ext" else baseName
@@ -274,7 +300,7 @@ class Messenger(
 
     /** Sends a message that couldn't be sent again, as a new message, and removes the failed one. */
     suspend fun retry(message: Message) = withContext(Dispatchers.IO) {
-        val s = settings.settings.value
+        val s = settings.stored.first()
         val sub = sims.resolve(message.subId)
         if (message.isMms) {
             val to = store.threadAddresses(message.threadId)
@@ -329,7 +355,7 @@ class Messenger(
             chats.unarchive(thread)
         }
         store.touch()
-        if (settings.settings.value.autoDownloadMms) download(ContentUris.parseId(uri), automatic = true)
+        if (settings.stored.first().autoDownloadMms) download(ContentUris.parseId(uri), automatic = true)
         else if (early == null) notifier.onIncoming(thread)
     }
 
@@ -438,6 +464,8 @@ class Messenger(
     }
 
     companion object {
+        /** For [send]: use the SIM chosen in Settings ("Default SIM"), read once the settings have loaded. */
+        const val SIM_FROM_SETTINGS = -1
         const val ACTION_SMS_SENT = "com.vknxworks.textctrl.SMS_SENT"
         const val ACTION_SMS_DELIVERED = "com.vknxworks.textctrl.SMS_DELIVERED"
         const val ACTION_MMS_SENT = "com.vknxworks.textctrl.MMS_SENT"
@@ -450,6 +478,23 @@ class Messenger(
         const val EXTRA_SUB = "sub"
         private const val DEFAULT_MMS_SIZE = 300 * 1024
         private val MMS_SERVICE_PACKAGES = listOf("com.android.phone", "com.android.mms.service")
+
+        /** Pictures TextCtrl re-encodes to fit (GIFs are sent as they are, to keep them moving). */
+        fun shrinksToFit(mime: String): Boolean = mime.startsWith("image/") && mime != "image/gif"
+
+        /** The size of the file at [uri] in bytes, or null when the app that has it doesn't say. */
+        fun sizeOf(context: Context, uri: Uri): Long? {
+            if (uri.scheme == "file") return uri.path?.let { File(it).length() }?.takeIf { it > 0 }
+            val fromQuery = runCatching {
+                context.contentResolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)?.use { c ->
+                    if (c.moveToFirst() && !c.isNull(0)) c.getLong(0) else null
+                }
+            }.getOrNull()
+            if (fromQuery != null && fromQuery > 0) return fromQuery
+            return runCatching {
+                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length }
+            }.getOrNull()?.takeIf { it > 0 }
+        }
 
         fun displayName(context: Context, uri: Uri): String =
             runCatching {

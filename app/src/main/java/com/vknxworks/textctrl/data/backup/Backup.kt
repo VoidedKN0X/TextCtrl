@@ -19,8 +19,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeToSequence
+import java.io.FilterInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -222,13 +226,22 @@ class Backup(
                         val name = entry.name
                         when {
                             name == "sms.json" -> {
-                                val list = json.decodeFromString(ListSerializer(SmsRecord.serializer()), zip.readBytes().decodeToString())
-                                for (r in list) {
-                                    if (smsKey(r.date, r.type, r.address, r.body) in existingSms) { skipped++; continue }
-                                    insertSms(r)
-                                    added++
-                                    if (added % 200 == 0) _state.value = BackupState.Running(true, added + skipped)
+                                // Read one text at a time from the backup (not the whole file as one string), and
+                                // add them to the phone's message store 200 at a time.
+                                val batch = ArrayList<ContentValues>(SMS_BATCH)
+                                fun insertBatch() {
+                                    if (batch.isEmpty()) return
+                                    added += context.contentResolver.bulkInsert(MessageStore.SMS_URI, batch.toTypedArray())
+                                    batch.clear()
+                                    _state.value = BackupState.Running(true, added + skipped)
                                 }
+                                val records = json.decodeToSequence(KeepOpenInputStream(zip), SmsRecord.serializer(), DecodeSequenceMode.ARRAY_WRAPPED)
+                                for (r in records) {
+                                    if (smsKey(r.date, r.type, r.address, r.body) in existingSms) { skipped++; continue }
+                                    batch += smsValues(r)
+                                    if (batch.size >= SMS_BATCH) insertBatch()
+                                }
+                                insertBatch()
                             }
                             name.startsWith("mms/") && name.endsWith(".json") && name.count { it == '/' } == 1 -> {
                                 flush()
@@ -283,8 +296,8 @@ class Backup(
         return keys
     }
 
-    private fun insertSms(r: SmsRecord) {
-        val values = ContentValues().apply {
+    private fun smsValues(r: SmsRecord): ContentValues =
+        ContentValues().apply {
             put(Telephony.Sms.ADDRESS, r.address)
             put(Telephony.Sms.BODY, r.body)
             put(Telephony.Sms.DATE, r.date)
@@ -295,8 +308,6 @@ class Backup(
             put(Telephony.Sms.SEEN, 1)
             put(Telephony.Sms.STATUS, r.status)
         }
-        context.contentResolver.insert(MessageStore.SMS_URI, values)
-    }
 
     private fun insertMms(r: MmsRecord, files: Map<String, ByteArray>, own: List<String>): Boolean = runCatching {
         val from = r.addresses.firstOrNull { it.type == MessageStore.ADDR_FROM }?.address
@@ -339,5 +350,12 @@ class Backup(
             messageId = r.messageId,
         ) != null
     }.getOrDefault(false)
+}
 
+/** Texts added to the phone's message store in one go while restoring. */
+private const val SMS_BATCH = 200
+
+/** Lets a reader read one zip entry without closing the whole zip when it's done. */
+private class KeepOpenInputStream(input: InputStream) : FilterInputStream(input) {
+    override fun close() = Unit
 }

@@ -133,9 +133,12 @@ fun buildRows(messages: List<Message>, pending: List<Scheduled>): List<ChatRow> 
     // Who reacted with what to which message (sender "me" for your own).
     val byTarget = HashMap<String, LinkedHashMap<String, String>>()
     val absorbed = HashSet<String>()
+    // Each message body normalised once (a reaction is compared with up to 300 earlier messages).
+    val normalized = HashMap<String, String>()
     messages.forEachIndexed { i, m ->
         if (m.isMms && m.attachments.isNotEmpty()) return@forEachIndexed
         val r: Reaction = Reactions.parse(m.body) ?: return@forEachIndexed
+        val q = r.target?.let { Reactions.normalizeQuote(it) }
         // The newest earlier message it's about, looking back a fair way.
         var j = i - 1
         var target: Message? = null
@@ -143,8 +146,11 @@ fun buildRows(messages: List<Message>, pending: List<Scheduled>): List<ChatRow> 
             val candidate = messages[j]
             val isReaction = candidate.key in absorbed
             if (!isReaction) {
-                val q = r.target
-                val hit = if (q == null) candidate.attachments.any { it.isImage || it.isVideo } else Reactions.matches(q, candidate.body)
+                val hit = if (q == null) {
+                    candidate.attachments.any { it.isImage || it.isVideo }
+                } else {
+                    Reactions.matchesNormalized(q, normalized.getOrPut(candidate.key) { Reactions.normalize(candidate.body) })
+                }
                 if (hit) { target = candidate; break }
             }
             j--

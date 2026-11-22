@@ -287,7 +287,11 @@ object AppLock {
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    if (finish()) onResult(errString.toString())
+                    if (!finish()) return
+                    // Cancelling isn't an error worth a message: nothing happens, as with ClockCtrl.
+                    val cancelled = errorCode == BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED ||
+                        errorCode == BiometricPrompt.BIOMETRIC_ERROR_CANCELED
+                    if (!cancelled) onResult(errString.toString())
                 }
             })
         } catch (e: Exception) {

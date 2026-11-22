@@ -499,11 +499,13 @@ class MessageStore(private val context: Context) {
      * ones marked as kept and the starred ones ([keepKeys]). Only texts: picture messages are never codes.
      * Returns how many were deleted.
      */
-    fun deleteCodesOlderThan(cutoff: Long, keepKeys: Collection<String>, isCode: (String) -> Boolean): Int {
+    fun deleteCodesOlderThan(cutoff: Long, keepKeys: Collection<String>, from: Long = 0L, isCode: (String) -> Boolean): Int {
         val keep = keepKeys.filter { it.startsWith("s") }.mapNotNull { it.drop(1).toLongOrNull() }.toSet()
         val ids = ArrayList<Long>()
+        // [from]: texts older than that were already checked by an earlier run.
+        val lower = if (from > 0L) " AND date >= $from" else ""
         runCatching {
-            cr.query(SMS_URI, arrayOf("_id", "body"), "type = 1 AND date < $cutoff AND locked = 0", null, null)?.use { c ->
+            cr.query(SMS_URI, arrayOf("_id", "body"), "type = 1 AND date < $cutoff$lower AND locked = 0", null, null)?.use { c ->
                 val idAt = c.idx("_id")
                 val bodyAt = c.idx("body")
                 while (c.moveToNext()) {
